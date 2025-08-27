@@ -7,6 +7,7 @@ import SearchBar from "@/components/forms/SearchBar.vue"
 import { type BreadcrumbItem } from "@/types" 
 import NeptuneScalarFileAnalyzer from "@/components/device/NeptuneScalarFileAnalyzer.vue"
 import TeserractIMG from "@/components/device/TeserractIMG.vue"
+import NeptuneScalarEXPFileAnalyzer from "@/components/device/NeptuneScalarEXPFileAnalyzer.vue"
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -27,7 +28,7 @@ const activeTab = ref<"xml" | "exp">("xml")
 const activeComponent = computed(() =>
   activeTab.value === "xml"
     ? NeptuneScalarFileAnalyzer
-    : TeserractIMG //NeptuneScalarEXPFileAnalyzer
+    : NeptuneScalarEXPFileAnalyzer
 )
 
 function selectTab(tab: "xml" | "exp") {
