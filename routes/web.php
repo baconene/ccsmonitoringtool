@@ -53,7 +53,7 @@ Route::get('/field-activity/getActivities', [FieldActivityReportsController::cla
     ->name('field-activities');
 Route::get('/field-activity/getActivity/{activityId}', [FieldActivityReportsController::class, 'getActivity'])
     ->middleware(['auth', 'verified'])
-    ->name('field-activity');
+    ->name('field-activity-detail');
 
 Route::get('/neptune/get-scalar-imd/{external_id}', [NeptuneController::class, 'getNeptuneScalarImd'])
     ->middleware(['auth', 'verified'])
