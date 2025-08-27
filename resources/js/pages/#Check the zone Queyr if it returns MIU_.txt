@@ -1,0 +1,2 @@
+#Check the zone Queyr if it returns MIU_ID
+#Check the  MC if the same as the AMI 
