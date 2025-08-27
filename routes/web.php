@@ -9,14 +9,21 @@ use Inertia\Inertia;
 use App\Http\Controllers\ExternalApiController;
 use App\Http\Controllers\FieldActivityReportsController;
 
+/*
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
+*/
 //Route::get('/external-data', [ExternalApiController::class, 'fetchData']);
 /*Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 */
+
+Route::get('/', [ExternalApiController::class, 'fetchData'])
+    ->middleware(['auth', 'verified'])
+    ->name('home'); 
+
 Route::get('/dashboard', [ExternalApiController::class, 'fetchData'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard'); 
