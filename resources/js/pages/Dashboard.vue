@@ -37,9 +37,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <NumberCard title="Total Adjustments" :value="externalData.billId ?? 'N/A'"
                         format="currency" color="bg-purple-600" icon="🛠️" />
                 </div>
+                
                 <div
                     class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                    <PlaceholderPattern />
+                    <NumberCard title="Total Adjustments" :value="externalData.billId ?? 'N/A'"
+                        format="currency" color="bg-purple-600" icon="🛠️" />
+                </div>
+                <div
+                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                    <ttern />
                 </div>
             </div>
             <div
