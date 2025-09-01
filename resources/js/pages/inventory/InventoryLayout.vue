@@ -119,6 +119,39 @@ const deleteProduct = (id) => {
     router.delete(route("inventory.destroy", id));
   }
 };
+
+
+const sortKey = ref("id");
+const sortOrder = ref("asc");
+
+const setSort = (key) => {
+  if (sortKey.value === key) {
+    // toggle order if clicking same column
+    sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+  } else {
+    sortKey.value = key;
+    sortOrder.value = "asc";
+  }
+};
+
+const sorted = computed(() => {
+  return [...props.products]
+    .filter((p) =>
+      p.product_name.toLowerCase().includes(search.value.toLowerCase())
+    )
+    .sort((a, b) => {
+      let valA = a[sortKey.value];
+      let valB = b[sortKey.value];
+
+      if (typeof valA === "string") valA = valA.toLowerCase();
+      if (typeof valB === "string") valB = valB.toLowerCase();
+
+      if (valA < valB) return sortOrder.value === "asc" ? -1 : 1;
+      if (valA > valB) return sortOrder.value === "asc" ? 1 : -1;
+      return 0;
+    });
+});
+
 </script>
 
 <template>
@@ -175,31 +208,54 @@ const deleteProduct = (id) => {
 
       <!-- Products Table -->
       <div class="overflow-x-auto">
-        <table class="min-w-full border text-sm md:text-base">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="px-2 py-2 border">ID</th>
-              <th class="px-2 py-2 border">Product</th>
-              <th class="px-2 py-2 border">SKU</th>
-              <th class="px-2 py-2 border">Stock</th>
-              <th class="px-2 py-2 border">Price</th>
-              <th class="px-2 py-2 border">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="p in filtered" :key="p.id">
-              <td class="border px-2 py-1">{{ p.id }}</td>
-              <td class="border px-2 py-1">{{ p.product_name }}</td>
-              <td class="border px-2 py-1">{{ p.sku }}</td>
-              <td class="border px-2 py-1">{{ p.stock }}</td>
-              <td class="border px-2 py-1">₱{{ p.price }}</td>
-              <td class="border px-2 py-1 space-x-1">
-                <button @click="openEdit(p)" class="px-2 py-1 bg-yellow-500 text-white rounded text-xs">Edit</button>
-                <button @click="deleteProduct(p.id)" class="px-2 py-1 bg-red-600 text-white rounded text-xs">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <table class="min-w-full border text-xs sm:text-sm md:text-base">
+    <thead class="bg-gray-100">
+   <tr>
+    <th @click="setSort('id')" class="px-2 py-2 border cursor-pointer">
+      ID <span v-if="sortKey === 'id'">{{ sortOrder === 'asc' ? '⬆' : '⬇' }}</span>
+    </th>
+    <th @click="setSort('product_name')" class="px-2 py-2 border cursor-pointer">
+      Product <span v-if="sortKey === 'product_name'">{{ sortOrder === 'asc' ? '⬆' : '⬇' }}</span>
+    </th>
+    <th @click="setSort('sku')" class="px-2 py-2 border cursor-pointer">
+      SKU <span v-if="sortKey === 'sku'">{{ sortOrder === 'asc' ? '⬆' : '⬇' }}</span>
+    </th>
+    <th @click="setSort('stock')" class="px-2 py-2 border cursor-pointer">
+      Stock <span v-if="sortKey === 'stock'">{{ sortOrder === 'asc' ? '⬆' : '⬇' }}</span>
+    </th>
+    <th @click="setSort('price')" class="px-2 py-2 border cursor-pointer">
+      Price <span v-if="sortKey === 'price'">{{ sortOrder === 'asc' ? '⬆' : '⬇' }}</span>
+    </th>
+    <th class="px-2 py-2 border">Actions</th>
+  </tr>
+    </thead>
+  <tbody>
+  <tr v-for="p in sorted" :key="p.id">
+    <td class="border px-2 py-1">{{ p.id }}</td>
+    <td class="border px-2 py-1">{{ p.product_name }}</td>
+    <td class="border px-2 py-1">{{ p.sku }}</td>
+    <td class="border px-2 py-1">{{ p.stock }}</td>
+    <td class="border px-2 py-1">₱{{ p.price }}</td> 
+        <td class="border px-2 py-1 flex flex-wrap gap-2">
+          <!-- Edit Button -->
+          <button
+            @click="openEdit(p)"
+            class="px-2 py-1 bg-gray-700 text-white rounded text-xs sm:text-sm hover:bg-gray-800 w-full sm:w-auto"
+          >
+            Edit
+          </button>
+
+          <!-- Delete Button -->
+          <button
+            @click="deleteProduct(p.id)"
+            class="px-2 py-1 bg-black text-white rounded text-xs sm:text-sm hover:bg-gray-900 w-full sm:w-auto"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
       </div>
     </div>
 
