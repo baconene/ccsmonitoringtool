@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CustomToolsController;
 use App\Http\Controllers\DeviceMeasurementsController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InvoiceCloudController;
 use App\Http\Controllers\NeptuneController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ExternalApiController;
@@ -83,5 +86,25 @@ Route::get('/invoice-cloud/retrieve-customer', [InvoiceCloudController::class, '
 Route::get('/invoice-cloud/update-customer', [InvoiceCloudController::class, 'updateCustomerRecord'])
     ->middleware(['auth', 'verified'])
     ->name('invoice-cloud.update-customer');
+
+ 
+Route::middleware('auth')->group(function () {
+    // Cart routes
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart/add', [CartController::class, 'add']);
+    Route::delete('/cart/remove/{id}', [CartController::class, 'remove']);
+    Route::delete('/cart/clear', [CartController::class, 'clear']);
+
+  Route::post('/checkout', [OrderController::class, 'checkout'])->name('checkout');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::apiResource('inventory', InventoryController::class);
+    Route::post('/inventory/scan', [InventoryController::class, 'scan'])
+    ->name('inventory.scan');
+
+});
+
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
