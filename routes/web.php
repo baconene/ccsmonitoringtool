@@ -103,6 +103,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/inventory/scan', [InventoryController::class, 'scan'])
     ->name('inventory.scan');
 
+Route::get('/orders', [OrderController::class, 'dashboard'])->name('orders.dashboard');
+
+
 });
 
 

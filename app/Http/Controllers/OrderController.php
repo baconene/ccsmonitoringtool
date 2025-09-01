@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Inventory;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class OrderController extends Controller
 {
@@ -25,7 +27,14 @@ class OrderController extends Controller
 
         return response()->json($cart);
     }
+  public function dashboard()
+    {
+        $products = Inventory::all();
 
+        return Inertia::render('orders/OrderingDashboard', [
+            'products' => $products,
+        ]);
+    }
     /**
      * Add item to cart.
      * 
