@@ -19,8 +19,8 @@ store.definition = {
  * @see vendor/laravel/fortify/src/Http/Controllers/TwoFactorAuthenticatedSessionController.php:57
  * @route '/two-factor-challenge'
  */
-store.url = (options?: RouteQueryOptions) => { 
-    return store.definition.url + queryParams(options) 
+store.url = (options?: RouteQueryOptions) => {
+    return store.definition.url + queryParams(options)
 }
 
 /**

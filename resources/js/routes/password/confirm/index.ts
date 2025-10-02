@@ -21,7 +21,7 @@ store.definition = {
  */
 store.url = (options?: RouteQueryOptions) => {
     return store.definition.url + queryParams(options)
-} 
+}
 
 /**
 * @see \Laravel\Fortify\Http\Controllers\ConfirmablePasswordController::store
