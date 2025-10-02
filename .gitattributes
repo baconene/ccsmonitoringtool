@@ -9,3 +9,7 @@
 CHANGELOG.md export-ignore
 README.md export-ignore
 .github/workflows/browser-tests.yml export-ignore
+# enforce LF for TypeScript, JS, Vue
+*.ts text eol=lf
+*.js text eol=lf
+*.vue text eol=lf
