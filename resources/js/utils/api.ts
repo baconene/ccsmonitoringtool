@@ -47,11 +47,21 @@ const API_BASE_URL = '/api';
 // Configure axios defaults
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.withCredentials = true;
 
 // Add CSRF token if available
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 if (csrfToken) {
   axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+}
+
+// Function to get CSRF cookie
+async function getCsrfCookie() {
+  try {
+    await axios.get('/sanctum/csrf-cookie');
+  } catch (error) {
+    console.error('Failed to get CSRF cookie:', error);
+  }
 }
 
 /**
@@ -63,6 +73,7 @@ export const coursesApi = {
    */
   async getCourses(): Promise<Course[]> {
     try {
+      await getCsrfCookie();
       const response = await axios.get(`${API_BASE_URL}/courses`);
       return response.data;
     } catch (error) {
@@ -76,6 +87,7 @@ export const coursesApi = {
    */
   async getCourse(courseId: number): Promise<Course> {
     try {
+      await getCsrfCookie();
       const response = await axios.get(`${API_BASE_URL}/courses/${courseId}`);
       return response.data;
     } catch (error) {
@@ -89,6 +101,7 @@ export const coursesApi = {
    */
   async createCourse(courseData: Partial<Course>): Promise<Course> {
     try {
+      await getCsrfCookie();
       const response = await axios.post(`${API_BASE_URL}/courses`, courseData);
       return response.data;
     } catch (error) {
@@ -102,6 +115,7 @@ export const coursesApi = {
    */
   async updateCourse(courseId: number, courseData: Partial<Course>): Promise<Course> {
     try {
+      await getCsrfCookie();
       const response = await axios.put(`${API_BASE_URL}/courses/${courseId}`, courseData);
       return response.data;
     } catch (error) {
@@ -115,6 +129,7 @@ export const coursesApi = {
    */
   async deleteCourse(courseId: number): Promise<void> {
     try {
+      await getCsrfCookie();
       await axios.delete(`${API_BASE_URL}/courses/${courseId}`);
     } catch (error) {
       console.error(`Error deleting course ${courseId}:`, error);
@@ -127,6 +142,7 @@ export const coursesApi = {
    */
   async getCourseStudents(courseId: number): Promise<Student[]> {
     try {
+      await getCsrfCookie();
       const response = await axios.get(`${API_BASE_URL}/courses/${courseId}/students`);
       return response.data;
     } catch (error) {
@@ -145,6 +161,7 @@ export const studentsApi = {
    */
   async getStudents(): Promise<Student[]> {
     try {
+      await getCsrfCookie();
       const response = await axios.get(`${API_BASE_URL}/students`);
       return response.data;
     } catch (error) {
@@ -158,6 +175,7 @@ export const studentsApi = {
    */
   async getStudent(studentId: number): Promise<Student> {
     try {
+      await getCsrfCookie();
       const response = await axios.get(`${API_BASE_URL}/students/${studentId}`);
       return response.data;
     } catch (error) {
@@ -176,6 +194,7 @@ export const scheduleApi = {
    */
   async getSchedule(): Promise<Schedule[]> {
     try {
+      await getCsrfCookie();
       const response = await axios.get(`${API_BASE_URL}/schedule`);
       return response.data;
     } catch (error) {
@@ -189,6 +208,7 @@ export const scheduleApi = {
    */
   async getUpcomingSchedule(limit: number = 5): Promise<Schedule[]> {
     try {
+      await getCsrfCookie();
       const response = await axios.get(`${API_BASE_URL}/schedule/upcoming?limit=${limit}`);
       return response.data;
     } catch (error) {
@@ -207,6 +227,7 @@ export const dashboardApi = {
    */
   async getDashboardStats(): Promise<DashboardStats> {
     try {
+      await getCsrfCookie();
       const response = await axios.get(`${API_BASE_URL}/dashboard/stats`);
       return response.data;
     } catch (error) {
@@ -220,6 +241,7 @@ export const dashboardApi = {
    */
   async getInstructorProfile(): Promise<Instructor> {
     try {
+      await getCsrfCookie();
       const response = await axios.get(`${API_BASE_URL}/instructor/profile`);
       return response.data;
     } catch (error) {
