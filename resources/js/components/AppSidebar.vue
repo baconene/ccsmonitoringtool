@@ -14,7 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, GraduationCap, ClipboardList } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -23,10 +23,25 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
-        {
+    {
         title: 'Course Management',
         href: "/course-management",
-        icon: LayoutGrid,
+        icon: GraduationCap, // Use a graduation cap for course management
+    },
+    {
+        title: 'Assignment',
+        href: "/assignment",
+        icon: ClipboardList, // Use a clipboard list for assignments
+    }, 
+    {
+        title: 'Assessment Tool',
+        href: "/assessment-tool",
+        icon: BookOpen,
+    },
+    {
+        title: 'Report',
+        href: "/report",
+        icon: Folder,
     },
     
 ];
@@ -39,6 +54,7 @@ const footerNavItems: NavItem[] = [
 <template>
     <Sidebar collapsible="icon" variant="inset">
         <SidebarHeader>
+            <!-- Logo at the very top -->
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
@@ -48,6 +64,11 @@ const footerNavItems: NavItem[] = [
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
+            
+            <!-- User details below logo -->
+            <div class="px-3 py-6 border-b border-sidebar-border bg-sidebar-accent/5">
+                <NavUser />
+            </div>
         </SidebarHeader>
 
         <SidebarContent>
@@ -56,7 +77,6 @@ const footerNavItems: NavItem[] = [
 
         <SidebarFooter>
             <NavFooter :items="footerNavItems" />
-            <NavUser />
         </SidebarFooter>
     </Sidebar>
     <slot />

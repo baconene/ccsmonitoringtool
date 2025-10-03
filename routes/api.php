@@ -62,3 +62,12 @@ Route::get('/health', function () {
         'service' => 'Learning Management System API'
     ]);
 });
+
+// Test authentication route
+Route::middleware(['auth:sanctum'])->get('/test-auth', function (Request $request) {
+    return response()->json([
+        'authenticated' => true,
+        'user' => $request->user(),
+        'message' => 'Authentication successful'
+    ]);
+});
