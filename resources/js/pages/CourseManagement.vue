@@ -136,138 +136,151 @@ function handleCourseRefresh(newCourseId?: number) {
 <template>
   <Head title="Course Management" />
   <AppLayout>
-    <div class="flex flex-col h-full p-4 gap-4">
-      <!-- Search -->
-      <div class="relative flex gap-2 items-center">
-        <label for="course-search" class="font-semibold">
-          Search Course (ID or description):
-        </label>
-        <input
-          id="course-search"
-          v-model="searchText"
-          type="text"
-          placeholder="Type ID or description..."
-          @focus="inputFocused = true"
-          @blur="handleBlur"
-          class="border rounded px-2 py-1 flex-1"
-        />
-        <AddCourseButton
-          @open="openCreateCourse"
-        />
-
-        <ul
-          v-if="inputFocused"
-          class="absolute top-full left-0 mt-1 w-full bg-white border rounded shadow-lg max-h-60 overflow-y-auto z-50"
-        >
-          <li
-            v-for="course in filteredCourses"
-            :key="course.id"
-            @mousedown.prevent="selectCourse(course.id)"
-            class="px-2 py-1 cursor-pointer hover:bg-blue-100"
-          >
-            <span class="font-semibold">ID: {{ course.id }}</span> -
-            {{ course.description || course.name }}
-          </li>
-          <li v-if="!filteredCourses.length" class="px-2 py-1 text-gray-500">
-            No courses found
-          </li>
-        </ul>
-      </div>
-
-      <!-- Course panel -->
-      <div v-if="selectedCourse" class="flex flex-col gap-2">
-        <CourseBanner
-          :course="selectedCourse"
-          @edit="openEditCourse(selectedCourse)"
-          @delete="openDeleteCourse(selectedCourse)"
-        />
-
-        <div class="flex-1 flex flex-col md:flex-row gap-4 h-[600px]">
-          <!-- Module list -->
-          <div class="w-full md:w-64 flex-shrink-0 border rounded p-2 flex flex-col">
-            <div class="mb-2">
-              <AddModuleButton @open="showModuleForm = true" />
-            </div>
-
-            <div class="flex justify-between items-center md:hidden">
-              <h3 class="font-semibold">Modules</h3>
-              <button
-                @click="showModuleList = !showModuleList"
-                class="text-sm px-2 py-1 border rounded"
-              >
-                {{ showModuleList ? 'Hide' : 'Show' }}
-              </button>
-            </div>
-
-            <div
-              v-show="showModuleList || windowWidth >= 768"
-              class="flex-1 overflow-y-auto mt-2 md:mt-0"
-            >
-              <ModuleList
-                :modules="selectedCourse.modules"
-                :activeModuleId="activeModuleId"
-                @selectModule="selectModule"
-              />
-            </div>
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+      <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <div class="flex flex-col h-full gap-6">
+          <!-- Header -->
+          <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Course Management</h1>
+            <p class="text-gray-600 dark:text-gray-300">Manage your courses, modules, and lessons</p>
           </div>
 
-          <!-- Module details -->
-          <div class="flex-1 border rounded p-2">
-            <ModuleDetailsMain
-              :module="activeModule"
-              @edit="showEditModuleModal = true"
-              @remove="showRemoveModuleModal = true"
-              @add-lesson="showAddLessonModal = true"
+          <!-- Search -->
+          <div class="relative">
+            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 transition-colors">
+              <label for="course-search" class="font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+                Search Course:
+              </label>
+              <div class="flex-1 flex gap-2">
+                <input
+                  id="course-search"
+                  v-model="searchText"
+                  type="text"
+                  placeholder="Type ID or description..."
+                  @focus="inputFocused = true"
+                  @blur="handleBlur"
+                  class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 flex-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+                />
+                <AddCourseButton
+                  @open="openCreateCourse"
+                />
+              </div>
+            </div>
+
+            <ul
+              v-if="inputFocused"
+              class="absolute top-full left-0 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto z-50"
+            >
+              <li
+                v-for="course in filteredCourses"
+                :key="course.id"
+                @mousedown.prevent="selectCourse(course.id)"
+                class="px-4 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white transition-colors"
+              >
+                <span class="font-semibold">ID: {{ course.id }}</span> -
+                {{ course.description || course.name }}
+              </li>
+              <li v-if="!filteredCourses.length" class="px-4 py-2 text-gray-500 dark:text-gray-400">
+                No courses found
+              </li>
+            </ul>
+          </div>
+
+          <!-- Course panel -->
+          <div v-if="selectedCourse" class="flex flex-col gap-6">
+            <CourseBanner
+              :course="selectedCourse"
+              @edit="openEditCourse(selectedCourse)"
+              @delete="openDeleteCourse(selectedCourse)"
             />
+
+            <div class="flex-1 flex flex-col xl:flex-row gap-6 min-h-[600px]">
+              <!-- Module list -->
+              <div class="w-full xl:w-80 flex-shrink-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col transition-colors">
+                <div class="mb-4">
+                  <AddModuleButton @open="showModuleForm = true" />
+                </div>
+
+                <div class="flex justify-between items-center xl:hidden mb-4">
+                  <h3 class="font-semibold text-gray-900 dark:text-white">Modules</h3>
+                  <button
+                    @click="showModuleList = !showModuleList"
+                    class="text-sm px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    {{ showModuleList ? 'Hide' : 'Show' }}
+                  </button>
+                </div>
+
+                <div
+                  v-show="showModuleList || windowWidth >= 1280"
+                  class="flex-1 overflow-y-auto"
+                >
+                  <ModuleList
+                    :modules="selectedCourse.modules"
+                    :activeModuleId="activeModuleId"
+                    @selectModule="selectModule"
+                  />
+                </div>
+              </div>
+
+              <!-- Module details -->
+              <div class="flex-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 transition-colors">
+                <ModuleDetailsMain
+                  :module="activeModule"
+                  @edit="showEditModuleModal = true"
+                  @remove="showRemoveModuleModal = true"
+                  @add-lesson="showAddLessonModal = true"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Modals -->
-      <AddModuleModal
-        :course-id="selectedCourseId!"
-        :show="showModuleForm"
-        @close="showModuleForm = false"
-        @saved="reloadCourses"
-      />
-
-      <EditModuleModal
-        v-model:visible="showEditModuleModal"
-        :course-id="selectedCourseId!"
-        :module-id="activeModule?.id"
-        :defaults="{
-          description: activeModule?.description,
-          sequence: activeModule?.sequence,
-          completion_percentage: activeModule?.completion_percentage
-        }"
-        @saved="reloadCourses"
-      />
-
-      <RemoveModuleModal
-        :visible="showRemoveModuleModal"
-        :module-id="activeModule?.id"
-        title="Remove Module"
-        message="Are you sure you want to remove this module?"
-        @close="showRemoveModuleModal = false"
-        @removed="reloadCourses"
-      />
-
-      <AddLessonModal
-        :module-id="activeModule?.id ?? 0"
-        :visible="showAddLessonModal"
-        @close="showAddLessonModal = false"
-        @saved="reloadCourses"
-      />
-
-      <!-- Course modal with proper refresh handling -->
-      <CourseModal
-        :open="showCourseModal"
-        :mode="modalMode"
-        :course="editingCourse"
-        @close="showCourseModal = false"
-        @refresh="handleCourseRefresh"
-      />
-
     </div>
+
+    <!-- Modals -->
+    <AddModuleModal
+      :course-id="selectedCourseId!"
+      :show="showModuleForm"
+      @close="showModuleForm = false"
+      @saved="reloadCourses"
+    />
+
+    <EditModuleModal
+      v-model:visible="showEditModuleModal"
+      :course-id="selectedCourseId!"
+      :module-id="activeModule?.id"
+      :defaults="{
+        description: activeModule?.description,
+        sequence: activeModule?.sequence,
+        completion_percentage: activeModule?.completion_percentage
+      }"
+      @saved="reloadCourses"
+    />
+
+    <RemoveModuleModal
+      :visible="showRemoveModuleModal"
+      :module-id="activeModule?.id"
+      title="Remove Module"
+      message="Are you sure you want to remove this module?"
+      @close="showRemoveModuleModal = false"
+      @removed="reloadCourses"
+    />
+
+    <AddLessonModal
+      :module-id="activeModule?.id ?? 0"
+      :visible="showAddLessonModal"
+      @close="showAddLessonModal = false"
+      @saved="reloadCourses"
+    />
+
+    <!-- Course modal with proper refresh handling -->
+    <CourseModal
+      :open="showCourseModal"
+      :mode="modalMode"
+      :course="editingCourse"
+      @close="showCourseModal = false"
+      @refresh="handleCourseRefresh"
+    />
   </AppLayout>
 </template>

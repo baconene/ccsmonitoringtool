@@ -1,11 +1,11 @@
 <template>
-  <div class="border rounded p-4 w-full max-w-md bg-white">
+  <div class="border border-gray-200 dark:border-gray-600 rounded p-4 w-full max-w-md bg-white dark:bg-gray-800">
     <!-- Header -->
     <div class="flex items-center justify-between mb-3">
-      <h2 class="font-semibold text-gray-800">Related Document</h2>
+      <h2 class="font-semibold text-gray-800 dark:text-gray-200">Related Document</h2>
       <button
         @click="addDocument"
-        class="text-blue-600 hover:text-blue-800 font-bold text-lg"
+        class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-bold text-lg transition-colors"
       >
         +
       </button>
@@ -20,7 +20,7 @@
         @remove="removeDocument(index)"
       />
 
-      <p v-if="documents.length === 0" class="text-sm text-gray-400 italic">
+      <p v-if="documents.length === 0" class="text-sm text-gray-400 dark:text-gray-500 italic">
         No related documents yet
       </p>
     </div>

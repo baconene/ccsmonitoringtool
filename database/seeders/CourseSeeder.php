@@ -19,6 +19,7 @@ class CourseSeeder extends Seeder
         $courseId = DB::table('courses')->insertGetId([
             'name' => 'Test Course',
             'description' => 'This is a test course for seeding example.',
+            'instructor_id' => 1, // Assign to first user
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -63,5 +64,56 @@ class CourseSeeder extends Seeder
             'created_at' => $now,
             'updated_at' => $now,
         ]);
+
+        // Add additional courses with instructor_id
+        $additionalCourses = [
+            [
+                'name' => 'Advanced JavaScript',
+                'title' => 'Advanced JavaScript Programming',
+                'description' => 'Deep dive into advanced JavaScript concepts, ES6+, and modern frameworks.',
+                'instructor_id' => 1,
+            ],
+            [
+                'name' => 'React Development', 
+                'title' => 'Modern React Development',
+                'description' => 'Build dynamic user interfaces with React.js and modern development tools.',
+                'instructor_id' => 1,
+            ],
+            [
+                'name' => 'Vue.js Fundamentals',
+                'title' => 'Vue.js Framework Fundamentals', 
+                'description' => 'Learn Vue.js framework for building interactive web applications.',
+                'instructor_id' => 1,
+            ],
+            [
+                'name' => 'Laravel Backend',
+                'title' => 'Laravel PHP Backend Development',
+                'description' => 'Master Laravel framework for building robust web applications.',
+                'instructor_id' => 1,
+            ],
+            [
+                'name' => 'Database Design',
+                'title' => 'Advanced Database Design',
+                'description' => 'Learn database design principles and optimization techniques.',
+                'instructor_id' => 1,
+            ],
+            [
+                'name' => 'API Development',
+                'title' => 'RESTful API Development',
+                'description' => 'Build and design RESTful APIs with proper authentication and security.',
+                'instructor_id' => 1,
+            ]
+        ];
+
+        foreach ($additionalCourses as $course) {
+            DB::table('courses')->insert([
+                'name' => $course['name'],
+                'title' => $course['title'],
+                'description' => $course['description'],
+                'instructor_id' => $course['instructor_id'],
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
     }
 }

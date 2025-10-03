@@ -1,18 +1,18 @@
 <template>
   <div
-    class="flex items-center justify-between px-3 py-2 bg-gray-50 rounded border"
+    class="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600"
   >
     <!-- Left: Icon + Name -->
     <div class="flex items-center space-x-2">
       <!-- Icon depends on doc.type -->
-      <span v-html="icon" class="w-5 h-5 text-gray-600"></span>
-      <span class="text-gray-700">{{ doc?.name || "Untitled" }}</span>
+      <span v-html="icon" class="w-5 h-5 text-gray-600 dark:text-gray-400"></span>
+      <span class="text-gray-700 dark:text-gray-300">{{ doc?.name || "Untitled" }}</span>
     </div>
 
     <!-- Remove Button -->
     <button
       @click="$emit('remove')"
-      class="text-red-500 hover:text-red-700 font-bold"
+      class="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-bold transition-colors"
     >
       x
     </button>

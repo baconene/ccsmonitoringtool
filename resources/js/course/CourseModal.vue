@@ -4,17 +4,17 @@
     class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
     @click.self="$emit('close')"
   >
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-lg p-6 relative border border-gray-200 dark:border-gray-700 transition-colors">
       <!-- Close button -->
       <button
         @click="$emit('close')"
-        class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+        class="absolute top-2 right-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
       >
         ✕
       </button>
 
       <!-- Title -->
-      <h2 class="text-lg font-bold mb-4">{{ modalTitle }}</h2>
+      <h2 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">{{ modalTitle }}</h2>
 
       <!-- Form (Create/Edit) -->
       <form
@@ -23,29 +23,29 @@
         class="space-y-4"
       >
         <div>
-          <label class="block text-sm font-medium text-gray-700">Course Name</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Course Name</label>
           <input
             v-model="localCourse.name"
             type="text"
             required
-            class="w-full mt-1 p-2 border rounded"
+            class="w-full mt-1 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700">Description</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
           <textarea
             v-model="localCourse.description"
             rows="3"
-            class="w-full mt-1 p-2 border rounded"
+            class="w-full mt-1 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
           />
         </div>
 
         <div class="flex justify-end gap-2">
-          <button type="button" @click="$emit('close')" class="px-4 py-2 rounded border">
+          <button type="button" @click="$emit('close')" class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
             Cancel
           </button>
-          <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
+          <button type="submit" class="px-4 py-2 rounded bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors">
             {{ mode === 'create' ? 'Save' : 'Update' }}
           </button>
         </div>

@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -45,5 +46,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Courses that this user is enrolled in (as a student).
+     */
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'course_user');
+    }
+
+    /**
+     * Courses that this user instructs (as an instructor).
+     */
+    public function instructedCourses()
+    {
+        return $this->hasMany(Course::class, 'instructor_id');
+    }
+
+    /**
+     * Get the student record for this user.
+     */
+    public function student()
+    {
+        return $this->hasOne(Student::class);
     }
 }
