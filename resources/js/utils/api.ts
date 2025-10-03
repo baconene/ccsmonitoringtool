@@ -44,21 +44,26 @@ export interface DashboardStats {
 // API base configuration
 const API_BASE_URL = '/api';
 
-// Configure axios defaults
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-axios.defaults.headers.common['Content-Type'] = 'application/json';
-axios.defaults.withCredentials = true;
+// Create a separate axios instance for API calls
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest',
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
+});
 
 // Add CSRF token if available
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 if (csrfToken) {
-  axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+  apiClient.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
 }
 
 // Function to get CSRF cookie
 async function getCsrfCookie() {
   try {
-    await axios.get('/sanctum/csrf-cookie');
+    await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
   } catch (error) {
     console.error('Failed to get CSRF cookie:', error);
   }
@@ -74,7 +79,7 @@ export const coursesApi = {
   async getCourses(): Promise<Course[]> {
     try {
       await getCsrfCookie();
-      const response = await axios.get(`${API_BASE_URL}/courses`);
+      const response = await apiClient.get('/courses');
       return response.data;
     } catch (error) {
       console.error('Error fetching courses:', error);
@@ -195,7 +200,7 @@ export const scheduleApi = {
   async getSchedule(): Promise<Schedule[]> {
     try {
       await getCsrfCookie();
-      const response = await axios.get(`${API_BASE_URL}/schedule`);
+      const response = await apiClient.get('/schedule');
       return response.data;
     } catch (error) {
       console.error('Error fetching schedule:', error);
@@ -228,7 +233,7 @@ export const dashboardApi = {
   async getDashboardStats(): Promise<DashboardStats> {
     try {
       await getCsrfCookie();
-      const response = await axios.get(`${API_BASE_URL}/dashboard/stats`);
+      const response = await apiClient.get('/dashboard/stats');
       return response.data;
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
