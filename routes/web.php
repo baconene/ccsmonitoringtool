@@ -38,7 +38,7 @@ Route::match(['get', 'post'], '_boost/browser-logs', function () {
 //COURSE ROUTES
 Route::get('/course-management', [CourseController::class, 'index'])->name('course.index');
 Route::post('/courses/{course}/modules', [ModuleController::class, 'store'])->name('modules.store');
-Route::resource('courses', CourseController::class);
+Route::resource('courses', CourseController::class)->except(['create', 'show', 'edit']);
 //LESSON ROUTES
 Route::post('/lessons', [LessonController::class, 'store'])->name('lessons.store');
 Route::put('/lessons/{lessonId}', [LessonController::class, 'update'])->name('lessons.update');

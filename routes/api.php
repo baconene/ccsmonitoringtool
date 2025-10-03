@@ -36,7 +36,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Course API routes
     Route::get('/courses', [App\Http\Controllers\CourseController::class, 'getCourses']);
-    Route::apiResource('courses', CourseApiController::class)->except(['index']);
+    Route::apiResource('courses', CourseApiController::class)->except(['index'])->names([
+        'show' => 'api.courses.show',
+        'store' => 'api.courses.store',
+        'update' => 'api.courses.update',
+        'destroy' => 'api.courses.destroy'
+    ]);
     Route::get('/courses/{course}/students', [CourseApiController::class, 'getStudents']);
 
     // Student API routes
