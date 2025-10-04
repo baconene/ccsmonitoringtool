@@ -52,4 +52,56 @@ class Course extends Model
     {
         return $value ?: $this->name;
     }
+
+    /**
+     * Get course enrollments.
+     */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(CourseEnrollment::class);
+    }
+
+    /**
+     * Get enrolled users through enrollments.
+     */
+    public function enrolledStudents(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'course_enrollments')
+                    ->withPivot(['progress', 'is_completed', 'enrolled_at', 'completed_at'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get lessons for this course.
+     */
+    public function lessons(): HasMany
+    {
+        return $this->hasMany(Lesson::class);
+    }
+
+    /**
+     * Get lesson completions for this course.
+     */
+    public function lessonCompletions(): HasMany
+    {
+        return $this->hasMany(LessonCompletion::class);
+    }
+
+    /**
+     * Get completion percentage for a specific user.
+     */
+    public function getCompletionPercentageForUser(User $user): float
+    {
+        $totalLessons = $this->lessons()->count();
+        
+        if ($totalLessons === 0) {
+            return 0;
+        }
+
+        $completedLessons = $this->lessonCompletions()
+            ->where('user_id', $user->id)
+            ->count();
+
+        return round(($completedLessons / $totalLessons) * 100, 2);
+    }
 }

@@ -60,9 +60,26 @@ const fallbackTextClasses = computed(() => {
 
 // Compute user role with fallback
 const userRole = computed(() => {
-    if (props.user.role) {
+    // Check if user has new role relationship
+    if (typeof props.user.role === 'object' && props.user.role?.display_name) {
+        return props.user.role.display_name.toUpperCase();
+    }
+    
+    // Check if user has role_display_name attribute
+    if (props.user.role_display_name) {
+        return props.user.role_display_name.toUpperCase();
+    }
+    
+    // Check if user has string role
+    if (typeof props.user.role === 'string') {
         return props.user.role.toUpperCase();
     }
+    
+    // Check role_name attribute
+    if (props.user.role_name) {
+        return props.user.role_name.toUpperCase();
+    }
+    
     // Fallback role determination based on email patterns
     const email = props.user.email?.toLowerCase() || '';
     if (email.includes('admin')) {

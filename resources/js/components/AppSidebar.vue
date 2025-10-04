@@ -13,11 +13,22 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, GraduationCap, ClipboardList } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import { BookOpen, Folder, LayoutGrid, GraduationCap, ClipboardList, Users } from 'lucide-vue-next';
+import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
-const mainNavItems: NavItem[] = [
+// Get user role from page props
+const page = usePage();
+const user = computed(() => page.props.auth?.user as { 
+    role?: string | { name: string; display_name: string }; 
+    name?: string; 
+    email?: string;
+    role_name?: string;
+} | null);
+
+// Navigation items for admins
+const adminNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: '/dashboard',
@@ -26,12 +37,46 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Course Management',
         href: "/course-management",
-        icon: GraduationCap, // Use a graduation cap for course management
+        icon: GraduationCap,
     },
     {
         title: 'Assignment',
         href: "/assignment",
-        icon: ClipboardList, // Use a clipboard list for assignments
+        icon: ClipboardList,
+    }, 
+    {
+        title: 'Assessment Tool',
+        href: "/assessment-tool",
+        icon: BookOpen,
+    },
+    {
+        title: 'Role Management',
+        href: "/role-management",
+        icon: Users,
+    },
+    {
+        title: 'Report',
+        href: "/report",
+        icon: Folder,
+    },
+];
+
+// Navigation items for instructors
+const instructorNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/dashboard',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Course Management',
+        href: "/course-management",
+        icon: GraduationCap,
+    },
+    {
+        title: 'Assignment',
+        href: "/assignment",
+        icon: ClipboardList,
     }, 
     {
         title: 'Assessment Tool',
@@ -43,8 +88,48 @@ const mainNavItems: NavItem[] = [
         href: "/report",
         icon: Folder,
     },
-    
 ];
+
+// Navigation items for students
+const studentNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/dashboard',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'My Courses',
+        href: '/student/courses',
+        icon: BookOpen,
+    },
+];
+
+// Computed navigation items based on user role
+const mainNavItems = computed((): NavItem[] => {
+    const currentUser = user.value;
+    
+    // Check both old role field and new role relationship
+    let userRole: string;
+    
+    if (typeof currentUser?.role === 'object' && currentUser?.role?.name) {
+        userRole = currentUser.role.name;
+    } else if (typeof currentUser?.role === 'string') {
+        userRole = currentUser.role;
+    } else if (currentUser?.role_name) {
+        userRole = currentUser.role_name;
+    } else {
+        userRole = 'instructor'; // default
+    }
+    
+    if (userRole === 'student') {
+        return studentNavItems;
+    } else if (userRole === 'admin') {
+        return adminNavItems;
+    }
+    
+    // Default to instructor navigation
+    return instructorNavItems;
+});
 
 const footerNavItems: NavItem[] = [
  

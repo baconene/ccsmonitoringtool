@@ -60,14 +60,37 @@ if (csrfToken) {
   apiClient.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
 }
 
-// Function to get CSRF cookie
-async function getCsrfCookie() {
+// Function to get CSRF cookie - DEPRECATED: No longer needed with web route authentication
+// async function getCsrfCookie() {
+//   try {
+//     await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
+//     console.log('CSRF cookie obtained successfully');
+//   } catch (error) {
+//     console.error('Failed to get CSRF cookie:', error);
+//     throw error;
+//   }
+// }
+
+// Function to check authentication status
+async function checkAuthStatus() {
   try {
-    await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
+    const response = await axios.get('/api/debug/auth', { 
+      withCredentials: true,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+      }
+    });
+    console.log('Auth status:', response.data);
+    return response.data;
   } catch (error) {
-    console.error('Failed to get CSRF cookie:', error);
+    console.error('Failed to check auth status:', error);
+    return null;
   }
 }
+
+// Export utility functions
+export { checkAuthStatus };
 
 /**
  * Courses API calls
@@ -78,7 +101,10 @@ export const coursesApi = {
    */
   async getCourses(): Promise<Course[]> {
     try {
-      await getCsrfCookie();
+      console.log('Checking auth status...');
+      const authStatus = await checkAuthStatus();
+      
+      console.log('Making courses API request...');
       const response = await apiClient.get('/courses');
       return response.data;
     } catch (error) {
@@ -92,8 +118,8 @@ export const coursesApi = {
    */
   async getCourse(courseId: number): Promise<Course> {
     try {
-      await getCsrfCookie();
-      const response = await axios.get(`${API_BASE_URL}/courses/${courseId}`);
+      console.log(`Making course ${courseId} API request...`);
+      const response = await apiClient.get(`/courses/${courseId}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching course ${courseId}:`, error);
@@ -106,8 +132,8 @@ export const coursesApi = {
    */
   async createCourse(courseData: Partial<Course>): Promise<Course> {
     try {
-      await getCsrfCookie();
-      const response = await axios.post(`${API_BASE_URL}/courses`, courseData);
+      console.log('Making create course API request...');
+      const response = await apiClient.post('/courses', courseData);
       return response.data;
     } catch (error) {
       console.error('Error creating course:', error);
@@ -120,8 +146,8 @@ export const coursesApi = {
    */
   async updateCourse(courseId: number, courseData: Partial<Course>): Promise<Course> {
     try {
-      await getCsrfCookie();
-      const response = await axios.put(`${API_BASE_URL}/courses/${courseId}`, courseData);
+      console.log(`Making update course ${courseId} API request...`);
+      const response = await apiClient.put(`/courses/${courseId}`, courseData);
       return response.data;
     } catch (error) {
       console.error(`Error updating course ${courseId}:`, error);
@@ -134,8 +160,8 @@ export const coursesApi = {
    */
   async deleteCourse(courseId: number): Promise<void> {
     try {
-      await getCsrfCookie();
-      await axios.delete(`${API_BASE_URL}/courses/${courseId}`);
+      console.log(`Making delete course ${courseId} API request...`);
+      await apiClient.delete(`/courses/${courseId}`);
     } catch (error) {
       console.error(`Error deleting course ${courseId}:`, error);
       throw new Error(`Failed to delete course ${courseId}`);
@@ -147,8 +173,8 @@ export const coursesApi = {
    */
   async getCourseStudents(courseId: number): Promise<Student[]> {
     try {
-      await getCsrfCookie();
-      const response = await axios.get(`${API_BASE_URL}/courses/${courseId}/students`);
+      console.log(`Making course ${courseId} students API request...`);
+      const response = await apiClient.get(`/courses/${courseId}/students`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching students for course ${courseId}:`, error);
@@ -166,8 +192,8 @@ export const studentsApi = {
    */
   async getStudents(): Promise<Student[]> {
     try {
-      await getCsrfCookie();
-      const response = await axios.get(`${API_BASE_URL}/students`);
+      console.log('Making students API request...');
+      const response = await apiClient.get('/students');
       return response.data;
     } catch (error) {
       console.error('Error fetching students:', error);
@@ -180,8 +206,8 @@ export const studentsApi = {
    */
   async getStudent(studentId: number): Promise<Student> {
     try {
-      await getCsrfCookie();
-      const response = await axios.get(`${API_BASE_URL}/students/${studentId}`);
+      console.log(`Making student ${studentId} API request...`);
+      const response = await apiClient.get(`/students/${studentId}`);
       return response.data;
     } catch (error) {
       console.error(`Error fetching student ${studentId}:`, error);
@@ -199,7 +225,7 @@ export const scheduleApi = {
    */
   async getSchedule(): Promise<Schedule[]> {
     try {
-      await getCsrfCookie();
+      console.log('Making schedule API request...');
       const response = await apiClient.get('/schedule');
       return response.data;
     } catch (error) {
@@ -213,8 +239,8 @@ export const scheduleApi = {
    */
   async getUpcomingSchedule(limit: number = 5): Promise<Schedule[]> {
     try {
-      await getCsrfCookie();
-      const response = await axios.get(`${API_BASE_URL}/schedule/upcoming?limit=${limit}`);
+      console.log('Making upcoming schedule API request...');
+      const response = await apiClient.get(`/schedule/upcoming?limit=${limit}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching upcoming schedule:', error);
@@ -232,7 +258,7 @@ export const dashboardApi = {
    */
   async getDashboardStats(): Promise<DashboardStats> {
     try {
-      await getCsrfCookie();
+      console.log('Making dashboard stats API request...');
       const response = await apiClient.get('/dashboard/stats');
       return response.data;
     } catch (error) {
@@ -246,8 +272,8 @@ export const dashboardApi = {
    */
   async getInstructorProfile(): Promise<Instructor> {
     try {
-      await getCsrfCookie();
-      const response = await axios.get(`${API_BASE_URL}/instructor/profile`);
+      console.log('Making instructor profile API request...');
+      const response = await apiClient.get('/instructor/profile');
       return response.data;
     } catch (error) {
       console.error('Error fetching instructor profile:', error);

@@ -1,10 +1,24 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import InstructorDashboard from '@/dashboards/InstructorDashboard.vue';
+import StudentDashboard from '@/dashboards/StudentDashboard.vue';
 import CourseModal from '@/course/CourseModal.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { ref, computed, onMounted } from 'vue';
 import { coursesApi, dashboardApi, type Course, type DashboardStats } from '@/utils/api';
+
+// Props to determine which dashboard component to render
+interface Props {
+  dashboardComponent?: 'InstructorDashboard' | 'StudentDashboard';
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  dashboardComponent: 'InstructorDashboard'
+});
+
+// Get user role for additional checks
+const page = usePage();
+const user = page.props.auth.user as { role?: string; name?: string; email?: string };
 
 // Reactive state
 const courses = ref<Course[]>([]);
@@ -196,9 +210,10 @@ const handleCourseModalRefresh = async (newCourseId?: number) => {
                             </div>
                         </div>
 
-                        <!-- Instructor Dashboard Component -->
+                        <!-- Dynamic Dashboard Component -->
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors">
-                            <InstructorDashboard />
+                            <StudentDashboard v-if="props.dashboardComponent === 'StudentDashboard' || user?.role === 'student'" />
+                            <InstructorDashboard v-else />
                         </div>
                     </div>
                 </div>

@@ -26,12 +26,23 @@ export type AppPageProps<
     sidebarOpen: boolean;
 };
 
+export interface Role {
+    id: number;
+    name: string;
+    display_name: string;
+    description?: string;
+    is_active: boolean;
+}
+
 export interface User {
     id: number;
     name: string;
     email: string;
     avatar?: string;
-    role?: string;
+    role?: string | Role; // Support both string and Role object
+    role_id?: number;
+    role_name?: string; // Computed attribute from backend
+    role_display_name?: string; // Computed attribute from backend
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;

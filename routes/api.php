@@ -23,6 +23,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    
+    // Debug authentication status
+    Route::get('/debug/auth', function (Request $request) {
+        return [
+            'authenticated' => auth()->check(),
+            'user_id' => auth()->id(),
+            'user' => auth()->user()?->only(['id', 'name', 'email']),
+            'session_id' => session()->getId(),
+            'csrf_token' => csrf_token(),
+        ];
+    });
 
     // Dashboard API routes
     Route::prefix('dashboard')->group(function () {
