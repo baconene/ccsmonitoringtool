@@ -2,8 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { onMounted, computed, ref } from 'vue';
-import { type BreadcrumbItem } from '@/types';
-import type { NewUserData, UserUpdateData, User } from '@/types/index';
+import type { NewUserData, UserUpdateData, User, BreadcrumbItem } from '@/types/index';
 import UserListTable from '@/components/UserListTable.vue';
 import RolesSection from '@/components/RolesSection.vue';
 import Notification from '@/components/Notification.vue';
@@ -54,11 +53,22 @@ const handleEditUser = async (user: User & { password?: string }) => {
     const updateData: UserUpdateData = {
       name: user.name,
       email: user.email,
-      role: user.role_name
+      role: typeof user.role === 'string' ? user.role : user.role?.name || 'user'
     };
+    
+    // Include password if provided
     if (user.password) {
       updateData.password = user.password;
     }
+    
+    // Include grade_level and section if provided (for students)
+    if (user.grade_level) {
+      updateData.grade_level = user.grade_level;
+    }
+    if (user.section) {
+      updateData.section = user.section;
+    }
+    
     await updateUser(user.id, updateData);
     success('User updated successfully');
   } catch (err: any) {

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import courses from './courses'
 /**
- * @see routes/web.php:26
+ * @see routes/web.php:30
  * @route '/student-dashboard'
  */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -15,7 +15,7 @@ dashboard.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:26
+ * @see routes/web.php:30
  * @route '/student-dashboard'
  */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -23,7 +23,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web.php:26
+ * @see routes/web.php:30
  * @route '/student-dashboard'
  */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -31,7 +31,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web.php:26
+ * @see routes/web.php:30
  * @route '/student-dashboard'
  */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -40,7 +40,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web.php:26
+ * @see routes/web.php:30
  * @route '/student-dashboard'
  */
     const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -49,7 +49,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web.php:26
+ * @see routes/web.php:30
  * @route '/student-dashboard'
  */
         dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -57,7 +57,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web.php:26
+ * @see routes/web.php:30
  * @route '/student-dashboard'
  */
         dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -72,7 +72,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     
     dashboard.form = dashboardForm
 /**
- * @see routes/web.php:38
+ * @see routes/web.php:42
  * @route '/student/{id}/details'
  */
 export const details = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -86,7 +86,7 @@ details.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:38
+ * @see routes/web.php:42
  * @route '/student/{id}/details'
  */
 details.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -113,7 +113,7 @@ details.url = (args: { id: string | number } | [id: string | number ] | string |
 }
 
 /**
- * @see routes/web.php:38
+ * @see routes/web.php:42
  * @route '/student/{id}/details'
  */
 details.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -121,7 +121,7 @@ details.get = (args: { id: string | number } | [id: string | number ] | string |
     method: 'get',
 })
 /**
- * @see routes/web.php:38
+ * @see routes/web.php:42
  * @route '/student/{id}/details'
  */
 details.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -130,7 +130,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
 })
 
     /**
- * @see routes/web.php:38
+ * @see routes/web.php:42
  * @route '/student/{id}/details'
  */
     const detailsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -139,7 +139,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
     })
 
             /**
- * @see routes/web.php:38
+ * @see routes/web.php:42
  * @route '/student/{id}/details'
  */
         detailsForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -147,7 +147,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
             method: 'get',
         })
             /**
- * @see routes/web.php:38
+ * @see routes/web.php:42
  * @route '/student/{id}/details'
  */
         detailsForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

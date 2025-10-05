@@ -10,6 +10,10 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
+Route::get('/documentation', function () {
+    return Inertia::render('Documentation');
+})->name('documentation');
+
 Route::get('dashboard', function () {
     $user = auth()->user();
     

@@ -3,7 +3,11 @@ import { ref, computed } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { ArrowLeft, Users, UserPlus, UserMinus, GripVertical, Search, X } from 'lucide-vue-next';
-import { type BreadcrumbItem } from '@/types';
+
+interface BreadcrumbItem {
+  title: string;
+  href: string;
+}
 
 interface Student {
   id: number;

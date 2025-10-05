@@ -205,6 +205,77 @@ home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     home.form = homeForm
 /**
  * @see routes/web.php:13
+ * @route '/documentation'
+ */
+export const documentation = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: documentation.url(options),
+    method: 'get',
+})
+
+documentation.definition = {
+    methods: ["get","head"],
+    url: '/documentation',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+ * @see routes/web.php:13
+ * @route '/documentation'
+ */
+documentation.url = (options?: RouteQueryOptions) => {
+    return documentation.definition.url + queryParams(options)
+}
+
+/**
+ * @see routes/web.php:13
+ * @route '/documentation'
+ */
+documentation.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: documentation.url(options),
+    method: 'get',
+})
+/**
+ * @see routes/web.php:13
+ * @route '/documentation'
+ */
+documentation.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: documentation.url(options),
+    method: 'head',
+})
+
+    /**
+ * @see routes/web.php:13
+ * @route '/documentation'
+ */
+    const documentationForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: documentation.url(options),
+        method: 'get',
+    })
+
+            /**
+ * @see routes/web.php:13
+ * @route '/documentation'
+ */
+        documentationForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: documentation.url(options),
+            method: 'get',
+        })
+            /**
+ * @see routes/web.php:13
+ * @route '/documentation'
+ */
+        documentationForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: documentation.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    documentation.form = documentationForm
+/**
+ * @see routes/web.php:17
  * @route '/dashboard'
  */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -218,7 +289,7 @@ dashboard.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:13
+ * @see routes/web.php:17
  * @route '/dashboard'
  */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -226,7 +297,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web.php:13
+ * @see routes/web.php:17
  * @route '/dashboard'
  */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -234,7 +305,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web.php:13
+ * @see routes/web.php:17
  * @route '/dashboard'
  */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -243,7 +314,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web.php:13
+ * @see routes/web.php:17
  * @route '/dashboard'
  */
     const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -252,7 +323,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web.php:13
+ * @see routes/web.php:17
  * @route '/dashboard'
  */
         dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -260,7 +331,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web.php:13
+ * @see routes/web.php:17
  * @route '/dashboard'
  */
         dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

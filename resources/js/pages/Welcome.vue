@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { dashboard, login, register } from '@/routes';
+import { dashboard, login } from '@/routes';
 import { Head, Link } from '@inertiajs/vue3';
+import { Book } from 'lucide-vue-next';
 </script>
 
 <template>
@@ -35,26 +36,26 @@ import { Head, Link } from '@inertiajs/vue3';
                 <!-- Navigation Links -->
                 <div class="flex items-center space-x-4">
                     <Link
+                        :href="'/documentation'"
+                        class="flex items-center gap-2 text-white/90 hover:text-white px-4 py-2 rounded-full font-medium transition-colors duration-300"
+                    >
+                        <Book class="w-4 h-4" />
+                        <span>Docs</span>
+                    </Link>
+                    <Link
                         v-if="$page.props.auth.user"
                         :href="'/dashboard'"
                         class="bg-white/10 backdrop-blur-sm text-white px-6 py-2 rounded-full font-medium hover:bg-white/20 transition-all duration-300 border border-white/20"
                     >
                         Dashboard
                     </Link>
-                    <template v-else>
-                        <Link
-                            :href="login()"
-                            class="text-white/90 hover:text-white px-4 py-2 rounded-full font-medium transition-colors duration-300"
-                        >
-                            Log in
-                        </Link>
-                        <Link
-                            :href="register()"
-                            class="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-6 py-2 rounded-full font-medium hover:from-pink-600 hover:to-violet-600 transition-all duration-300 shadow-lg hover:shadow-xl"
-                        >
-                            Get Started
-                        </Link>
-                    </template>
+                    <Link
+                        v-else
+                        :href="login()"
+                        class="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-6 py-2 rounded-full font-medium hover:from-pink-600 hover:to-violet-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+                    >
+                        Log in
+                    </Link>
                 </div>
             </nav>
         </header>
@@ -83,26 +84,18 @@ import { Head, Link } from '@inertiajs/vue3';
                     <!-- CTA Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                         <Link
-                            v-if="$page.props.auth.user"
-                            :href="'/dashboard'"
+                            :href="$page.props.auth.user ? '/dashboard' : login()"
                             class="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-pink-600 hover:to-violet-600 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 text-center"
                         >
-                            Go to Dashboard
+                            {{ $page.props.auth.user ? 'Go to Dashboard' : 'Sign In' }}
                         </Link>
-                        <template v-else>
-                            <Link
-                                :href="register()"
-                                class="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-pink-600 hover:to-violet-600 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 text-center"
-                            >
-                                Get Started
-                            </Link>
-                            <Link
-                                :href="login()"
-                                class="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all duration-300 border-2 border-white/30 text-center"
-                            >
-                                Sign In
-                            </Link>
-                        </template>
+                        <Link
+                            :href="'/documentation'"
+                            class="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all duration-300 border-2 border-white/30 text-center flex items-center justify-center gap-2"
+                        >
+                            <Book class="w-5 h-5" />
+                            <span>View Documentation</span>
+                        </Link>
                     </div>
                 </div>
                 
@@ -198,26 +191,18 @@ import { Head, Link } from '@inertiajs/vue3';
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link
-                        v-if="$page.props.auth.user"
-                        :href="'/dashboard'"
+                        :href="$page.props.auth.user ? '/dashboard' : login()"
                         class="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-pink-600 hover:to-violet-600 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105"
                     >
-                        Access Your Dashboard
+                        {{ $page.props.auth.user ? 'Access Your Dashboard' : 'Sign In Now' }}
                     </Link>
-                    <template v-else>
-                        <Link
-                            :href="register()"
-                            class="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-pink-600 hover:to-violet-600 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105"
-                        >
-                            Get Started
-                        </Link>
-                        <Link
-                            :href="login()"
-                            class="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all duration-300 border-2 border-white/30"
-                        >
-                            Sign In Now
-                        </Link>
-                    </template>
+                    <Link
+                        :href="'/documentation'"
+                        class="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all duration-300 border-2 border-white/30 flex items-center justify-center gap-2"
+                    >
+                        <Book class="w-5 h-5" />
+                        <span>Learn More</span>
+                    </Link>
                 </div>
             </div>
         </section>
