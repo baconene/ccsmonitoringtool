@@ -15,9 +15,21 @@ class CourseController extends Controller
      */
     public function index()
     {
-        // Fetch all courses with their modules, lessons, and grade levels
+        // Fetch all courses with their modules, lessons, activities, and grade levels
+        $courses = Course::with([
+            'modules.lessons.documents',
+            'modules.activities.activityType',
+            'gradeLevels'
+        ])->get();
+
+        // Fetch all available activities for the instructor/admin
+        $availableActivities = \App\Models\Activity::with(['activityType', 'creator'])
+            ->where('created_by', auth()->id())
+            ->get();
+
         return Inertia::render('CourseManagement', [
-            'courses' => Course::with(['modules.lessons.documents', 'gradeLevels'])->get()
+            'courses' => $courses,
+            'availableActivities' => $availableActivities
         ]);
     }
 

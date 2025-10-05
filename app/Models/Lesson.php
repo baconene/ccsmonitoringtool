@@ -52,6 +52,20 @@ class Lesson extends Model
         return $this->hasMany(LessonCompletion::class);
     }
 
+    // Lesson activities relationship (many-to-many with Activity)
+    public function activities()
+    {
+        return $this->belongsToMany(Activity::class, 'module_lesson_activities', 'module_lesson_id', 'activity_id')
+            ->withPivot('order')
+            ->orderBy('module_lesson_activities.order');
+    }
+
+    // Direct access to lesson activities pivot records
+    public function lessonActivities()
+    {
+        return $this->hasMany(ModuleLessonActivity::class, 'module_lesson_id');
+    }
+
     /**
      * Check if lesson is completed by a specific user.
      */

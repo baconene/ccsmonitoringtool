@@ -46,7 +46,7 @@ const adminNavItems: NavItem[] = [
     },
     {
         title: 'Activities',
-        href: "/activities",
+        href: "/activity-management",
         icon: ClipboardList,
     },
     {
@@ -74,8 +74,8 @@ const instructorNavItems: NavItem[] = [
         icon: GraduationCap,
     },
     {
-        title: 'Assignment',
-        href: "/assignment",
+        title: 'Activities',
+        href: "/activity-management",
         icon: ClipboardList,
     }, 
     {
@@ -101,6 +101,21 @@ const studentNavItems: NavItem[] = [
         title: 'My Courses',
         href: '/student/courses',
         icon: BookOpen,
+    },
+    {
+        title: 'My Activities',
+        href: '/student/activities',
+        icon: ClipboardList,
+    },  
+    {
+        title: 'My Assessments',
+        href: '/student/assessments',
+        icon: GraduationCap,
+    },
+    {
+        title: 'My Reports',
+        href: '/student/reports',
+        icon: Folder,
     },
 ];
 

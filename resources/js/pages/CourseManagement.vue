@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type Activity } from '@/types';
 import AddModuleModal from '@/module/AddModuleModal.vue';
 import EditModuleModal from '@/module/EditModuleModal.vue';
 import RemoveModuleModal from '@/module/RemoveModuleModal.vue';
+import AddActivityToModuleModal from '@/module/AddActivityToModuleModal.vue';
+import UploadDocumentModal from '@/module/UploadDocumentModal.vue';
 import { ref, computed, watch } from 'vue';
 import ModuleList from '@/module/ModuleList.vue';
 import CourseBanner from '@/course/CourseBanner.vue';
@@ -33,12 +35,22 @@ const props = defineProps<{
     }>;
     modules: Array<{
       id: number;
+      title?: string;
       description: string;
       sequence: number;
       completion_percentage: number;
+      moduleType?: string;
+      module_type?: string;
+      module_percentage?: number;
       lessons: Array<any>;
+      activities?: Array<any>;
+      course_id: number;
+      created_by: number;
+      created_at: string;
+      updated_at: string;
     }>;
   }>;
+  availableActivities?: Activity[];
 }>();
 
 // States
@@ -50,6 +62,8 @@ const showModuleForm = ref(false);
 const showEditModuleModal = ref(false);
 const showRemoveModuleModal = ref(false);
 const showAddLessonModal = ref(false);
+const showAddActivityModal = ref(false);
+const showUploadDocumentModal = ref(false);
 
 const inputFocused = ref(false);
 const showCourseModal = ref(false);
@@ -194,7 +208,7 @@ function handleCourseRefresh(newCourseId?: number) {
                 @mousedown.prevent="selectCourse(course.id)"
                 class="px-4 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white transition-colors"
               >
-                <span class="font-semibold">ID: {{ course.id }}</span> -
+                <span class="font-semibold">{{ course.name }}</span> -
                 {{ course.description || course.name }}
               </li>
               <li v-if="!filteredCourses.length" class="px-4 py-2 text-gray-500 dark:text-gray-400">
@@ -248,6 +262,8 @@ function handleCourseRefresh(newCourseId?: number) {
                   @edit="showEditModuleModal = true"
                   @remove="showRemoveModuleModal = true"
                   @add-lesson="showAddLessonModal = true"
+                  @add-activity="showAddActivityModal = true"
+                  @upload-document="showUploadDocumentModal = true"
                 />
               </div>
             </div>
@@ -269,9 +285,12 @@ function handleCourseRefresh(newCourseId?: number) {
       :course-id="selectedCourseId!"
       :module-id="activeModule?.id"
       :defaults="{
+        title: activeModule?.title,
         description: activeModule?.description,
         sequence: activeModule?.sequence,
-        completion_percentage: activeModule?.completion_percentage
+        completion_percentage: activeModule?.completion_percentage,
+        module_type: activeModule?.moduleType,
+        module_percentage: activeModule?.module_percentage
       }"
       @saved="reloadCourses"
     />
@@ -299,6 +318,24 @@ function handleCourseRefresh(newCourseId?: number) {
       :course="editingCourse"
       @close="showCourseModal = false"
       @refresh="handleCourseRefresh"
+    />
+
+    <!-- Add Activity Modal -->
+    <AddActivityToModuleModal
+      :visible="showAddActivityModal"
+      :module-id="activeModule?.id ?? 0"
+      :module-type="activeModule?.module_type || activeModule?.moduleType || 'Mixed'"
+      :available-activities="availableActivities || []"
+      @close="showAddActivityModal = false"
+      @added="reloadCourses"
+    />
+
+    <!-- Upload Document Modal -->
+    <UploadDocumentModal
+      :visible="showUploadDocumentModal"
+      :module-id="activeModule?.id ?? 0"
+      @close="showUploadDocumentModal = false"
+      @uploaded="reloadCourses"
     />
   </AppLayout>
 </template>

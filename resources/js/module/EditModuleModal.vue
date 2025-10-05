@@ -37,9 +37,12 @@ const props = defineProps<{
   courseId: number;
   moduleId?: number;
   defaults?: {
+    title?: string;
     description?: string;
     sequence?: number;
     completion_percentage?: number;
+    module_type?: string;
+    module_percentage?: number;
   };
   visible: boolean; // controlled via v-model
 }>()

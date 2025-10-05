@@ -40,8 +40,6 @@
               <Edit3 class="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors" />
             </button>
 
-       
-
             <!-- Remove Module -->
             <button
               @click="$emit('remove', module)"
@@ -62,34 +60,36 @@
         </div>
       </div>
 
-      <!-- Lessons Section -->
-      <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            Lessons
-                 <!-- Add Lesson -->
-            <button
-              @click="$emit('add-lesson', module)"
-              class="p-2 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors group"
-              title="Add Lesson"
-            >
-              <Plus class="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors" />
-            </button>
-          </h3>
-          
-          <div class="text-sm text-gray-500 dark:text-gray-400">
-            {{ module.lessons?.length || 0 }} lesson{{ (module.lessons?.length || 0) === 1 ? '' : 's' }} total
-          </div>
-        </div>
-
-        <!-- Lessons Container -->
-        <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4">
-          <LessonList :module-id="module.id" :lessons="module.lessons" />
-        </div>
+      <!-- Module Type Badge -->
+      <div class="mb-4">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+          :class="getModuleTypeBadgeClass">
+          {{ moduleType }}
+        </span>
       </div>
+
+      <!-- Lessons Section (for Lessons and Mixed types) -->
+      <ModuleLessonsSection
+        v-if="allowsLessons"
+        :module-id="module.id"
+        :lessons="module.lessons || []"
+        @add="emit('add-lesson', module)"
+        class="mb-6"
+      />
+
+      <!-- Activities Section (for Activities, Quizzes, Assignments, Assessment, and Mixed types) -->
+      <ModuleActivitiesSection
+        v-if="allowsActivities"
+        :activities="module.activities || []"
+        @add="emit('add-activity', module)"
+        @remove="handleRemoveActivity"
+        class="mb-6"
+      />
+
+      <!-- Documents Section (Available for all module types) -->
+      <ModuleDocumentsSection
+        @upload="emit('upload-document', module)"
+      />
     </template>
 
     <!-- Empty State -->
@@ -118,32 +118,34 @@
 </template>
 
 <script setup lang="ts">
-import LessonList from "@/lesson/lessonList.vue";
-import { Edit3, Trash, Plus } from "lucide-vue-next";
+import { computed } from "vue";
+import { Edit3, Trash } from "lucide-vue-next";
+import { useModuleType } from "@/composables/useModuleType";
+import ModuleLessonsSection from "@/module/components/ModuleLessonsSection.vue";
+import ModuleActivitiesSection from "@/module/components/ModuleActivitiesSection.vue";
+import ModuleDocumentsSection from "@/module/components/ModuleDocumentsSection.vue";
+import type { Module, Activity } from "@/types";
 
 const props = defineProps<{
-  module: {
-    id: number;
-    description: string;
-    sequence: number;
-    completion_percentage: number;
-    lessons: Array<{
-      id: number;
-      title: string;
-      description: string;
-      documents: Array<{
-        id: number;
-        name: string;
-        file_path: string;
-        doc_type: string;
-      }>;
-    }>;
-  } | null;
+  module: Module | null;
 }>();
 
-defineEmits<{
-  (e: "edit", module: typeof props.module): void;
-  (e: "remove", module: typeof props.module): void;
-  (e: "add-lesson", module: typeof props.module): void;
+const emit = defineEmits<{
+  (e: "edit", module: Module | null): void;
+  (e: "remove", module: Module | null): void;
+  (e: "add-lesson", module: Module | null): void;
+  (e: "add-activity", module: Module | null): void;
+  (e: "upload-document", module: Module | null): void;
+  (e: "remove-activity", data: { module: Module; activityId: number }): void;
 }>();
+
+// Use composable for module type logic
+const { moduleType, allowsLessons, allowsActivities, getModuleTypeBadgeClass } = useModuleType(computed(() => props.module));
+
+// Handle activity removal
+const handleRemoveActivity = (activityId: number) => {
+  if (props.module) {
+    emit('remove-activity', { module: props.module, activityId });
+  }
+};
 </script>

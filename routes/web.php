@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -180,6 +184,28 @@ Route::match(['get', 'post'], '_boost/browser-logs', function () {
 });
 
  
+// ACTIVITY MANAGEMENT ROUTES (Instructor and Admin)
+Route::middleware(['auth'])->group(function () {
+    Route::middleware(['role:instructor,admin'])->group(function () {
+        // Activity Management Dashboard
+        Route::get('/activity-management', [ActivityController::class, 'index'])->name('activities.index');
+        
+        // Activity CRUD
+        Route::resource('activities', ActivityController::class)->except(['index']);
+        
+        // Quiz Management
+        Route::resource('quizzes', QuizController::class);
+        
+        // Question Management
+        Route::post('questions', [QuestionController::class, 'store'])->name('questions.store');
+        Route::put('questions/{question}', [QuestionController::class, 'update'])->name('questions.update');
+        Route::delete('questions/{question}', [QuestionController::class, 'destroy'])->name('questions.destroy');
+        
+        // Assignment Management
+        Route::resource('assignments', AssignmentController::class);
+    });
+});
+
 //COURSE ROUTES
 Route::get('/course-management', [CourseController::class, 'index'])->name('course.index');
 Route::post('/courses/{course}/modules', [ModuleController::class, 'store'])->name('modules.store');
@@ -200,6 +226,9 @@ Route::put('/lessons/{lessonId}', [LessonController::class, 'update'])->name('le
 Route::put('/modules/{module}', [ModuleController::class, 'update'])->name('modules.update');
 Route::delete('/modules/{module}', [ModuleController::class, 'destroy'])->name('modules.destroy');
 Route::get('/modules/{module}/lessons', [ModuleController::class, 'index']);
+Route::post('/modules/{module}/activities', [ModuleController::class, 'addActivities'])->name('modules.activities.add');
+Route::delete('/modules/{module}/activities/{activity}', [ModuleController::class, 'removeActivity'])->name('modules.activities.remove');
+Route::post('/modules/{module}/documents', [ModuleController::class, 'uploadDocuments'])->name('modules.documents.upload');
 
 // STUDENT COURSE ROUTES
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {

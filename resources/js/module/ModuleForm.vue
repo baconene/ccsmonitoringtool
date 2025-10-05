@@ -1,6 +1,22 @@
 <template>
   <div class="w-full bg-transparent">
     <form @submit.prevent="saveModule" class="space-y-6">
+      <!-- Title Field -->
+      <div class="space-y-2">
+        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+          Module Title
+        </label>
+        <input
+          type="text"
+          v-model="form.title"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+          placeholder="Enter module title..."
+        />
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          Optional title for the module (e.g., "Module 1: Introduction").
+        </p>
+      </div>
+
       <!-- Description Field -->
       <div class="space-y-2">
         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
@@ -15,6 +31,29 @@
         ></textarea>
         <p class="text-xs text-gray-500 dark:text-gray-400">
           Provide a clear description of what this module covers.
+        </p>
+      </div>
+
+      <!-- Module Type Field -->
+      <div class="space-y-2">
+        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+          Module Type <span class="text-red-500">*</span>
+        </label>
+        <select
+          v-model="form.module_type"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+          required
+        >
+          <option value="">Select module type...</option>
+          <option value="Lessons">Lessons</option>
+          <option value="Activities">Activities</option>
+          <option value="Mixed">Mixed (Lessons + Activities)</option>
+          <option value="Quizzes">Quizzes</option>
+          <option value="Assignments">Assignments</option>
+          <option value="Assessment">Assessment</option>
+        </select>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          Specify the type of content this module will contain.
         </p>
       </div>
 
@@ -33,6 +72,30 @@
         />
         <p class="text-xs text-gray-500 dark:text-gray-400">
           The order in which this module should appear in the course.
+        </p>
+      </div>
+
+      <!-- Module Percentage Field -->
+      <div class="space-y-2">
+        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+          Module Weight (%)
+        </label>
+        <div class="relative">
+          <input
+            type="number"
+            v-model="form.module_percentage"
+            min="0"
+            max="100"
+            step="0.01"
+            class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+            placeholder="0"
+          />
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <span class="text-gray-500 dark:text-gray-400 text-sm">%</span>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          Optional percentage weight of this module in the course (0-100%).
         </p>
       </div>
 
@@ -110,9 +173,12 @@ const props = defineProps<{
   moduleId?: number; // null for create
   courseId: number;  // which course this module belongs to
   defaults?: {
+    title?: string;
     description?: string;
     sequence?: number;
     completion_percentage?: number;
+    module_type?: string;
+    module_percentage?: number;
   };
 }>();
 
@@ -122,18 +188,24 @@ const emit = defineEmits<{
 }>();
 
 const form = useForm({
+  title: props.defaults?.title || "",
   description: props.defaults?.description || "",
   sequence: props.defaults?.sequence || 1,
   completion_percentage: props.defaults?.completion_percentage || 0,
+  module_type: props.defaults?.module_type || "Mixed",
+  module_percentage: props.defaults?.module_percentage || null,
 });
 
 // Ensure form fields are updated when defaults change (editing different module)
 watch(
   () => props.defaults,
   (newDefaults) => {
+    form.title = newDefaults?.title || "";
     form.description = newDefaults?.description || "";
     form.sequence = newDefaults?.sequence || 1;
     form.completion_percentage = newDefaults?.completion_percentage || 0;
+    form.module_type = newDefaults?.module_type || "Mixed";
+    form.module_percentage = newDefaults?.module_percentage || null;
   }
 );
 
