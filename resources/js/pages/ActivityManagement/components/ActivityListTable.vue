@@ -79,10 +79,10 @@ const formatDate = (date: string) => {
                             <span
                                 :class="[
                                     'inline-flex rounded-full px-2 text-xs font-semibold leading-5',
-                                    getActivityTypeColor(activity.activity_type)
+                                    getActivityTypeColor(activity.activity_type_id)
                                 ]"
                             >
-                                {{ getActivityTypeName(activity.activity_type) }}
+                                {{ getActivityTypeName(activity.activity_type_id) }}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">

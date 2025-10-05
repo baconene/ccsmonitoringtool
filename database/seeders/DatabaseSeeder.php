@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\CourseEnrollment;
+use App\Models\GradeLevel;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -22,9 +23,11 @@ class DatabaseSeeder extends Seeder
         echo "════════════════════════════════════════\n\n";
 
         try {
-            // Call RoleSeeder first to create roles
+            // Call seeders in order
             $this->call([
                 RoleSeeder::class,
+                ActivityTypeSeeder::class,
+                GradeLevelSeeder::class,
             ]);
 
             // Get roles
@@ -81,26 +84,34 @@ class DatabaseSeeder extends Seeder
 
         // Create 10 Students with grade levels (or update if exists)
         $students = [];
-        $gradeLevels = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
+        $allGradeLevels = GradeLevel::where('is_active', true)->pluck('name')->toArray();
         $sections = ['Section A', 'Section B', 'Section C'];
         
-        for ($i = 1; $i <= 10; $i++) {
-            try {
-                $student = User::updateOrCreate(
-                    ['email' => 'student' . $i . '@test.com'],
-                    [
-                        'name' => 'Student ' . $i,
-                        'email_verified_at' => now(),
-                        'password' => Hash::make('12345678'),
-                        'role_id' => $studentRole->id,
-                        'grade_level' => $gradeLevels[array_rand($gradeLevels)],
-                        'section' => $sections[array_rand($sections)],
-                    ]
-                );
-                $students[] = $student;
-                echo "✓ Created/Updated Student: {$student->email} ({$student->grade_level}, {$student->section})\n";
-            } catch (\Exception $e) {
-                echo "❌ Error creating student {$i}: " . $e->getMessage() . "\n";
+        if (empty($allGradeLevels)) {
+            echo "⚠️  Warning: No grade levels found. Skipping student creation.\n";
+        } else {
+            echo "\n📚 Creating students with random grade levels...\n";
+            for ($i = 1; $i <= 10; $i++) {
+                try {
+                    $randomGradeLevel = $allGradeLevels[array_rand($allGradeLevels)];
+                    $randomSection = $sections[array_rand($sections)];
+                    
+                    $student = User::updateOrCreate(
+                        ['email' => 'student' . $i . '@test.com'],
+                        [
+                            'name' => 'Student ' . $i,
+                            'email_verified_at' => now(),
+                            'password' => Hash::make('12345678'),
+                            'role_id' => $studentRole->id,
+                            'grade_level' => $randomGradeLevel,
+                            'section' => $randomSection,
+                        ]
+                    );
+                    $students[] = $student;
+                    echo "✓ Created/Updated Student: {$student->email} ({$student->grade_level}, {$student->section})\n";
+                } catch (\Exception $e) {
+                    echo "❌ Error creating student {$i}: " . $e->getMessage() . "\n";
+                }
             }
         }
 
@@ -185,8 +196,9 @@ class DatabaseSeeder extends Seeder
         echo "📧 Admin:       test.admin@test.com / 12345678\n";
         echo "👨‍🏫 Instructors: instructor1-4@test.com / 12345678\n";
         echo "🎓 Students:    student1-10@test.com / 12345678\n";
+        echo "📊 Grade Levels: " . GradeLevel::count() . " levels (Year 1-5, Grade 1-12)\n";
         echo "════════════════════════════════════════\n";
-        echo "💡 Tip: Run 'php artisan migrate:fresh --seed' to reset\n";
+        echo "💡 Tip: Run 'php artisan migrate:fresh --seed' for fresh DB\n";
         echo "════════════════════════════════════════\n\n";
     }
 

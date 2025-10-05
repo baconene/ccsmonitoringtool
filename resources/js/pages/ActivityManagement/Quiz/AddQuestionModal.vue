@@ -29,7 +29,10 @@ const formData = ref({
 });
 
 const showOptions = computed(() => formData.value.question_type === 'multiple-choice');
-const showCorrectAnswer = computed(() => formData.value.question_type === 'true-false');
+const showCorrectAnswer = computed(() => 
+    formData.value.question_type === 'true-false' || 
+    formData.value.question_type === 'enumeration'
+);
 
 const resetForm = () => {
     formData.value = {
@@ -48,6 +51,10 @@ watch(() => props.show, (newVal) => {
 });
 
 watch(() => formData.value.question_type, (newType) => {
+    // Reset options and correct answer when changing type
+    formData.value.options = [];
+    formData.value.correct_answer = '';
+    
     if (newType === 'multiple-choice' && formData.value.options.length === 0) {
         formData.value.options = [
             { option_text: '', is_correct: false },
@@ -83,7 +90,14 @@ const handleSubmit = () => {
         return;
     }
 
-    emit('submit', formData.value);
+    if (formData.value.question_type === 'enumeration' && !formData.value.correct_answer) {
+        alert('Please provide the correct answer for enumeration');
+        return;
+    }
+
+    emit('submit', { ...formData.value });
+    // Reset form after successful submission
+    resetForm();
 };
 </script>
 
@@ -225,18 +239,30 @@ const handleSubmit = () => {
                                 </p>
                             </div>
 
-                            <!-- Correct Answer (for true-false) -->
+                            <!-- Correct Answer (for true-false and enumeration) -->
                             <div v-if="showCorrectAnswer">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                     Correct Answer <span class="text-red-500">*</span>
                                 </label>
                                 <select
+                                    v-if="formData.question_type === 'true-false'"
                                     v-model="formData.correct_answer"
                                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                                 >
                                     <option value="true">True</option>
                                     <option value="false">False</option>
                                 </select>
+                                <textarea
+                                    v-else-if="formData.question_type === 'enumeration'"
+                                    v-model="formData.correct_answer"
+                                    rows="3"
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                                    placeholder="Enter the correct answer(s) for enumeration (one per line)"
+                                    required
+                                />
+                                <p v-if="formData.question_type === 'enumeration'" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    For multiple answers, enter each on a new line
+                                </p>
                             </div>
 
                             <!-- Actions -->

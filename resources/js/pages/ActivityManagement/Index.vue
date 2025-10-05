@@ -4,9 +4,9 @@ import { router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Activity, ActivityType } from '@/types';
 import { Plus } from 'lucide-vue-next';
-import ActivityCard from './components/ActivityCard.vue';
-import ActivityFilter from './components/ActivityFilter.vue';
-import NewActivityModal from './components/NewActivityModal.vue';
+import ActivityCard from '@/pages/ActivityManagement/components/ActivityCard.vue';
+import ActivityFilter from '@/pages/ActivityManagement/components/ActivityFilter.vue';
+import NewActivityModal from '@/pages/ActivityManagement/components/NewActivityModal.vue';
 
 interface Filters {
     search: string | null;

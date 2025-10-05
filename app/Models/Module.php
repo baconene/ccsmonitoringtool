@@ -47,6 +47,12 @@ class Module extends Model
             ->orderBy('module_activities.order');
     }
 
+    // Module completions relationship
+    public function completions()
+    {
+        return $this->hasMany(ModuleCompletion::class);
+    }
+
     // Direct access to module activities pivot records
     public function moduleActivities()
     {

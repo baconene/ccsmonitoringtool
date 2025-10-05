@@ -24,21 +24,27 @@ class StudentCourseController extends Controller
             ->get()
             ->map(function ($enrollment) use ($user) {
                 $course = $enrollment->course;
-                $totalLessons = $course->lessons->count();
-                $completedLessons = LessonCompletion::where('user_id', $user->id)
+                $totalModules = $course->modules->count();
+                
+                // Count completed modules
+                $completedModules = \App\Models\ModuleCompletion::where('user_id', $user->id)
                     ->where('course_id', $course->id)
                     ->count();
+                
+                // Recalculate progress based on module weights
+                $enrollment->updateProgress();
+                $enrollment->refresh();
                 
                 return [
                     'id' => $course->id,
                     'title' => $course->title,
                     'description' => $course->description,
                     'instructor_name' => $course->instructor_name,
-                    'progress' => $totalLessons > 0 ? round(($completedLessons / $totalLessons) * 100) : 0,
+                    'progress' => (float) $enrollment->progress,
                     'is_completed' => $enrollment->is_completed,
                     'enrolled_at' => $enrollment->created_at->format('Y-m-d'),
-                    'total_lessons' => $totalLessons,
-                    'completed_lessons' => $completedLessons,
+                    'total_modules' => $totalModules,
+                    'completed_modules' => $completedModules,
                     'duration' => $course->lessons->sum('duration') ?? 0,
                 ];
             });
@@ -70,6 +76,61 @@ class StudentCourseController extends Controller
             abort(404, 'You are not enrolled in this course.');
         }
 
+        // Load modules with activities and quiz progress
+        $modules = $course->modules()
+            ->with([
+                'lessons',
+                'activities.activityType',
+                'activities.quiz.questions'
+            ])
+            ->get()
+            ->map(function ($module) use ($user, $course) {
+                // Check if module is completed
+                $moduleCompletion = \App\Models\ModuleCompletion::where('user_id', $user->id)
+                    ->where('module_id', $module->id)
+                    ->where('course_id', $course->id)
+                    ->first();
+                // Map activities with quiz progress
+                $activities = $module->activities->map(function ($activity) use ($user) {
+                    $quizProgress = null;
+                    
+                    if ($activity->quiz) {
+                        $quizProgress = \App\Models\StudentQuizProgress::where('student_id', $user->id)
+                            ->where('activity_id', $activity->id)
+                            ->first();
+                    }
+                    
+                    return [
+                        'id' => $activity->id,
+                        'title' => $activity->title,
+                        'description' => $activity->description,
+                        'activity_type' => $activity->activityType,
+                        'question_count' => $activity->quiz ? $activity->quiz->questions->count() : 0,
+                        'total_points' => $activity->quiz ? $activity->quiz->questions->sum('points') : 0,
+                        'quiz_progress' => $quizProgress ? [
+                            'id' => $quizProgress->id,
+                            'is_completed' => $quizProgress->is_completed,
+                            'is_submitted' => $quizProgress->is_submitted,
+                            'score' => $quizProgress->score,
+                            'percentage_score' => $quizProgress->percentage_score,
+                            'completed_questions' => $quizProgress->completed_questions,
+                            'total_questions' => $quizProgress->total_questions,
+                        ] : null,
+                    ];
+                });
+
+                return [
+                    'id' => $module->id,
+                    'title' => $module->title,
+                    'description' => $module->description,
+                    'module_type' => $module->module_type,
+                    'lessons' => $module->lessons,
+                    'activities' => $activities,
+                    'is_completed' => $moduleCompletion ? true : false,
+                    'completed_at' => $moduleCompletion ? $moduleCompletion->completed_at : null,
+                ];
+            });
+
         // Get lessons with completion status
         $lessons = $course->lessons()
             ->with('module')
@@ -94,9 +155,12 @@ class StudentCourseController extends Controller
                 ];
             });
 
-        $totalLessons = $lessons->count();
-        $completedLessons = $lessons->where('is_completed', true)->count();
-        $progress = $totalLessons > 0 ? round(($completedLessons / $totalLessons) * 100) : 0;
+        // Recalculate progress based on completed module weights
+        $enrollment->updateProgress();
+        $enrollment->refresh();
+        
+        $totalModules = $modules->count();
+        $completedModulesCount = $modules->where('is_completed', true)->count();
 
         return Inertia::render('Student/CourseDetail', [
             'course' => [
@@ -104,12 +168,13 @@ class StudentCourseController extends Controller
                 'title' => $course->title,
                 'description' => $course->description,
                 'instructor_name' => $course->instructor_name,
-                'progress' => $progress,
+                'progress' => (float) $enrollment->progress,
                 'is_completed' => $enrollment->is_completed,
                 'enrolled_at' => $enrollment->created_at->format('Y-m-d'),
-                'total_lessons' => $totalLessons,
-                'completed_lessons' => $completedLessons,
+                'total_modules' => $totalModules,
+                'completed_modules' => $completedModulesCount,
                 'lessons' => $lessons,
+                'modules' => $modules,
             ]
         ]);
     }
@@ -161,10 +226,7 @@ class StudentCourseController extends Controller
         // Update course enrollment progress
         $enrollment->updateProgress();
 
-        return response()->json([
-            'message' => 'Lesson marked as completed',
-            'progress' => $enrollment->progress
-        ]);
+        return redirect()->back()->with('success', 'Lesson marked as completed');
     }
 
     /**
@@ -209,6 +271,52 @@ class StudentCourseController extends Controller
         return response()->json([
             'lessons' => $lessons,
             'progress' => $enrollment->progress
+        ]);
+    }
+
+    /**
+     * Mark a module as complete for the student.
+     */
+    public function completeModule(Course $course, $moduleId)
+    {
+        $user = auth()->user();
+        
+        // Check enrollment
+        $enrollment = CourseEnrollment::where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->first();
+            
+        if (!$enrollment) {
+            return response()->json(['error' => 'Not enrolled in this course'], 403);
+        }
+
+        // Get the module to check its weight
+        $module = $course->modules()->find($moduleId);
+        if (!$module) {
+            return response()->json(['error' => 'Module not found'], 404);
+        }
+
+        // Create or update module completion
+        $completion = \App\Models\ModuleCompletion::updateOrCreate([
+            'user_id' => $user->id,
+            'module_id' => $moduleId,
+            'course_id' => $course->id,
+        ], [
+            'completed_at' => now(),
+            'completion_data' => json_encode([
+                'method' => 'manual',
+                'timestamp' => now()->toISOString(),
+                'module_weight' => $module->module_percentage,
+            ])
+        ]);
+
+        // Update course enrollment progress based on module weights
+        $enrollment->updateProgress();
+        $enrollment->refresh();
+
+        return redirect()->back()->with([
+            'success' => 'Module marked as completed',
+            'progress' => (float) $enrollment->progress,
         ]);
     }
 }

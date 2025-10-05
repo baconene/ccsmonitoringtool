@@ -2,9 +2,9 @@
 import { router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Activity } from '@/types';
-import { ArrowLeft, Edit, Trash2, FileText, Brain } from 'lucide-vue-next';
-import QuizManagement from './Quiz/QuizManagement.vue';
-import AssignmentManagement from './Assignment/AssignmentManagement.vue';
+import { ArrowLeft, Edit, Trash2, FileText, Brain } from 'lucide-vue-next'; 
+import QuizManagement from '@/pages/ActivityManagement/Quiz/QuizManagement.vue';
+import AssignmentManagement from '@/pages/ActivityManagement/Assignment/AssignmentManagement.vue';
 
 interface Props {
     activity: Activity & {

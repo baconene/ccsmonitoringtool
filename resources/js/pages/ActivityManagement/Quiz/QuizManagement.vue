@@ -2,8 +2,9 @@
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { Plus } from 'lucide-vue-next';
-import QuestionList from './QuestionList.vue';
-import AddQuestionModal from './AddQuestionModal.vue';
+import QuestionList from '@/pages/ActivityManagement/Quiz/QuestionList.vue';
+import AddQuestionModal from '@/pages/ActivityManagement/Quiz/AddQuestionModal.vue';
+import DeleteQuestionModal from '@/pages/ActivityManagement/Quiz/DeleteQuestionModal.vue';
 
 interface Props {
     activity: any;
@@ -13,6 +14,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const showAddQuestionModal = ref(false);
+const showDeleteQuestionModal = ref(false);
+const questionToDelete = ref<{ id: number; text: string } | null>(null);
 
 const handleCreateQuiz = () => {
     router.post('/quizzes', {
@@ -37,9 +40,19 @@ const handleUpdateQuestion = (questionId: number, questionData: any) => {
     router.put(`/questions/${questionId}`, questionData);
 };
 
-const handleDeleteQuestion = (questionId: number) => {
-    if (confirm('Are you sure you want to delete this question?')) {
-        router.delete(`/questions/${questionId}`);
+const handleDeleteQuestion = (questionId: number, questionText: string) => {
+    questionToDelete.value = { id: questionId, text: questionText };
+    showDeleteQuestionModal.value = true;
+};
+
+const confirmDeleteQuestion = () => {
+    if (questionToDelete.value) {
+        router.delete(`/questions/${questionToDelete.value.id}`, {
+            onSuccess: () => {
+                showDeleteQuestionModal.value = false;
+                questionToDelete.value = null;
+            },
+        });
     }
 };
 </script>
@@ -96,6 +109,14 @@ const handleDeleteQuestion = (questionId: number) => {
             :show="showAddQuestionModal"
             @close="showAddQuestionModal = false"
             @submit="handleAddQuestion"
+        />
+
+        <!-- Delete Question Modal -->
+        <DeleteQuestionModal
+            :show="showDeleteQuestionModal"
+            :question-text="questionToDelete?.text"
+            @close="showDeleteQuestionModal = false; questionToDelete = null"
+            @confirm="confirmDeleteQuestion"
         />
     </div>
 </template>

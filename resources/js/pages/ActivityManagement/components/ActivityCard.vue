@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { Calendar, Clock, BookOpen, Pencil, Trash2 } from 'lucide-vue-next';
 import { router } from '@inertiajs/vue3';
-import DeleteActivityModal from './DeleteActivityModal.vue';
+import DeleteActivityModal from '@/pages/ActivityManagement/components/DeleteActivityModal.vue';
 
 interface ActivityType {
     id: number;

@@ -56,4 +56,12 @@ class Activity extends Model
     {
         return $this->hasOne(Assignment::class);
     }
+
+    /**
+     * Get the modules this activity belongs to
+     */
+    public function modules()
+    {
+        return $this->belongsToMany(Module::class, 'module_activities', 'activity_id', 'module_id');
+    }
 }

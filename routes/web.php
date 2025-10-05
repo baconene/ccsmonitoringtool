@@ -235,7 +235,15 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/courses', [App\Http\Controllers\Student\StudentCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [App\Http\Controllers\Student\StudentCourseController::class, 'show'])->name('courses.show');
     Route::post('/courses/{course}/lessons/{lessonId}/complete', [App\Http\Controllers\Student\StudentCourseController::class, 'completeLesson'])->name('courses.lessons.complete');
+    Route::post('/courses/{course}/modules/{moduleId}/complete', [App\Http\Controllers\Student\StudentCourseController::class, 'completeModule'])->name('courses.modules.complete');
     Route::get('/courses/{course}/lessons', [App\Http\Controllers\Student\StudentCourseController::class, 'getLessons'])->name('courses.lessons');
+    
+    // Quiz routes
+    Route::get('/quiz/start/{activity}', [App\Http\Controllers\Student\StudentQuizController::class, 'start'])->name('quiz.start');
+    Route::post('/quiz/{progress}/answer', [App\Http\Controllers\Student\StudentQuizController::class, 'submitAnswer'])->name('quiz.answer');
+    Route::post('/quiz/{progress}/submit', [App\Http\Controllers\Student\StudentQuizController::class, 'submit'])->name('quiz.submit');
+    Route::get('/quiz/{progress}/results', [App\Http\Controllers\Student\StudentQuizController::class, 'results'])->name('quiz.results');
+    Route::get('/quiz/{activity}/progress', [App\Http\Controllers\Student\StudentQuizController::class, 'getProgress'])->name('quiz.progress');
 });
 
 // API ROUTES FOR WEB (Session-based authentication)

@@ -98,20 +98,37 @@ class Course extends Model
     }
 
     /**
-     * Get completion percentage for a specific user.
+     * Get module completions for this course.
+     */
+    public function moduleCompletions(): HasMany
+    {
+        return $this->hasMany(ModuleCompletion::class);
+    }
+
+    /**
+     * Get completion percentage for a specific user based on module weights.
      */
     public function getCompletionPercentageForUser(User $user): float
     {
-        $totalLessons = $this->lessons()->count();
+        $modules = $this->modules()->get();
         
-        if ($totalLessons === 0) {
+        if ($modules->isEmpty()) {
             return 0;
         }
 
-        $completedLessons = $this->lessonCompletions()
+        // Calculate total weight of all modules
+        $totalWeight = $modules->sum('module_percentage') ?: 100;
+        
+        // Get completed modules for this user
+        $completedModules = $this->moduleCompletions()
             ->where('user_id', $user->id)
-            ->count();
-
-        return round(($completedLessons / $totalLessons) * 100, 2);
+            ->pluck('module_id')
+            ->toArray();
+        
+        // Calculate sum of completed module weights
+        $completedWeight = $modules->whereIn('id', $completedModules)
+            ->sum('module_percentage');
+        
+        return $totalWeight > 0 ? round(($completedWeight / $totalWeight) * 100, 2) : 0;
     }
 }

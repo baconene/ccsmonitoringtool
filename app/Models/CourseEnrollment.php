@@ -40,24 +40,37 @@ class CourseEnrollment extends Model
     }
 
     /**
-     * Calculate and update progress based on completed lessons.
+     * Calculate and update progress based on completed module weights.
      */
     public function updateProgress(): void
     {
-        $totalLessons = $this->course->lessons()->count();
+        // Get all modules for this course with their weights
+        $modules = $this->course->modules()->get();
         
-        if ($totalLessons > 0) {
-            $completedLessons = LessonCompletion::where('user_id', $this->user_id)
-                ->where('course_id', $this->course_id)
-                ->count();
-                
-            $progress = ($completedLessons / $totalLessons) * 100;
-            
-            $this->update([
-                'progress' => $progress,
-                'is_completed' => $progress >= 100,
-                'completed_at' => $progress >= 100 ? now() : null,
-            ]);
+        if ($modules->isEmpty()) {
+            return;
         }
+        
+        // Calculate total weight of all modules
+        $totalWeight = $modules->sum('module_percentage') ?: 100;
+        
+        // Get completed modules for this user
+        $completedModules = ModuleCompletion::where('user_id', $this->user_id)
+            ->where('course_id', $this->course_id)
+            ->pluck('module_id')
+            ->toArray();
+        
+        // Calculate sum of completed module weights
+        $completedWeight = $modules->whereIn('id', $completedModules)
+            ->sum('module_percentage');
+        
+        // Calculate progress percentage
+        $progress = $totalWeight > 0 ? ($completedWeight / $totalWeight) * 100 : 0;
+        
+        $this->update([
+            'progress' => round($progress, 2),
+            'is_completed' => $progress >= 100,
+            'completed_at' => $progress >= 100 ? now() : null,
+        ]);
     }
 }

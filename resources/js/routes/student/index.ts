@@ -1,5 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import courses from './courses'
+import quiz from './quiz'
 /**
  * @see routes/web.php:34
  * @route '/student-dashboard'
@@ -165,6 +166,7 @@ const student = {
     dashboard: Object.assign(dashboard, dashboard),
 details: Object.assign(details, details),
 courses: Object.assign(courses, courses),
+quiz: Object.assign(quiz, quiz),
 }
 
 export default student

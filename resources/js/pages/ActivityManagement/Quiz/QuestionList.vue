@@ -10,7 +10,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
     update: [questionId: number, data: any];
-    delete: [questionId: number];
+    delete: [questionId: number, questionText: string];
 }>();
 
 const getQuestionTypeColor = (type: string) => {
@@ -86,7 +86,7 @@ const getQuestionTypeColor = (type: string) => {
 
                         <div class="flex gap-2 ml-4">
                             <button
-                                @click="emit('delete', question.id)"
+                                @click="emit('delete', question.id, question.question_text)"
                                 class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                                 title="Delete"
                             >
