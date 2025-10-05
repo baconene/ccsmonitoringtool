@@ -16,7 +16,8 @@ class Course extends Model
         'title',
         'name', // Keep for backward compatibility
         'description',
-        'instructor_id'
+        'instructor_id',
+        'grade_level'
     ];
 
     protected $casts = [
@@ -77,6 +78,15 @@ class Course extends Model
     public function lessons(): HasMany
     {
         return $this->hasMany(Lesson::class);
+    }
+
+    /**
+     * Get the grade levels associated with this course.
+     */
+    public function gradeLevels(): BelongsToMany
+    {
+        return $this->belongsToMany(GradeLevel::class, 'course_grade_level')
+                    ->withTimestamps();
     }
 
     /**

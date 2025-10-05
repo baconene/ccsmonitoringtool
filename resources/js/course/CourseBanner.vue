@@ -4,7 +4,19 @@
   >
     <!-- Course Info -->
     <div class="flex-1">
-      <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">{{ reactiveCourse.name }}</h1>
+      <div class="flex items-center gap-3 flex-wrap">
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">{{ reactiveCourse.name }}</h1>
+        <div v-if="reactiveCourse.grade_levels && reactiveCourse.grade_levels.length > 0" class="flex items-center gap-2 flex-wrap">
+          <span 
+            v-for="gradeLevel in reactiveCourse.grade_levels" 
+            :key="gradeLevel.id"
+            class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full border border-blue-200 dark:border-blue-800"
+          >
+            <GraduationCap class="w-4 h-4" />
+            {{ gradeLevel.display_name }}
+          </span>
+        </div>
+      </div>
       <span class="text-sm text-gray-600 dark:text-gray-300 block mt-1">{{ reactiveCourse.description }}</span>
     </div>
 
@@ -32,6 +44,13 @@
       <!-- Action buttons -->
       <div class="flex gap-2">
         <button
+          @click="$emit('manageStudents')"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+          title="Manage Students"
+        >
+          <Users class="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+        </button>
+        <button
           @click="$emit('edit')"
           class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
           title="Edit Course"
@@ -52,13 +71,19 @@
 
 <script setup lang="ts">
 import { reactive, computed, watch } from "vue";
-import { Edit3, Trash } from "lucide-vue-next";
+import { Edit3, Trash, Users, GraduationCap } from "lucide-vue-next";
 
 const props = defineProps<{
   course: {
     id: number;
     name: string;
     description?: string;
+    grade_level?: string;
+    grade_levels?: Array<{
+      id: number;
+      name: string;
+      display_name: string;
+    }>;
     modules: Array<{
       completion_percentage: number;
     }>;
@@ -68,6 +93,7 @@ const props = defineProps<{
 defineEmits<{
   (e: "edit"): void;
   (e: "delete"): void;
+  (e: "manageStudents"): void;
 }>();
 
 // Make a reactive copy so changes trigger updates

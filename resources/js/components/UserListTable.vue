@@ -441,88 +441,136 @@ const formatDate = (dateString: string) => {
     </div>
 
     <!-- New User Modal -->
-    <div v-if="showNewUserModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Add New User</h3>
-        <form @submit.prevent="handleAddUser" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+    <div v-if="showNewUserModal" class="fixed inset-0 flex items-center justify-center bg-black/50 dark:bg-black/70 z-50 p-4">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">Add New User</h3>
+          <button
+            @click="closeNewUserModal"
+            class="p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            title="Close"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form @submit.prevent="handleAddUser" class="space-y-6">
+          <!-- Name Field -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Name <span class="text-red-500">*</span>
+            </label>
             <input
               type="text"
               v-model="newUser.name"
               required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+              placeholder="Enter full name..."
             >
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+
+          <!-- Email Field -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Email <span class="text-red-500">*</span>
+            </label>
             <input
               type="email"
               v-model="newUser.email"
               required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+              placeholder="Enter email address..."
             >
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+
+          <!-- Password Field -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Password <span class="text-red-500">*</span>
+            </label>
             <input
               type="password"
               v-model="newUser.password"
               required
               minlength="8"
-              placeholder="Minimum 8 characters"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+              placeholder="Minimum 8 characters..."
             >
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Password must be at least 8 characters long</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Password must be at least 8 characters long.
+            </p>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
+
+          <!-- Role Field -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Role <span class="text-red-500">*</span>
+            </label>
             <select
               v-model="newUser.role"
               required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
             >
               <option value="student">Student</option>
               <option value="instructor">Instructor</option>
               <option value="admin">Admin</option>
             </select>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Select the user's role in the system.
+            </p>
           </div>
           
           <!-- Grade Level - Only show for students -->
-          <div v-if="newUser.role === 'student'">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Grade Level</label>
+          <div v-if="newUser.role === 'student'" class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Grade Level
+            </label>
             <input
               type="text"
               v-model="newUser.grade_level"
-              placeholder="e.g., Grade 10, Year 1"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+              placeholder="e.g., Grade 10, Year 1..."
             >
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Specify the student's grade level or year.
+            </p>
           </div>
           
           <!-- Section - Only show for students -->
-          <div v-if="newUser.role === 'student'">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Section</label>
+          <div v-if="newUser.role === 'student'" class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Section
+            </label>
             <input
               type="text"
               v-model="newUser.section"
-              placeholder="e.g., Section A, Room 101"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+              placeholder="e.g., Section A, Room 101..."
             >
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Specify the student's section or classroom.
+            </p>
           </div>
           
-          <div class="flex justify-end space-x-3 mt-6">
+          <!-- Action Buttons -->
+          <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
               @click="closeNewUserModal"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+              class="w-full sm:w-auto px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
             >
               Cancel
             </button>
             <button
               type="submit"
-              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              class="w-full sm:w-auto px-6 py-3 text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800 flex items-center justify-center gap-2"
             >
-              Add User
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Add User</span>
             </button>
           </div>
         </form>

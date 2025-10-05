@@ -41,6 +41,31 @@
           />
         </div>
 
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Eligible Grade Levels</label>
+          <div class="space-y-2 max-h-48 overflow-y-auto p-3 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700">
+            <label 
+              v-for="grade in availableGradeLevels" 
+              :key="grade.id"
+              class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 p-2 rounded transition-colors"
+            >
+              <input
+                type="checkbox"
+                :value="grade.id"
+                v-model="localCourse.grade_level_ids"
+                class="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 cursor-pointer"
+              />
+              <span class="text-sm text-gray-900 dark:text-white">{{ grade.display_name }}</span>
+            </label>
+            <div v-if="availableGradeLevels.length === 0" class="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
+              Loading grade levels...
+            </div>
+          </div>
+          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            Select one or more grade levels that can take this course. Leave empty if open to all students.
+          </p>
+        </div>
+
         <div class="flex justify-end gap-2">
           <button type="button" @click="$emit('close')" class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
             Cancel
@@ -80,14 +105,33 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch, computed } from 'vue';
+import { reactive, watch, computed, ref, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
+
+interface GradeLevel {
+  id: number;
+  name: string;
+  display_name: string;
+  level: number;
+}
+
+interface CourseGradeLevel {
+  id: number;
+  name: string;
+  display_name: string;
+}
 
 const props = defineProps<{
   open: boolean;
   mode: 'create' | 'edit' | 'view' | 'delete';
-  course?: { id?: number; name: string; description?: string } | null;
+  course?: { 
+    id?: number; 
+    name: string; 
+    description?: string; 
+    grade_level?: string;
+    grade_levels?: CourseGradeLevel[];
+  } | null;
 }>();
 
 const emit = defineEmits<{
@@ -95,10 +139,24 @@ const emit = defineEmits<{
   refresh: [newCourseId?: number];
 }>();
 
+// Grade levels state
+const availableGradeLevels = ref<GradeLevel[]>([]);
+
 // Local form state
 const localCourse = reactive({
   name: '',
   description: '',
+  grade_level_ids: [] as number[],
+});
+
+// Fetch grade levels on mount
+onMounted(async () => {
+  try {
+    const response = await axios.get('/api/grade-levels');
+    availableGradeLevels.value = response.data.grade_levels;
+  } catch (error) {
+    console.error('Failed to fetch grade levels:', error);
+  }
 });
 
 // Sync props into local state
@@ -108,9 +166,11 @@ watch(
     if (mode === 'edit' && course) {
       localCourse.name = course.name || '';
       localCourse.description = course.description || '';
+      localCourse.grade_level_ids = course.grade_levels?.map(gl => gl.id) || [];
     } else if (mode === 'create') {
       localCourse.name = '';
       localCourse.description = '';
+      localCourse.grade_level_ids = [];
     }
   },
   { immediate: true }
@@ -137,6 +197,7 @@ async function handleSubmit() {
     const formData = {
       name: localCourse.name,
       description: localCourse.description,
+      grade_level_ids: localCourse.grade_level_ids,
     };
 
     if (props.mode === 'create') {

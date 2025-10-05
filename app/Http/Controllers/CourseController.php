@@ -15,9 +15,9 @@ class CourseController extends Controller
      */
     public function index()
     {
-        // Fetch all courses with their modules (and lessons if needed)
+        // Fetch all courses with their modules, lessons, and grade levels
         return Inertia::render('CourseManagement', [
-            'courses' => Course::with('modules.lessons.documents')->get()
+            'courses' => Course::with(['modules.lessons.documents', 'gradeLevels'])->get()
         ]);
     }
 
@@ -71,10 +71,23 @@ class CourseController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',  
+            'description' => 'nullable|string',
+            'grade_level_ids' => 'nullable|array',
+            'grade_level_ids.*' => 'exists:grade_levels,id',
         ]);
 
-        $course = Course::create($validated);
+        $course = Course::create([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        // Attach grade levels if provided
+        if (!empty($validated['grade_level_ids'])) {
+            $course->gradeLevels()->attach($validated['grade_level_ids']);
+        }
+
+        // Load grade levels for response
+        $course->load('gradeLevels');
 
         return response()->json([
             'success' => true,
@@ -100,9 +113,22 @@ class CourseController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'grade_level_ids' => 'nullable|array',
+            'grade_level_ids.*' => 'exists:grade_levels,id',
         ]);
 
-        $course->update($validated);
+        $course->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        // Sync grade levels (this will add new ones and remove old ones)
+        if (isset($validated['grade_level_ids'])) {
+            $course->gradeLevels()->sync($validated['grade_level_ids']);
+        }
+
+        // Load grade levels for response
+        $course->load('gradeLevels');
 
         return response()->json([
             'message' => 'Course updated successfully!',

@@ -25,6 +25,12 @@ const props = defineProps<{
     id: number;
     name: string;
     description?: string;
+    grade_level?: string;
+    grade_levels?: Array<{
+      id: number;
+      name: string;
+      display_name: string;
+    }>;
     modules: Array<{
       id: number;
       description: string;
@@ -128,6 +134,10 @@ function openDeleteCourse(course: any) {
   showCourseModal.value = true;
 }
 
+function openManageStudents(course: any) {
+  router.visit(`/courses/${course.id}/manage-students`);
+}
+
 // Enhanced refresh handler for course operations
 function handleCourseRefresh(newCourseId?: number) {
     console.log('Course refresh triggered. New Course ID:', newCourseId);
@@ -197,6 +207,7 @@ function handleCourseRefresh(newCourseId?: number) {
           <div v-if="selectedCourse" class="flex flex-col gap-6">
             <CourseBanner
               :course="selectedCourse"
+              @manageStudents="openManageStudents(selectedCourse)"
               @edit="openEditCourse(selectedCourse)"
               @delete="openDeleteCourse(selectedCourse)"
             />

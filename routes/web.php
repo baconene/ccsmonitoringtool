@@ -180,6 +180,14 @@ Route::match(['get', 'post'], '_boost/browser-logs', function () {
 Route::get('/course-management', [CourseController::class, 'index'])->name('course.index');
 Route::post('/courses/{course}/modules', [ModuleController::class, 'store'])->name('modules.store');
 Route::resource('courses', CourseController::class)->except(['create', 'show', 'edit']);
+
+// Course Student Management Routes
+Route::middleware(['auth'])->prefix('courses')->name('courses.')->group(function () {
+    Route::get('/{course}/manage-students', [\App\Http\Controllers\CourseStudentController::class, 'index'])->name('manage-students');
+    Route::post('/{course}/enroll-students', [\App\Http\Controllers\CourseStudentController::class, 'enrollStudents'])->name('enroll-students');
+    Route::post('/{course}/remove-students', [\App\Http\Controllers\CourseStudentController::class, 'removeStudents'])->name('remove-students');
+    Route::get('/{course}/eligible-students', [\App\Http\Controllers\CourseStudentController::class, 'getEligibleStudents'])->name('eligible-students');
+});
 //LESSON ROUTES
 Route::post('/lessons', [LessonController::class, 'store'])->name('lessons.store');
 Route::put('/lessons/{lessonId}', [LessonController::class, 'update'])->name('lessons.update');
@@ -211,6 +219,9 @@ Route::middleware(['auth'])->prefix('api')->group(function () {
 
     // Course API routes
     Route::get('/courses', [App\Http\Controllers\CourseController::class, 'getCourses']);
+    
+    // Grade Level API routes
+    Route::get('/grade-levels', [App\Http\Controllers\GradeLevelController::class, 'index']);
     
     // Schedule API routes
     Route::prefix('schedule')->group(function () {

@@ -296,7 +296,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:98
+ * @see app/Http/Controllers/CourseController.php:111
  * @route '/courses/{course}'
  */
 export const update = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -311,7 +311,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:98
+ * @see app/Http/Controllers/CourseController.php:111
  * @route '/courses/{course}'
  */
 update.url = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -344,7 +344,7 @@ update.url = (args: { course: number | { id: number } } | [course: number | { id
 
 /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:98
+ * @see app/Http/Controllers/CourseController.php:111
  * @route '/courses/{course}'
  */
 update.put = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -353,7 +353,7 @@ update.put = (args: { course: number | { id: number } } | [course: number | { id
 })
 /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:98
+ * @see app/Http/Controllers/CourseController.php:111
  * @route '/courses/{course}'
  */
 update.patch = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -363,7 +363,7 @@ update.patch = (args: { course: number | { id: number } } | [course: number | { 
 
     /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:98
+ * @see app/Http/Controllers/CourseController.php:111
  * @route '/courses/{course}'
  */
     const updateForm = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -378,7 +378,7 @@ update.patch = (args: { course: number | { id: number } } | [course: number | { 
 
             /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:98
+ * @see app/Http/Controllers/CourseController.php:111
  * @route '/courses/{course}'
  */
         updateForm.put = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -392,7 +392,7 @@ update.patch = (args: { course: number | { id: number } } | [course: number | { 
         })
             /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:98
+ * @see app/Http/Controllers/CourseController.php:111
  * @route '/courses/{course}'
  */
         updateForm.patch = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -408,7 +408,7 @@ update.patch = (args: { course: number | { id: number } } | [course: number | { 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\CourseController::destroy
- * @see app/Http/Controllers/CourseController.php:116
+ * @see app/Http/Controllers/CourseController.php:142
  * @route '/courses/{course}'
  */
 export const destroy = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -423,7 +423,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::destroy
- * @see app/Http/Controllers/CourseController.php:116
+ * @see app/Http/Controllers/CourseController.php:142
  * @route '/courses/{course}'
  */
 destroy.url = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -456,7 +456,7 @@ destroy.url = (args: { course: number | { id: number } } | [course: number | { i
 
 /**
 * @see \App\Http\Controllers\CourseController::destroy
- * @see app/Http/Controllers/CourseController.php:116
+ * @see app/Http/Controllers/CourseController.php:142
  * @route '/courses/{course}'
  */
 destroy.delete = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -466,7 +466,7 @@ destroy.delete = (args: { course: number | { id: number } } | [course: number | 
 
     /**
 * @see \App\Http\Controllers\CourseController::destroy
- * @see app/Http/Controllers/CourseController.php:116
+ * @see app/Http/Controllers/CourseController.php:142
  * @route '/courses/{course}'
  */
     const destroyForm = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -481,7 +481,7 @@ destroy.delete = (args: { course: number | { id: number } } | [course: number | 
 
             /**
 * @see \App\Http\Controllers\CourseController::destroy
- * @see app/Http/Controllers/CourseController.php:116
+ * @see app/Http/Controllers/CourseController.php:142
  * @route '/courses/{course}'
  */
         destroyForm.delete = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

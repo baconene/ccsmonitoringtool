@@ -2,5 +2,9 @@
   {
     "type": "sqlite",
     "path": "c:\\laravel-proj\\learning-management-system\\database\\database_new.sqlite"
+  },
+  {
+    "type": "sqlite",
+    "path": "c:\\laravel-proj\\learning-management-system\\database\\database.sqlite"
   }
 ]
