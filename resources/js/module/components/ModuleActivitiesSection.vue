@@ -32,7 +32,7 @@
               <h4 class="font-medium text-gray-900 dark:text-gray-100">{{ activity.title }}</h4>
               <span
                 class="px-2 py-0.5 text-xs rounded-full flex-shrink-0"
-                :class="getActivityTypeBadgeClass((activity.activityType || activity.activity_type)?.name)"
+                :class="getActivityTypeBadgeClass(getActivityTypeName(activity))"
               >
                 {{ getActivityTypeName(activity) }}
               </span>

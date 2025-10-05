@@ -38,13 +38,13 @@ console.log('Quiz Results - Answers count:', props.progress.answers?.length);
 const scorePercentage = computed(() => {
   const score = props.progress.percentage_score;
   // Handle both number and string (just in case)
-  return typeof score === 'number' ? score : parseFloat(score || 0);
+  return typeof score === 'number' ? score : parseFloat(String(score || 0));
 });
 
 const totalScore = computed(() => {
   const score = props.progress.score;
   // Handle both number and string (just in case)
-  return typeof score === 'number' ? score : parseFloat(score || 0);
+  return typeof score === 'number' ? score : parseFloat(String(score || 0));
 });
 
 const totalQuestions = computed(() => props.progress.total_questions || 0);
