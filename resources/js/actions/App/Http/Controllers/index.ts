@@ -1,6 +1,7 @@
 import Auth from './Auth'
 import Api from './Api'
 import CourseController from './CourseController'
+import UserController from './UserController'
 import ModuleController from './ModuleController'
 import LessonController from './LessonController'
 import Student from './Student'
@@ -9,6 +10,7 @@ const Controllers = {
     Auth: Object.assign(Auth, Auth),
 Api: Object.assign(Api, Api),
 CourseController: Object.assign(CourseController, CourseController),
+UserController: Object.assign(UserController, UserController),
 ModuleController: Object.assign(ModuleController, ModuleController),
 LessonController: Object.assign(LessonController, LessonController),
 Student: Object.assign(Student, Student),

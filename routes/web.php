@@ -28,6 +28,72 @@ Route::get('student-dashboard', function () {
 })->middleware(['auth', 'verified', 'role:student'])->name('student.dashboard');
 
 // Role management page (admin only)
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    // Role Management UI
+    Route::get('/role-management', function () {
+        return Inertia::render('RoleManagement');
+    })->name('role.management');
+
+    // Student Details Page
+    Route::get('/student/{id}/details', function ($id) {
+        $student = \App\Models\User::with('role')->findOrFail($id);
+        
+        if (!$student->role || $student->role->name !== 'student') {
+            abort(404, 'User is not a student');
+        }
+
+        $enrolledCourses = $student->enrolledCourses()
+            ->with('lessons')
+            ->get()
+            ->map(function ($course) use ($student) {
+                $totalLessons = $course->lessons->count();
+                
+                // Count completed lessons for this student in this course
+                $completedLessons = \App\Models\LessonCompletion::where('user_id', $student->id)
+                    ->where('course_id', $course->id)
+                    ->count();
+                
+                $progress = $totalLessons > 0 ? round(($completedLessons / $totalLessons) * 100) : 0;
+                
+                $lastActivity = \App\Models\LessonCompletion::where('user_id', $student->id)
+                    ->where('course_id', $course->id)
+                    ->latest()
+                    ->first();
+
+                return [
+                    'id' => $course->id,
+                    'title' => $course->title,
+                    'progress' => $progress,
+                    'total_lessons' => $totalLessons,
+                    'completed_lessons' => $completedLessons,
+                    'last_activity' => $lastActivity ? $lastActivity->created_at->diffForHumans() : 'Never',
+                ];
+            });
+
+        return Inertia::render('Student/StudentDetails', [
+            'student' => [
+                'id' => $student->id,
+                'name' => $student->name,
+                'email' => $student->email,
+                'role_name' => $student->role_name,
+                'role_display_name' => $student->role_display_name,
+                'grade_level' => $student->grade_level ?? null,
+                'section' => $student->section ?? null,
+            ],
+            'enrolledCourses' => $enrolledCourses,
+        ]);
+    })->name('student.details');
+
+    // API Routes for User Management
+    Route::prefix('api')->group(function () {
+        Route::get('/roles', function () {
+            return response()->json(\App\Models\Role::all());
+        });
+        
+        Route::apiResource('users', \App\Http\Controllers\UserController::class);
+        Route::get('/users/{id}/student-details', [\App\Http\Controllers\UserController::class, 'studentDetails']);
+    });
+});
 Route::get('role-management', function () {
     return Inertia::render('RoleManagement');
 })->middleware(['auth', 'verified', 'role:admin'])->name('role.management');

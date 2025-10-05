@@ -241,7 +241,7 @@ const formatDuration = (minutes: number) => {
               <div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 border-b border-gray-200 dark:border-gray-600 rounded-t-lg">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ moduleName }}</h2>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                  {{ lessons.filter(l => l.is_completed).length }} / {{ lessons.length }} lessons completed
+                  {{ lessons.filter((l: Lesson) => l.is_completed).length }} / {{ lessons.length }} lessons completed
                 </p>
               </div>
 

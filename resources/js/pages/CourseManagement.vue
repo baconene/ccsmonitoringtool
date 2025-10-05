@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
+import { type BreadcrumbItem } from '@/types';
 import AddModuleModal from '@/module/AddModuleModal.vue';
 import EditModuleModal from '@/module/EditModuleModal.vue';
 import RemoveModuleModal from '@/module/RemoveModuleModal.vue';
@@ -12,6 +13,12 @@ import AddModuleButton from '@/module/AddModuleButton.vue';
 import AddLessonModal from '@/lesson/AddLessonModal.vue';
 import CourseModal from '@/course/CourseModal.vue';
 import AddCourseButton from '@/course/AddCourseButton.vue';
+
+// Breadcrumb items
+const breadcrumbItems: BreadcrumbItem[] = [
+  { title: 'Home', href: '/' },
+  { title: 'Course Management', href: '/course-management' }
+];
 
 const props = defineProps<{
   courses: Array<{
@@ -135,7 +142,7 @@ function handleCourseRefresh(newCourseId?: number) {
 
 <template>
   <Head title="Course Management" />
-  <AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbItems">
     <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <div class="container mx-auto px-4 py-6 max-w-7xl">
         <div class="flex flex-col h-full gap-6">

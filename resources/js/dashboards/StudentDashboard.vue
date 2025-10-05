@@ -309,7 +309,7 @@ defineExpose({
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Pending Assignments</h2>
           <div class="space-y-3">
             <div
-              v-for="assignment in assignments.filter(a => a.status === 'pending')"
+              v-for="assignment in assignments.filter((a: Assignment) => a.status === 'pending')"
               :key="assignment.id"
               class="border-l-4 border-orange-500 dark:border-orange-400 pl-4 py-2"
             >

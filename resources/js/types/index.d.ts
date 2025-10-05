@@ -43,6 +43,8 @@ export interface User {
     role_id?: number;
     role_name?: string; // Computed attribute from backend
     role_display_name?: string; // Computed attribute from backend
+    grade_level?: string; // For students
+    section?: string; // For students
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;

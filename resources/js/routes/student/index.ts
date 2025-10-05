@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import courses from './courses'
 /**
  * @see routes/web.php:26
@@ -71,8 +71,99 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
     
     dashboard.form = dashboardForm
+/**
+ * @see routes/web.php:38
+ * @route '/student/{id}/details'
+ */
+export const details = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: details.url(args, options),
+    method: 'get',
+})
+
+details.definition = {
+    methods: ["get","head"],
+    url: '/student/{id}/details',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+ * @see routes/web.php:38
+ * @route '/student/{id}/details'
+ */
+details.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    
+    if (Array.isArray(args)) {
+        args = {
+                    id: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        id: args.id,
+                }
+
+    return details.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+ * @see routes/web.php:38
+ * @route '/student/{id}/details'
+ */
+details.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: details.url(args, options),
+    method: 'get',
+})
+/**
+ * @see routes/web.php:38
+ * @route '/student/{id}/details'
+ */
+details.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: details.url(args, options),
+    method: 'head',
+})
+
+    /**
+ * @see routes/web.php:38
+ * @route '/student/{id}/details'
+ */
+    const detailsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: details.url(args, options),
+        method: 'get',
+    })
+
+            /**
+ * @see routes/web.php:38
+ * @route '/student/{id}/details'
+ */
+        detailsForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: details.url(args, options),
+            method: 'get',
+        })
+            /**
+ * @see routes/web.php:38
+ * @route '/student/{id}/details'
+ */
+        detailsForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: details.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    details.form = detailsForm
 const student = {
     dashboard: Object.assign(dashboard, dashboard),
+details: Object.assign(details, details),
 courses: Object.assign(courses, courses),
 }
 

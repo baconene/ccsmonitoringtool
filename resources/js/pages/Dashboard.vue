@@ -6,6 +6,13 @@ import CourseModal from '@/course/CourseModal.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { ref, computed, onMounted } from 'vue';
 import { coursesApi, dashboardApi, type Course, type DashboardStats } from '@/utils/api';
+import { type BreadcrumbItem } from '@/types';
+
+// Breadcrumb items
+const breadcrumbItems: BreadcrumbItem[] = [
+  { title: 'Home', href: '/' },
+  { title: 'Dashboard', href: '/dashboard' }
+];
 
 // Props to determine which dashboard component to render
 interface Props {
@@ -119,7 +126,7 @@ const handleCourseModalRefresh = async (newCourseId?: number) => {
 <template>
     <Head title="Dashboard" />
 
-    <AppLayout>
+    <AppLayout :breadcrumbs="breadcrumbItems">
         <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
             <!-- Main Container with Responsive Grid -->
             <div class="container mx-auto px-4 py-6 max-w-7xl">

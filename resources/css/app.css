@@ -169,4 +169,59 @@
     body {
         @apply bg-background text-foreground;
     }
+    
+    /* Custom Scrollbar Styling */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(156 163 175) rgb(243 244 246);
+    }
+    
+    .dark * {
+        scrollbar-color: rgb(75 85 99) rgb(31 41 55);
+    }
+    
+    /* Webkit Scrollbar Styling */
+    *::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    
+    *::-webkit-scrollbar-track {
+        @apply bg-gray-100 dark:bg-gray-800;
+        border-radius: 5px;
+    }
+    
+    *::-webkit-scrollbar-thumb {
+        @apply bg-gray-400 dark:bg-gray-600;
+        border-radius: 5px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+    }
+    
+    *::-webkit-scrollbar-thumb:hover {
+        @apply bg-gray-500 dark:bg-gray-500;
+    }
+    
+    /* Scrollbar for specific containers with better styling */
+    .overflow-y-auto::-webkit-scrollbar,
+    .overflow-x-auto::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-track,
+    .overflow-x-auto::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-thumb,
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+        @apply bg-gray-300 dark:bg-gray-700;
+        border-radius: 4px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+        @apply bg-gray-400 dark:bg-gray-600;
+    }
 }

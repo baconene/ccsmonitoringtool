@@ -38,11 +38,6 @@ const adminNavItems: NavItem[] = [
         title: 'Course Management',
         href: "/course-management",
         icon: GraduationCap,
-    },
-    {
-        title: 'Assignment',
-        href: "/assignment",
-        icon: ClipboardList,
     }, 
     {
         title: 'Assessment Tool',
@@ -50,10 +45,15 @@ const adminNavItems: NavItem[] = [
         icon: BookOpen,
     },
     {
+        title: 'Activities',
+        href: "/activities",
+        icon: ClipboardList,
+    },
+    {
         title: 'Role Management',
         href: "/role-management",
         icon: Users,
-    },
+    }, 
     {
         title: 'Report',
         href: "/report",
