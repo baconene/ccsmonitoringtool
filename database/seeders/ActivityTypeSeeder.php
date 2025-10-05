@@ -24,11 +24,16 @@ class ActivityTypeSeeder extends Seeder
         ];
 
         foreach ($activityTypes as $type) {
-            ActivityType::updateOrCreate(
-                ['name' => $type['name']],
-                $type
-            );
-            $this->command->info("✓ Activity Type: {$type['name']}");
+            try {
+                ActivityType::updateOrCreate(
+                    ['name' => $type['name']],
+                    $type
+                );
+                $this->command->info("✓ Activity Type: {$type['name']}");
+            } catch (\Exception $e) {
+                $this->command->warn("⚠️  Skipped activity type {$type['name']}: " . $e->getMessage());
+                continue;
+            }
         }
 
         // Question Types
@@ -40,11 +45,16 @@ class ActivityTypeSeeder extends Seeder
         ];
 
         foreach ($questionTypes as $type) {
-            QuestionType::updateOrCreate(
-                ['type' => $type['type']],
-                $type
-            );
-            $this->command->info("✓ Question Type: {$type['type']}");
+            try {
+                QuestionType::updateOrCreate(
+                    ['type' => $type['type']],
+                    $type
+                );
+                $this->command->info("✓ Question Type: {$type['type']}");
+            } catch (\Exception $e) {
+                $this->command->warn("⚠️  Skipped question type {$type['type']}: " . $e->getMessage());
+                continue;
+            }
         }
 
         // Assignment Types
@@ -56,11 +66,16 @@ class ActivityTypeSeeder extends Seeder
         ];
 
         foreach ($assignmentTypes as $type) {
-            AssignmentType::updateOrCreate(
-                ['type' => $type['type']],
-                $type
-            );
-            $this->command->info("✓ Assignment Type: {$type['type']}");
+            try {
+                AssignmentType::updateOrCreate(
+                    ['type' => $type['type']],
+                    $type
+                );
+                $this->command->info("✓ Assignment Type: {$type['type']}");
+            } catch (\Exception $e) {
+                $this->command->warn("⚠️  Skipped assignment type {$type['type']}: " . $e->getMessage());
+                continue;
+            }
         }
 
         $this->command->info('✅ Activity types seeded successfully!');

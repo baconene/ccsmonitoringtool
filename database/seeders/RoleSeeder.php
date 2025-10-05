@@ -13,6 +13,8 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->command->info('🌱 Seeding Roles...');
+        
         $roles = [
             [
                 'name' => 'admin',
@@ -35,10 +37,18 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($roles as $roleData) {
-            Role::firstOrCreate(
-                ['name' => $roleData['name']],
-                $roleData
-            );
+            try {
+                $role = Role::updateOrCreate(
+                    ['name' => $roleData['name']],
+                    $roleData
+                );
+                $this->command->info("✓ Role: {$role->name}");
+            } catch (\Exception $e) {
+                $this->command->warn("⚠️  Skipped role {$roleData['name']}: " . $e->getMessage());
+                continue;
+            }
         }
+        
+        $this->command->info('✅ Roles seeded successfully!');
     }
 }

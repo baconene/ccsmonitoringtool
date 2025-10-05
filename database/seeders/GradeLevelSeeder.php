@@ -24,11 +24,16 @@ class GradeLevelSeeder extends Seeder
         ];
 
         foreach ($yearLevels as $levelData) {
-            GradeLevel::updateOrCreate(
-                ['name' => $levelData['name']],
-                $levelData + ['is_active' => true]
-            );
-            $this->command->info("✓ Grade Level: {$levelData['name']}");
+            try {
+                GradeLevel::updateOrCreate(
+                    ['name' => $levelData['name']],
+                    $levelData + ['is_active' => true]
+                );
+                $this->command->info("✓ Grade Level: {$levelData['name']}");
+            } catch (\Exception $e) {
+                $this->command->warn("⚠️  Skipped {$levelData['name']}: " . $e->getMessage());
+                continue;
+            }
         }
 
         // Grade Levels (1-12) - Standard K-12 system
@@ -53,11 +58,16 @@ class GradeLevelSeeder extends Seeder
         ];
 
         foreach ($gradeLevels as $levelData) {
-            GradeLevel::updateOrCreate(
-                ['name' => $levelData['name']],
-                $levelData + ['is_active' => true]
-            );
-            $this->command->info("✓ Grade Level: {$levelData['name']}");
+            try {
+                GradeLevel::updateOrCreate(
+                    ['name' => $levelData['name']],
+                    $levelData + ['is_active' => true]
+                );
+                $this->command->info("✓ Grade Level: {$levelData['name']}");
+            } catch (\Exception $e) {
+                $this->command->warn("⚠️  Skipped {$levelData['name']}: " . $e->getMessage());
+                continue;
+            }
         }
 
         $this->command->info('✅ Grade levels seeded successfully!');
