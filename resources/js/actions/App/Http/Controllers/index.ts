@@ -5,9 +5,10 @@ import UserController from './UserController'
 import ModuleController from './ModuleController'
 import CourseStudentController from './CourseStudentController'
 import LessonController from './LessonController'
-import Student from './Student'
+import Student from './CourseStudentController'
 import GradeLevelController from './GradeLevelController'
 import Settings from './Settings'
+
 const Controllers = {
     Auth: Object.assign(Auth, Auth),
 Api: Object.assign(Api, Api),
