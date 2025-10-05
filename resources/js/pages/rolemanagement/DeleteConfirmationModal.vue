@@ -61,7 +61,7 @@
         (e: 'confirm', user: User): void;
     }
 
-    defineProps<Props>();
+    const props = defineProps<Props>();
     const emit = defineEmits<Emits>();
 
     const closeDeleteModal = () => {
@@ -69,7 +69,6 @@
     };
 
     const confirmDeleteUser = () => {
-        const props = defineProps<Props>();
         if (props.userToDelete) {
             emit('confirm', props.userToDelete);
         }
