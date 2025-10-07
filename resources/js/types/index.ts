@@ -180,6 +180,41 @@ export type QuizAttemptFile = {
     document_id: number; //the document id stored in the document table 
 } 
 
+export type StudentQuizProgress = { 
+  id: number;
+  student_id: number; // User ID of the student
+  quiz_id: number; // Associated Quiz ID
+  activity_id: number; // Associated Activity ID
+  quiz: Quiz; // Full Quiz object with questions
+  answers: Array<StudentQuizAnswer>; // Array of answers provided by the student
+  started_at: string;
+  last_accessed_at: string;
+  is_completed: boolean;
+  is_submitted: boolean;
+  completed_questions: number;
+  total_questions: number;
+  score?: number; // Calculated score based on correct answers
+  percentage_score?: number; // Score as percentage
+  time_spent?: number; // Time spent in minutes
+  created_at: string;
+  updated_at: string;
+} 
+
+export type StudentQuizAnswer = {
+  id: number;
+  student_id: number; // User ID of the student
+  quiz_progress_id: number; // Associated Progress ID
+  question_id: number; // Associated Question ID
+  question: Question; // Full Question object for validation
+  selected_option_id?: number; // For multiple choice questions
+  answer_text?: string; // For text-based answers
+  is_correct: boolean; // Determined by comparing with question.correct_answer
+  points_earned: number; // Points earned for this answer
+  answered_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export type Module = {
     id: number;
     title?: string;

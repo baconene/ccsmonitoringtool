@@ -1,5 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import courses from './courses'
+import activities63c2d9 from './activities'
 import quiz from './quiz'
 /**
  * @see routes/web.php:34
@@ -162,10 +163,89 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
         })
     
     details.form = detailsForm
+/**
+* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
+ * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+ * @route '/student/activities'
+ */
+export const activities = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: activities.url(options),
+    method: 'get',
+})
+
+activities.definition = {
+    methods: ["get","head"],
+    url: '/student/activities',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
+ * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+ * @route '/student/activities'
+ */
+activities.url = (options?: RouteQueryOptions) => {
+    return activities.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
+ * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+ * @route '/student/activities'
+ */
+activities.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: activities.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
+ * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+ * @route '/student/activities'
+ */
+activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: activities.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
+ * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+ * @route '/student/activities'
+ */
+    const activitiesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: activities.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
+ * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+ * @route '/student/activities'
+ */
+        activitiesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: activities.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
+ * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+ * @route '/student/activities'
+ */
+        activitiesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: activities.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    activities.form = activitiesForm
 const student = {
     dashboard: Object.assign(dashboard, dashboard),
 details: Object.assign(details, details),
 courses: Object.assign(courses, courses),
+activities: Object.assign(activities, activities63c2d9),
 quiz: Object.assign(quiz, quiz),
 }
 

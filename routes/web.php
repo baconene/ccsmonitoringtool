@@ -238,6 +238,10 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::post('/courses/{course}/modules/{moduleId}/complete', [App\Http\Controllers\Student\StudentCourseController::class, 'completeModule'])->name('courses.modules.complete');
     Route::get('/courses/{course}/lessons', [App\Http\Controllers\Student\StudentCourseController::class, 'getLessons'])->name('courses.lessons');
     
+    // Student Activities
+    Route::get('/activities', [App\Http\Controllers\Student\StudentActivitiesController::class, 'index'])->name('activities');
+    Route::get('/activities/{activity}', [App\Http\Controllers\Student\StudentActivitiesController::class, 'show'])->name('activities.show');
+    
     // Quiz routes
     Route::get('/quiz/start/{activity}', [App\Http\Controllers\Student\StudentQuizController::class, 'start'])->name('quiz.start');
     Route::post('/quiz/{progress}/answer', [App\Http\Controllers\Student\StudentQuizController::class, 'submitAnswer'])->name('quiz.answer');

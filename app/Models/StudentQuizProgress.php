@@ -82,4 +82,84 @@ class StudentQuizProgress extends Model
         
         $this->save();
     }
+
+    /**
+     * Get all activities for a student based on their course enrollments
+     * This includes activities they haven't started yet
+     */
+    public static function getStudentActivities($studentId)
+    {
+        // Get all courses the student is enrolled in
+        $enrolledCourses = \App\Models\CourseEnrollment::with([
+            'course.modules.activities.activityType',
+            'course.modules.activities.quiz.questions',
+            'course.modules.lessons.activities.activityType',
+            'course.modules.lessons.activities.quiz.questions'
+        ])
+        ->where('user_id', $studentId)
+        ->get();
+
+        $activities = collect();
+
+        foreach ($enrolledCourses as $enrollment) {
+            $course = $enrollment->course;
+            
+            // Get activities from modules
+            foreach ($course->modules as $module) {
+                foreach ($module->activities as $activity) {
+                    $activities->push([
+                        'activity' => $activity,
+                        'course' => $course,
+                        'module' => $module,
+                        'lesson' => null,
+                        'source' => 'module'
+                    ]);
+                }
+                
+                // Get activities from lessons within modules
+                foreach ($module->lessons as $lesson) {
+                    foreach ($lesson->activities as $activity) {
+                        $activities->push([
+                            'activity' => $activity,
+                            'course' => $course,
+                            'module' => $module,
+                            'lesson' => $lesson,
+                            'source' => 'lesson'
+                        ]);
+                    }
+                }
+            }
+        }
+
+        return $activities;
+    }
+
+    /**
+     * Get student activity status and progress
+     */
+    public static function getActivityStatus($studentId, $activityId)
+    {
+        $progress = self::where('student_id', $studentId)
+            ->where('activity_id', $activityId)
+            ->first();
+
+        if (!$progress) {
+            return [
+                'status' => 'not-taken',
+                'progress' => null
+            ];
+        }
+
+        $status = 'not-taken';
+        if ($progress->is_completed && $progress->is_submitted) {
+            $status = 'completed';
+        } elseif ($progress->started_at) {
+            $status = 'in-progress';
+        }
+
+        return [
+            'status' => $status,
+            'progress' => $progress
+        ];
+    }
 }

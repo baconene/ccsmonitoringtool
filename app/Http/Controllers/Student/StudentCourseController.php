@@ -319,4 +319,6 @@ class StudentCourseController extends Controller
             'progress' => (float) $enrollment->progress,
         ]);
     }
+
+
 }
