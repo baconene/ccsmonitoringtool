@@ -82,6 +82,30 @@ const sections: DocSection[] = [
     ]
   },
   {
+    id: 'grade-calculation',
+    title: 'Grade Calculation System',
+    icon: BarChart,
+    subsections: [
+      { id: 'grade-overview', title: 'Grade Calculation Overview' },
+      { id: 'module-grading', title: 'Module Grading Formula' },
+      { id: 'course-grading', title: 'Course Grade Calculation' },
+      { id: 'gpa-calculation', title: 'GPA & Letter Grades' },
+      { id: 'grade-weighting', title: 'Activity Weighting System' },
+    ]
+  },
+  {
+    id: 'grade-reporting',
+    title: 'Grade Reports & Export',
+    icon: FileText,
+    subsections: [
+      { id: 'student-reports', title: 'Student Grade Reports' },
+      { id: 'instructor-reports', title: 'Instructor Reports' },
+      { id: 'report-navigation', title: 'Report Navigation' },
+      { id: 'pdf-export', title: 'PDF Export Features' },
+      { id: 'csv-export', title: 'CSV Export Features' },
+    ]
+  },
+  {
     id: 'analytics',
     title: 'Analytics & Reports',
     icon: BarChart,
@@ -1906,6 +1930,377 @@ function getContentForSection(sectionId: string) {
 
         <h3 class="text-2xl font-bold mb-4 mt-8">Customization</h3>
         <p>Dashboard widgets can be customized based on your role. Administrators see system-wide metrics, while instructors see course-specific data.</p>
+      `
+    },
+    'grade-overview': {
+      title: 'Grade Calculation Overview',
+      content: `
+        <p class="text-lg mb-6">The LMS uses a comprehensive grade calculation system that provides accurate and transparent grade reporting for students and instructors.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">🧮 Calculation Hierarchy</h3>
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
+          <div class="space-y-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+              <div>
+                <h4 class="font-bold">Activity Scores</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Individual quiz/activity results (0-100%)</p>
+              </div>
+            </div>
+            <div class="ml-4 border-l-2 border-blue-300 pl-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                <div>
+                  <h4 class="font-bold">Module Grades</h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">Lessons (20%) + Activities (80%) = Module Score</p>
+                </div>
+              </div>
+            </div>
+            <div class="ml-8 border-l-2 border-green-300 pl-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                <div>
+                  <h4 class="font-bold">Course Grades</h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">Weighted average of all module scores</p>
+                </div>
+              </div>
+            </div>
+            <div class="ml-12 border-l-2 border-purple-300 pl-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center font-bold">4</div>
+                <div>
+                  <h4 class="font-bold">Overall GPA</h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">Calculated from all enrolled courses</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📊 Grade Display Features</h3>
+        <ul class="list-disc pl-6 space-y-2 mb-6">
+          <li><strong>Real-time Updates:</strong> Grades update automatically when activities are completed</li>
+          <li><strong>Transparent Calculations:</strong> Students can see exactly how their grades are calculated</li>
+          <li><strong>Letter Grade Conversion:</strong> Automatic conversion to letter grades (A+, A, B+, etc.)</li>
+          <li><strong>Progress Tracking:</strong> Visual progress indicators for module and course completion</li>
+          <li><strong>Edge Case Handling:</strong> Proper handling of modules without activities (defaults to 100%)</li>
+        </ul>
+      `
+    },
+    'module-grading': {
+      title: 'Module Grading Formula',
+      content: `
+        <p class="text-lg mb-6">Each module grade is calculated using a weighted formula that ensures balanced assessment between lessons and activities.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">🔢 The Formula</h3>
+        <div class="bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 mb-6">
+          <div class="text-center">
+            <div class="text-2xl font-mono font-bold mb-4 text-blue-600 dark:text-blue-400">
+              Module Score = (Lessons × 20%) + (Activities × 80%)
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Where both components contribute to the final module grade</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📝 Component Breakdown</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <h4 class="text-xl font-bold mb-3 text-green-700 dark:text-green-400">📚 Lessons (20%)</h4>
+            <ul class="list-disc pl-4 space-y-1 text-sm">
+              <li>Reading materials and content consumption</li>
+              <li>Video lectures and multimedia content</li>
+              <li>Theoretical learning components</li>
+              <li>Default: 100% if no lessons exist</li>
+            </ul>
+          </div>
+          
+          <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+            <h4 class="text-xl font-bold mb-3 text-orange-700 dark:text-orange-400">📝 Activities (80%)</h4>
+            <ul class="list-disc pl-4 space-y-1 text-sm">
+              <li>Quizzes and assessments</li>
+              <li>Assignments and projects</li>
+              <li>Practical exercises</li>
+              <li>Default: 100% if no activities exist</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">💡 Example Calculation</h3>
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+          <h4 class="font-bold mb-4">Module: "Introduction to Programming"</h4>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span>Lessons Score:</span>
+              <span class="font-mono">100%</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Activities Score (Quiz: 94%):</span>
+              <span class="font-mono">94%</span>
+            </div>
+            <hr class="border-blue-300 dark:border-blue-600">
+            <div class="flex justify-between items-center">
+              <span>Lesson Contribution (100% × 20%):</span>
+              <span class="font-mono">20%</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Activity Contribution (94% × 80%):</span>
+              <span class="font-mono">75.2%</span>
+            </div>
+            <hr class="border-blue-300 dark:border-blue-600 border-2">
+            <div class="flex justify-between items-center font-bold text-lg">
+              <span>Final Module Score:</span>
+              <span class="font-mono text-blue-600 dark:text-blue-400">95.2%</span>
+            </div>
+          </div>
+        </div>
+      `
+    },
+    'course-grading': {
+      title: 'Course Grading System',
+      content: `
+        <p class="text-lg mb-6">Course grades aggregate all module grades using equal weighting to provide comprehensive assessment.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">📊 Course Grade Formula</h3>
+        <div class="bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 mb-6">
+          <div class="text-center">
+            <div class="text-2xl font-mono font-bold mb-4 text-purple-600 dark:text-purple-400">
+              Course Grade = Average of All Module Grades
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Each module contributes equally to the final course grade</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🎯 Grade Components</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+            <h4 class="text-lg font-bold mb-2 text-purple-700 dark:text-purple-400">📚 Module Scores</h4>
+            <p class="text-sm">Individual module calculations (20% lessons + 80% activities)</p>
+          </div>
+          
+          <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <h4 class="text-lg font-bold mb-2 text-green-700 dark:text-green-400">🔢 Equal Weighting</h4>
+            <p class="text-sm">All modules contribute equally regardless of content amount</p>
+          </div>
+          
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h4 class="text-lg font-bold mb-2 text-blue-700 dark:text-blue-400">📊 Final Average</h4>
+            <p class="text-sm">Simple arithmetic mean of all completed modules</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🏆 Letter Grade Conversion</h3>
+        <div class="overflow-x-auto mb-6">
+          <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
+            <thead>
+              <tr class="bg-gray-100 dark:bg-gray-800">
+                <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">Grade Range</th>
+                <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">Letter Grade</th>
+                <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">GPA Points</th>
+                <th class="border border-gray-300 dark:border-gray-600 px-4 py-2 text-left">Performance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">97-100%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-green-600">A+</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">4.0</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Exceptional</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">93-96%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-green-600">A</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">4.0</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Excellent</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">90-92%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-green-500">A-</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">3.7</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Very Good</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">87-89%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-blue-600">B+</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">3.3</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Good</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">83-86%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-blue-600">B</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">3.0</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Satisfactory</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">80-82%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-blue-500">B-</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">2.7</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Above Average</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">77-79%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-yellow-600">C+</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">2.3</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Average</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">73-76%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-yellow-600">C</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">2.0</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Below Average</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">70-72%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-yellow-500">C-</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">1.7</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Poor</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">67-69%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-orange-600">D+</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">1.3</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Very Poor</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">65-66%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-orange-600">D</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">1.0</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Minimal Pass</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">0-64%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-red-600">F</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">0.0</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Failing</td></tr>
+            </tbody>
+          </table>
+        </div>
+      `
+    },
+    'gpa-calculation': {
+      title: 'GPA Calculation Method',
+      content: `
+        <p class="text-lg mb-6">The GPA (Grade Point Average) system provides a standardized method for evaluating overall academic performance across all courses.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">🧮 GPA Formula</h3>
+        <div class="bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 mb-6">
+          <div class="text-center">
+            <div class="text-2xl font-mono font-bold mb-4 text-indigo-600 dark:text-indigo-400">
+              GPA = Average of All Course Grade Points
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Each course contributes equally to the cumulative GPA</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📋 Calculation Steps</h3>
+        <div class="space-y-4 mb-6">
+          <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4">
+            <h4 class="font-bold mb-2">Step 1: Calculate Course Grades</h4>
+            <p class="text-sm">Each course grade is the average of all module grades within that course</p>
+          </div>
+          
+          <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4">
+            <h4 class="font-bold mb-2">Step 2: Convert to Grade Points</h4>
+            <p class="text-sm">Course percentages are converted to GPA points using the standard scale (A+ = 4.0, F = 0.0)</p>
+          </div>
+          
+          <div class="bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-500 p-4">
+            <h4 class="font-bold mb-2">Step 3: Calculate Average</h4>
+            <p class="text-sm">Sum all course grade points and divide by the number of courses</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">💡 Example GPA Calculation</h3>
+        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+          <h4 class="font-bold mb-4">Student: John Doe's Academic Record</h4>
+          <div class="overflow-x-auto mb-4">
+            <table class="w-full border-collapse border border-gray-300 dark:border-gray-600 text-sm">
+              <thead>
+                <tr class="bg-gray-100 dark:bg-gray-800">
+                  <th class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-left">Course</th>
+                  <th class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center">Percentage</th>
+                  <th class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center">Letter Grade</th>
+                  <th class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center">Grade Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="border border-gray-300 dark:border-gray-600 px-3 py-2">Introduction to Programming</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center">95.2%</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center font-bold text-green-600">A</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center">4.0</td></tr>
+                <tr><td class="border border-gray-300 dark:border-gray-600 px-3 py-2">Database Fundamentals</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center">87.8%</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center font-bold text-blue-600">B+</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center">3.3</td></tr>
+                <tr><td class="border border-gray-300 dark:border-gray-600 px-3 py-2">Web Development</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center">81.5%</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center font-bold text-blue-500">B-</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center">2.7</td></tr>
+                <tr><td class="border border-gray-300 dark:border-gray-600 px-3 py-2">Software Engineering</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center">65.2%</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center font-bold text-orange-600">D</td><td class="border border-gray-300 dark:border-gray-600 px-3 py-2 text-center">1.0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-4">
+            <h5 class="font-bold mb-3">GPA Calculation:</h5>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span>Sum of Grade Points:</span>
+                <span class="font-mono">4.0 + 3.3 + 2.7 + 1.0 = 11.0</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Number of Courses:</span>
+                <span class="font-mono">4</span>
+              </div>
+              <hr class="border-gray-300 dark:border-gray-600">
+              <div class="flex justify-between font-bold text-lg">
+                <span>Cumulative GPA:</span>
+                <span class="font-mono text-indigo-600 dark:text-indigo-400">11.0 ÷ 4 = 2.75</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📊 GPA Interpretation</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+            <h4 class="font-bold mb-3">GPA Ranges</h4>
+            <ul class="text-sm space-y-1">
+              <li><span class="font-bold text-green-600">3.5 - 4.0:</span> Excellent Performance</li>
+              <li><span class="font-bold text-blue-600">3.0 - 3.4:</span> Good Performance</li>
+              <li><span class="font-bold text-yellow-600">2.5 - 2.9:</span> Satisfactory Performance</li>
+              <li><span class="font-bold text-orange-600">2.0 - 2.4:</span> Below Average</li>
+              <li><span class="font-bold text-red-600">Below 2.0:</span> Poor Performance</li>
+            </ul>
+          </div>
+          
+          <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+            <h4 class="font-bold mb-3">Academic Standing</h4>
+            <ul class="text-sm space-y-1">
+              <li><span class="font-bold">Dean's List:</span> GPA ≥ 3.5</li>
+              <li><span class="font-bold">Good Standing:</span> GPA ≥ 2.0</li>
+              <li><span class="font-bold">Academic Warning:</span> GPA 1.5-1.9</li>
+              <li><span class="font-bold">Academic Probation:</span> GPA < 1.5</li>
+            </ul>
+          </div>
+        </div>
+      `
+    },
+    'grade-weighting': {
+      title: 'Grade Weighting System',
+      content: `
+        <p class="text-lg mb-6">The weighting system ensures balanced assessment by giving different importance to various learning components based on their educational value.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">⚖️ Weighting Philosophy</h3>
+        <div class="bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 mb-6">
+          <div class="text-center">
+            <div class="text-xl font-bold mb-4 text-teal-600 dark:text-teal-400">
+              Activities are weighted more heavily than lessons to emphasize practical application and assessment
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400">This reflects the educational principle that doing is more important than reading</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📊 Weighting Breakdown</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+            <div class="text-center">
+              <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">20%</div>
+              <h4 class="text-xl font-bold mb-3 text-blue-700 dark:text-blue-400">📚 Lessons</h4>
+              <ul class="text-sm text-left space-y-1">
+                <li>• Content consumption</li>
+                <li>• Reading materials</li>
+                <li>• Video lectures</li>
+                <li>• Theoretical learning</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-6">
+            <div class="text-center">
+              <div class="text-4xl font-bold text-orange-600 dark:text-orange-400 mb-2">80%</div>
+              <h4 class="text-xl font-bold mb-3 text-orange-700 dark:text-orange-400">📝 Activities</h4>
+              <ul class="text-sm text-left space-y-1">
+                <li>• Quizzes and tests</li>
+                <li>• Assignments</li>
+                <li>• Projects</li>
+                <li>• Practical exercises</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🎯 Educational Rationale</h3>
+        <div class="space-y-4 mb-6">
+          <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4">
+            <h4 class="font-bold mb-2">Assessment-Focused Learning</h4>
+            <p class="text-sm">Activities provide measurable evidence of student understanding and skill application, making them more reliable indicators of learning outcomes.</p>
+          </div>
+          
+          <div class="bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-500 p-4">
+            <h4 class="font-bold mb-2">Practical Application Priority</h4>
+            <p class="text-sm">Higher weight on activities encourages students to focus on applying knowledge rather than just consuming content passively.</p>
+          </div>
+          
+          <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4">
+            <h4 class="font-bold mb-2">Balanced Approach</h4>
+            <p class="text-sm">While activities dominate, lessons still contribute 20% to ensure content engagement is rewarded and tracked.</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🔄 Edge Case Handling</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+            <h4 class="text-lg font-bold mb-2 text-yellow-700 dark:text-yellow-400">No Activities</h4>
+            <p class="text-sm mb-2">When a module has no activities:</p>
+            <ul class="text-sm list-disc pl-4">
+              <li>Activities default to 100%</li>
+              <li>Formula becomes: (Lessons × 20%) + (100% × 80%)</li>
+              <li>Ensures modules aren't penalized for structure</li>
+            </ul>
+          </div>
+          
+          <div class="bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 rounded-lg p-4">
+            <h4 class="text-lg font-bold mb-2 text-pink-700 dark:text-pink-400">No Lessons</h4>
+            <p class="text-sm mb-2">When a module has no lessons:</p>
+            <ul class="text-sm list-disc pl-4">
+              <li>Lessons default to 100%</li>
+              <li>Formula becomes: (100% × 20%) + (Activities × 80%)</li>
+              <li>Activities still drive the majority of the grade</li>
+            </ul>
+          </div>
+        </div>
       `
     }
   };
