@@ -6,7 +6,9 @@ import { Module, Activity, Quiz, StudentQuizProgress } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, CheckCircle2, Clock, Trophy, PlayCircle, FileText, ClipboardList } from 'lucide-vue-next';
+import { BookOpen, CheckCircle2, Clock, Trophy, PlayCircle, FileText, ClipboardList, AlertCircle, XCircle } from 'lucide-vue-next';
+import { useNotification } from '@/composables/useNotification';
+import Notification from '@/components/Notification.vue';
 
 // Additional type interfaces
 interface Lesson {
@@ -39,6 +41,8 @@ interface Props {
         time_limit?: number;
         question_count?: number;
         total_points?: number;
+        due_date?: string;
+        is_past_due?: boolean;
         quiz?: Quiz & {
           question_count: number;
           total_points: number;
@@ -56,6 +60,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+// Notification
+const { notification, showNotification } = useNotification();
 
 // State
 const completingLesson = ref<number | null>(null);
@@ -90,6 +97,54 @@ const completedLessons = computed(() => {
   }, 0);
 });
 
+// Check if a module can be completed (all activities and lessons must be completed)
+const canCompleteModule = (moduleId: number) => {
+  const module = props.course.modules.find(m => m.id === moduleId);
+  if (!module) return false;
+  
+  // Check if all activities are completed
+  const allActivitiesCompleted = module.activities.every((activity: any) => 
+    activity.quiz_progress?.is_completed === true
+  );
+  
+  // Check if all lessons are completed
+  const allLessonsCompleted = module.lessons?.every((lesson: any) => 
+    lesson.is_completed === true
+  ) ?? true; // If no lessons, consider them completed
+  
+  return allActivitiesCompleted && allLessonsCompleted;
+};
+
+// Get completion status message for a module
+const getModuleCompletionStatus = (moduleId: number) => {
+  const module = props.course.modules.find(m => m.id === moduleId);
+  if (!module) return { canComplete: false, message: 'Module not found' };
+  
+  const incompleteActivities = module.activities.filter((activity: any) => 
+    !activity.quiz_progress?.is_completed
+  );
+  const incompleteLessons = module.lessons?.filter((lesson: any) => 
+    !lesson.is_completed
+  ) || [];
+  
+  if (incompleteActivities.length === 0 && incompleteLessons.length === 0) {
+    return { canComplete: true, message: 'All requirements completed' };
+  }
+  
+  const messages = [];
+  if (incompleteActivities.length > 0) {
+    messages.push(`${incompleteActivities.length} activity(s) incomplete`);
+  }
+  if (incompleteLessons.length > 0) {
+    messages.push(`${incompleteLessons.length} lesson(s) incomplete`);
+  }
+  
+  return { 
+    canComplete: false, 
+    message: `Complete remaining: ${messages.join(', ')}` 
+  };
+};
+
 // Mark lesson as complete
 const markLessonComplete = (lessonId: number) => {
   completingLesson.value = lessonId;
@@ -108,6 +163,13 @@ const markLessonComplete = (lessonId: number) => {
 
 // Mark module as complete
 const markModuleComplete = (moduleId: number) => {
+  // Check if module can be completed before making the request
+  if (!canCompleteModule(moduleId)) {
+    const status = getModuleCompletionStatus(moduleId);
+    alert(`Cannot complete module: ${status.message}`);
+    return;
+  }
+  
   completingModule.value = moduleId;
   
   router.post(`/student/courses/${props.course.id}/modules/${moduleId}/complete`, {}, {
@@ -165,7 +227,13 @@ const getQuizStatusBadge = (activity: Activity & { quiz_progress?: StudentQuizPr
   };
 };
 
-const handleQuizClick = (activity: Activity & { quiz_progress?: StudentQuizProgress | null }) => {
+const handleQuizClick = (activity: Activity & { quiz_progress?: StudentQuizProgress | null; is_past_due?: boolean }) => {
+  // Check if activity is overdue and not yet completed
+  if (activity.is_past_due && !activity.quiz_progress?.is_completed) {
+    showNotification('error', 'This activity is overdue and can no longer be submitted.');
+    return;
+  }
+
   const progress = activity.quiz_progress;
   if (progress?.is_completed) {
     router.visit(`/student/quiz/${progress.id}/results`);
@@ -264,30 +332,86 @@ const formatDuration = (minutes: number) => {
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <div class="flex items-center gap-2">
-                  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ module.title }}</h2>
+                  <Link 
+                    :href="`/student/courses/${course.id}/modules/${module.id}`"
+                    class="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  >
+                    {{ module.title }}
+                  </Link>
                   <Badge v-if="module.is_completed" variant="outline" class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
                     <CheckCircle2 class="w-3 h-3 mr-1" />
                     Completed
                   </Badge>
                 </div>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ module.description }}</p>
-                <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  <span>{{ module.lessons?.length || 0 }} lessons</span>
-                  <span>{{ module.activities?.length || 0 }} activities</span>
+                
+                <!-- Module Progress Indicator -->
+                <div class="mt-3 space-y-2">
+                  <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                    <span class="flex items-center">
+                      <BookOpen class="w-3 h-3 mr-1" />
+                      <span class="font-medium mr-1">Lessons:</span>
+                      <span class="flex items-center" :class="[
+                        (module.lessons?.every((l: any) => l.is_completed) ?? true) 
+                          ? 'text-green-600 dark:text-green-400' 
+                          : 'text-amber-600 dark:text-amber-400'
+                      ]">
+                        <CheckCircle2 v-if="(module.lessons?.every((l: any) => l.is_completed) ?? true)" class="w-3 h-3 mr-1" />
+                        <AlertCircle v-else class="w-3 h-3 mr-1" />
+                        {{ module.lessons?.filter((l: any) => l.is_completed).length || 0 }} / {{ module.lessons?.length || 0 }}
+                      </span>
+                    </span>
+                    <span class="flex items-center">
+                      <FileText class="w-3 h-3 mr-1" />
+                      <span class="font-medium mr-1">Activities:</span>
+                      <span class="flex items-center" :class="[
+                        module.activities.every((a: any) => a.quiz_progress?.is_completed) 
+                          ? 'text-green-600 dark:text-green-400' 
+                          : 'text-amber-600 dark:text-amber-400'
+                      ]">
+                        <CheckCircle2 v-if="module.activities.every((a: any) => a.quiz_progress?.is_completed)" class="w-3 h-3 mr-1" />
+                        <AlertCircle v-else class="w-3 h-3 mr-1" />
+                        {{ module.activities.filter((a: any) => a.quiz_progress?.is_completed).length }} / {{ module.activities.length }}
+                      </span>
+                    </span>
+                  </div>
+                  
+                  <!-- Completion Requirement Notice -->
+                  <div v-if="!module.is_completed && !canCompleteModule(module.id)" class="flex items-start space-x-2 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 rounded-md p-2">
+                    <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Complete all lessons and activities to mark this module as finished</span>
+                  </div>
                 </div>
               </div>
-              <!-- Mark Module Complete Button -->
-              <Button
-                v-if="!module.is_completed"
-                size="sm"
-                variant="outline"
-                @click="markModuleComplete(module.id)"
-                :disabled="completingModule === module.id"
-                class="ml-4"
-              >
-                <span v-if="completingModule === module.id">Marking...</span>
-                <span v-else>Mark Module Complete</span>
-              </Button>
+              <!-- Module Actions -->
+              <div class="ml-4 flex flex-col gap-2">
+                <div class="flex gap-2">
+                  <Link
+                    :href="`/student/courses/${course.id}/modules/${module.id}`"
+                    class="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 border border-blue-300 hover:border-blue-400 rounded-md transition-colors"
+                  >
+                    <BookOpen class="w-4 h-4 mr-2" />
+                    View Details
+                  </Link>
+                  <Button
+                    v-if="!module.is_completed"
+                    size="sm"
+                    :variant="canCompleteModule(module.id) ? 'outline' : 'secondary'"
+                    @click="markModuleComplete(module.id)"
+                    :disabled="completingModule === module.id || !canCompleteModule(module.id)"
+                    :title="!canCompleteModule(module.id) ? getModuleCompletionStatus(module.id).message : ''"
+                  >
+                    <span v-if="completingModule === module.id">Marking...</span>
+                    <span v-else>Mark Module Complete</span>
+                  </Button>
+                </div>
+                <!-- Completion Status Message -->
+                <div v-if="!module.is_completed && !canCompleteModule(module.id)" class="text-xs text-amber-600 dark:text-amber-400 mt-1 max-w-48">
+                  {{ getModuleCompletionStatus(module.id).message }}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -300,7 +424,12 @@ const formatDuration = (minutes: number) => {
                 <div
                   v-for="lesson in module.lessons"
                   :key="lesson.id"
-                  class="flex items-start justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  :class="[
+                    'flex items-start justify-between p-4 rounded-lg transition-colors',
+                    (lesson as any).is_completed 
+                      ? 'bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 border border-green-200 dark:border-green-800'
+                      : 'bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 border border-amber-200 dark:border-amber-800'
+                  ]"
                 >
                   <div class="flex-1">
                     <div class="flex items-center mb-2">
@@ -347,7 +476,12 @@ const formatDuration = (minutes: number) => {
                 <div
                   v-for="activity in module.activities"
                   :key="activity.id"
-                  class="border border-gray-200 dark:border-gray-600 rounded-lg p-5 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700/50 dark:to-gray-600/50"
+                  :class="[
+                    'border rounded-lg p-5 transition-all duration-200',
+                    (activity as any).quiz_progress?.is_completed 
+                      ? 'border-green-200 dark:border-green-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20'
+                      : 'border-amber-200 dark:border-amber-700 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 ring-2 ring-amber-200 dark:ring-amber-700/50'
+                  ]"
                 >
                   <div class="flex items-start justify-between">
                     <div class="flex-1">
@@ -414,5 +548,8 @@ const formatDuration = (minutes: number) => {
         </div>
       </div>
     </div>
+
+    <!-- Notifications -->
+    <Notification :notification="notification" />
   </AppLayout>
 </template>

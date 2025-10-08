@@ -602,4 +602,7 @@ uploadDocuments.post = (args: { module: number | { id: number } } | [module: num
     uploadDocuments.form = uploadDocumentsForm
 const ModuleController = { store, update, destroy, index, addActivities, removeActivity, uploadDocuments }
 
+export default ModuleControllerForm
+const ModuleController = { store, update, destroy, index, addActivities, removeActivity, uploadDocuments }
+
 export default ModuleController

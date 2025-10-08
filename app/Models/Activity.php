@@ -16,11 +16,14 @@ class Activity extends Model
         'description',
         'activity_type_id',
         'created_by',
+        'passing_percentage',
+        'due_date',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'due_date' => 'datetime',
     ];
 
     protected $with = ['activityType', 'creator'];
@@ -63,5 +66,27 @@ class Activity extends Model
     public function modules()
     {
         return $this->belongsToMany(Module::class, 'module_activities', 'activity_id', 'module_id');
+    }
+
+    /**
+     * Get student activities for this activity
+     */
+    public function studentActivities()
+    {
+        return $this->hasMany(StudentActivity::class);
+    }
+
+    /**
+     * Get student activity for a specific student
+     */
+    public function getStudentActivity(int $studentId, int $moduleId = null)
+    {
+        $query = $this->studentActivities()->where('student_id', $studentId);
+        
+        if ($moduleId) {
+            $query->where('module_id', $moduleId);
+        }
+        
+        return $query->with(['quizProgress', 'assignmentProgress', 'projectProgress', 'assessmentProgress'])->first();
     }
 }

@@ -20,7 +20,7 @@
                 class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 <option value="">All Courses</option>
-                <option v-for="course in courses" :key="course.id" :value="course.id">
+                <option v-for="course in courses" :key="course.id" :value="course.id.toString()">
                   {{ course.title }}
                 </option>
               </select>
@@ -34,12 +34,13 @@
                 <option value="not-taken">Not Taken</option>
                 <option value="in-progress">In Progress</option>
                 <option value="completed">Completed</option>
+                <option value="overdue">Overdue</option>
               </select>
             </div>
           </div>
           
           <!-- Summary Stats -->
-          <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-5 gap-4">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
               <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Activities</div>
               <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ filteredActivities.length }}</div>
@@ -56,6 +57,10 @@
               <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Completed</div>
               <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ getStatusCount('completed') }}</div>
             </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Overdue</div>
+              <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ getStatusCount('overdue') }}</div>
+            </div>
           </div>
         </div>
 
@@ -64,7 +69,12 @@
           <div 
             v-for="activity in filteredActivities" 
             :key="activity.id"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+            :class="[
+              'bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow',
+              activity.is_past_due && activity.status !== 'completed' 
+                ? 'border-2 border-red-500 dark:border-red-400' 
+                : 'border border-gray-200 dark:border-gray-700'
+            ]"
           >
             <!-- Activity Header -->
             <div class="p-6">
@@ -85,10 +95,10 @@
                 
                 <!-- Status Badge -->
                 <span 
-                  :class="getStatusBadgeClass(activity.status)"
+                  :class="getStatusBadgeClass(activity)"
                   class="px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 ml-3"
                 >
-                  {{ getStatusText(activity.status) }}
+                  {{ getStatusText(activity) }}
                 </span>
               </div>
 
@@ -171,14 +181,14 @@
 
               <!-- Action Button -->
               <div class="mt-4">
-                <Link 
-                  :href="getActivityLink(activity)"
+                <button 
+                  @click="handleActivityAction(activity)"
                   :class="getActionButtonClass(activity.status)"
                   class="w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
                   <component :is="getActionIcon(activity.status)" class="h-4 w-4 mr-2" />
                   {{ getActionText(activity.status) }}
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -196,13 +206,18 @@
         </div>
       </div>
     </div>
+    
+    <!-- Notification Toast -->
+    <Notification :notification="notification" />
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
-import AppLayout from '@/Layouts/AppLayout.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { useNotification } from '@/composables/useNotification';
+import Notification from '@/components/Notification.vue';
 import { 
   BookOpen, 
   Folder, 
@@ -228,6 +243,7 @@ interface Activity {
   due_date_formatted: string;
   status: 'not-taken' | 'in-progress' | 'completed';
   is_past_due: boolean;
+  progress_id?: number | null;
   progress?: {
     score: number;
     percentage_score: number;
@@ -255,26 +271,41 @@ const props = defineProps<{
 const selectedCourse = ref(props.filters.course_id || '');
 const selectedStatus = ref(props.filters.status || '');
 
+// Initialize notification composable
+const { notification, error } = useNotification();
+
 const filteredActivities = computed(() => {
   let filtered = props.activities;
   
   if (selectedCourse.value) {
-    filtered = filtered.filter(activity => activity.course_id.toString() === selectedCourse.value);
+    filtered = filtered.filter(activity => activity.course_id === Number(selectedCourse.value));
   }
   
   if (selectedStatus.value) {
-    filtered = filtered.filter(activity => activity.status === selectedStatus.value);
+    if (selectedStatus.value === 'overdue') {
+      filtered = filtered.filter(activity => activity.is_past_due && activity.status !== 'completed');
+    } else {
+      filtered = filtered.filter(activity => activity.status === selectedStatus.value);
+    }
   }
   
   return filtered;
 });
 
 const getStatusCount = (status: string) => {
+  if (status === 'overdue') {
+    return filteredActivities.value.filter(activity => activity.is_past_due && activity.status !== 'completed').length;
+  }
   return filteredActivities.value.filter(activity => activity.status === status).length;
 };
 
-const getStatusBadgeClass = (status: string) => {
-  switch (status) {
+const getStatusBadgeClass = (activity: Activity) => {
+  // Check if overdue and not completed first
+  if (activity.is_past_due && activity.status !== 'completed') {
+    return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+  }
+  
+  switch (activity.status) {
     case 'completed':
       return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
     case 'in-progress':
@@ -285,8 +316,13 @@ const getStatusBadgeClass = (status: string) => {
   }
 };
 
-const getStatusText = (status: string) => {
-  switch (status) {
+const getStatusText = (activity: Activity) => {
+  // Check if overdue and not completed first
+  if (activity.is_past_due && activity.status !== 'completed') {
+    return 'OVERDUE';
+  }
+  
+  switch (activity.status) {
     case 'completed':
       return 'Completed';
     case 'in-progress':
@@ -333,11 +369,23 @@ const getActionIcon = (status: string) => {
   }
 };
 
+const handleActivityAction = (activity: Activity) => {
+  // Check if activity is overdue and not completed
+  if (activity.is_past_due && activity.status !== 'completed') {
+    error(`This ${activity.activity_type.toLowerCase()} is overdue and cannot be accessed. Due date was ${activity.due_date_formatted}.`);
+    return;
+  }
+  
+  // If not overdue, navigate to the activity
+  const link = getActivityLink(activity);
+  router.visit(link);
+};
+
 const getActivityLink = (activity: Activity) => {
   if (activity.activity_type === 'Quiz') {
-    if (activity.status === 'completed') {
-      // For completed quizzes, link to results page (would need quiz progress ID)
-      return `/student/quiz/start/${activity.id}`;
+    if (activity.status === 'completed' && activity.progress_id) {
+      // For completed quizzes, link to results page using progress ID
+      return `/student/quiz/${activity.progress_id}/results`;
     } else {
       // For not taken or in-progress quizzes, start/continue quiz
       return `/student/quiz/start/${activity.id}`;

@@ -79,6 +79,7 @@ export type Activity ={
     created_by: number; // User ID of the creator
     created_at: string;
     updated_at: string;
+    due_date?: string; // New due date field
     activityType?: ActivityType; // Camelcase version (may not always be present)
     creator: User;
     question_count?: number;

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { usePage, router } from '@inertiajs/vue3';
+import axios from 'axios';
 
 // TypeScript interfaces
 interface EnrolledCourse {
@@ -17,6 +18,7 @@ interface Assignment {
   course: string;
   dueDate: string;
   status: 'pending' | 'completed';
+  activityType: string;
 }
 
 interface Grade {
@@ -41,110 +43,42 @@ const user = page.props.auth.user;
 // Reactive state for student-specific data
 const enrolledCourses = ref<EnrolledCourse[]>([]);
 const assignments = ref<Assignment[]>([]);
+const overdueActivities = ref<Assignment[]>([]);
 const grades = ref<Grade[]>([]);
 const schedule = ref<ScheduleItem[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-// Computed properties for student stats
+// Computed properties for student stats  
 const totalCourses = computed(() => enrolledCourses.value.length);
 const pendingAssignments = computed(() => assignments.value.filter(a => a.status === 'pending').length);
-const averageGrade = computed(() => {
-  if (grades.value.length === 0) return 0;
-  const total = grades.value.reduce((sum, grade) => sum + grade.score, 0);
-  return Math.round(total / grades.value.length);
-});
-const upcomingClasses = computed(() => schedule.value.filter(s => new Date(s.date) >= new Date()).length);
 
-// Mock data for student dashboard
+// Load real student data from API
 const loadStudentData = async () => {
   loading.value = true;
   error.value = null;
 
   try {
-    // Simulate API calls with mock data
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate loading
+    const response = await axios.get('/api/dashboard/student-data');
+    const data = response.data;
     
-    // Mock enrolled courses
-    enrolledCourses.value = [
-      {
-        id: 1,
-        title: 'Mathematics 101',
-        instructor: 'Dr. Smith',
-        progress: 75,
-        nextClass: '2025-10-05 10:00 AM'
-      },
-      {
-        id: 2,
-        title: 'Science Fundamentals',
-        instructor: 'Prof. Johnson',
-        progress: 60,
-        nextClass: '2025-10-04 2:00 PM'
-      },
-      {
-        id: 3,
-        title: 'English Literature',
-        instructor: 'Ms. Davis',
-        progress: 85,
-        nextClass: '2025-10-06 9:00 AM'
-      }
-    ];
+    // Update reactive data with API response
+    enrolledCourses.value = data.enrolledCourses || [];
+    assignments.value = data.assignments || [];
+    overdueActivities.value = data.overdueActivities || [];
+    grades.value = data.grades || [];
+    schedule.value = data.schedule || [];
 
-    // Mock assignments
-    assignments.value = [
-      {
-        id: 1,
-        title: 'Math Homework Chapter 5',
-        course: 'Mathematics 101',
-        dueDate: '2025-10-08',
-        status: 'pending'
-      },
-      {
-        id: 2,
-        title: 'Science Lab Report',
-        course: 'Science Fundamentals',
-        dueDate: '2025-10-10',
-        status: 'pending'
-      },
-      {
-        id: 3,
-        title: 'Essay: Shakespeare Analysis',
-        course: 'English Literature',
-        dueDate: '2025-10-07',
-        status: 'completed'
-      }
-    ];
-
-    // Mock grades
-    grades.value = [
-      { course: 'Mathematics 101', assignment: 'Quiz 1', score: 88 },
-      { course: 'Science Fundamentals', assignment: 'Lab 1', score: 92 },
-      { course: 'English Literature', assignment: 'Essay 1', score: 85 }
-    ];
-
-    // Mock schedule
-    schedule.value = [
-      {
-        id: 1,
-        course: 'Mathematics 101',
-        type: 'Lecture',
-        date: '2025-10-05',
-        time: '10:00 AM',
-        room: 'Room 101'
-      },
-      {
-        id: 2,
-        course: 'Science Fundamentals',
-        type: 'Lab',
-        date: '2025-10-04',
-        time: '2:00 PM',
-        room: 'Lab 205'
-      }
-    ];
-
-  } catch (err) {
+  } catch (err: any) {
     error.value = 'Failed to load student data';
     console.error('Error loading student data:', err);
+    
+    // Fallback to empty arrays
+    enrolledCourses.value = [];
+    assignments.value = [];
+    overdueActivities.value = [];
+    grades.value = [];
+    schedule.value = [];
   } finally {
     loading.value = false;
   }
@@ -198,71 +132,10 @@ defineExpose({
       </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <!-- Enrolled Courses -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-colors">
-        <div class="flex items-center">
-          <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-full">
-            <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Enrolled Courses</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ totalCourses }}</p>
-          </div>
-        </div>
-      </div>
 
-      <!-- Pending Assignments -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-colors">
-        <div class="flex items-center">
-          <div class="p-3 bg-orange-100 dark:bg-orange-900/50 rounded-full">
-            <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Pending Assignments</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ pendingAssignments }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Average Grade -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-colors">
-        <div class="flex items-center">
-          <div class="p-3 bg-green-100 dark:bg-green-900/50 rounded-full">
-            <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Average Grade</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ averageGrade }}%</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Upcoming Classes -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-colors">
-        <div class="flex items-center">
-          <div class="p-3 bg-purple-100 dark:bg-purple-900/50 rounded-full">
-            <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Upcoming Classes</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ upcomingClasses }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div v-else class="grid grid-cols-1 xl:grid-cols-3 gap-6">
       <!-- Enrolled Courses -->
       <div class="xl:col-span-2">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-colors">
@@ -293,7 +166,10 @@ defineExpose({
                 <span class="text-sm text-gray-500 dark:text-gray-400">
                   Next class: {{ course.nextClass }}
                 </span>
-                <button class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors">
+                <button 
+                  @click="router.visit(`/student/courses/${course.id}`)"
+                  class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors"
+                >
                   View Course
                 </button>
               </div>
@@ -304,21 +180,52 @@ defineExpose({
 
       <!-- Assignments & Schedule -->
       <div class="xl:col-span-1 space-y-6">
+        <!-- Overdue Activities -->
+        <div v-if="overdueActivities.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-colors">
+          <h2 class="text-xl font-semibold text-red-600 dark:text-red-400 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            Overdue Activities
+          </h2>
+          <div class="space-y-3">
+            <div
+              v-for="activity in overdueActivities"
+              :key="activity.id"
+              class="border-l-4 border-red-500 dark:border-red-400 pl-4 py-2 bg-red-50 dark:bg-red-900/20 rounded-r-md"
+            >
+              <div class="flex items-start justify-between mb-1 gap-2">
+                <p class="font-medium text-gray-900 dark:text-white flex-1 min-w-0">{{ activity.title }}</p>
+                <span class="px-2 py-1 text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-200 rounded-full whitespace-nowrap flex-shrink-0">
+                  {{ activity.activityType }}
+                </span>
+              </div>
+              <p class="text-sm text-gray-600 dark:text-gray-300">{{ activity.course }}</p>
+              <p class="text-sm text-red-600 dark:text-red-400 font-medium">Due: {{ activity.dueDate }}</p>
+            </div>
+          </div>
+        </div>
+
         <!-- Pending Assignments -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6 transition-colors">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Pending Assignments</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Pending Activities</h2>
           <div class="space-y-3">
             <div
               v-for="assignment in assignments.filter((a: Assignment) => a.status === 'pending')"
               :key="assignment.id"
               class="border-l-4 border-orange-500 dark:border-orange-400 pl-4 py-2"
             >
-              <p class="font-medium text-gray-900 dark:text-white">{{ assignment.title }}</p>
+              <div class="flex items-start justify-between mb-1 gap-2">
+                <p class="font-medium text-gray-900 dark:text-white flex-1 min-w-0">{{ assignment.title }}</p>
+                <span class="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 rounded-full whitespace-nowrap flex-shrink-0">
+                  {{ assignment.activityType }}
+                </span>
+              </div>
               <p class="text-sm text-gray-600 dark:text-gray-300">{{ assignment.course }}</p>
               <p class="text-sm text-orange-600 dark:text-orange-400">Due: {{ assignment.dueDate }}</p>
             </div>
-            <div v-if="pendingAssignments === 0" class="text-gray-500 dark:text-gray-400 text-center py-4">
-              No pending assignments
+            <div v-if="assignments.filter((a: Assignment) => a.status === 'pending').length === 0" class="text-gray-500 dark:text-gray-400 text-center py-4">
+              No pending activities
             </div>
           </div>
         </div>

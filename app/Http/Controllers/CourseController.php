@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Student;
+use App\Traits\DynamicMessageTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CourseController extends Controller
 {
+    use DynamicMessageTrait;
     /**
      * Display a listing of courses for the course management page.
      */
@@ -104,7 +106,7 @@ class CourseController extends Controller
         return response()->json([
             'success' => true,
             'course' => $course,
-            'message' => 'Course created successfully'
+            'message' => $this->getModelSuccessMessage('created', $course)
         ]);
     }
 
@@ -143,7 +145,7 @@ class CourseController extends Controller
         $course->load('gradeLevels');
 
         return response()->json([
-            'message' => 'Course updated successfully!',
+            'message' => $this->getModelSuccessMessage('updated', $course),
             'course' => $course
         ]);
     }
@@ -153,10 +155,11 @@ class CourseController extends Controller
      */
     public function destroy(Course $course)
     {
+        $successMessage = $this->getModelSuccessMessage('deleted', $course);
         $course->delete();
 
         return response()->json([
-            'message' => 'Course deleted successfully!'
+            'message' => $successMessage
         ]);
     }
 }

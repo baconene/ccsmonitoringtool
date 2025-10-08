@@ -49,7 +49,10 @@ const modalCourse = computed(() => {
 });
 
 // Computed properties
-const activeCourses = computed(() => courses.value.length);
+const activeCourses = computed(() => {
+  // Use dashboard stats first, fallback to courses array length
+  return dashboardStats.value?.totalCourses || courses.value.length;
+});
 const totalStudents = computed(() => {
   if (dashboardStats.value?.totalStudents) {
     return dashboardStats.value.totalStudents;
@@ -139,7 +142,7 @@ const handleCourseModalRefresh = async (newCourseId?: number) => {
                             </h1>
                             <p class="text-gray-600 dark:text-gray-300 mt-1">Manage your courses and students effectively</p>
                         </div>
-                        <div class="mt-4 sm:mt-0">
+                        <div v-if="user?.role === 'instructor' || user?.role === 'admin'" class="mt-4 sm:mt-0">
                             <button 
                                 @click="openNewCourseModal"
                                 class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
@@ -228,8 +231,9 @@ const handleCourseModalRefresh = async (newCourseId?: number) => {
         </div>
     </AppLayout>
 
-    <!-- Course Modal -->
+    <!-- Course Modal (Only for instructors and admins) -->
     <CourseModal
+        v-if="user?.role === 'instructor' || user?.role === 'admin'"
         :open="showCourseModal"
         :mode="courseModalMode"
         :course="modalCourse"

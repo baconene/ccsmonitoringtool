@@ -43,4 +43,26 @@ class ModuleCompletion extends Model
     {
         return $this->belongsTo(Course::class);
     }
+
+    /**
+     * Get related student activities for this module completion.
+     */
+    public function studentActivities()
+    {
+        // Get the student record for this user
+        $student = Student::where('user_id', $this->user_id)->first();
+        
+        if (!$student) {
+            return StudentActivity::whereRaw('1 = 0'); // Return empty query
+        }
+
+        return $this->hasManyThrough(
+            StudentActivity::class,
+            Module::class,
+            'id', // Foreign key on modules table
+            'module_id', // Foreign key on student_activities table
+            'module_id', // Local key on module_completions table
+            'id' // Local key on modules table
+        )->where('student_activities.student_id', $student->id);
+    }
 }

@@ -31,6 +31,27 @@ class StudentQuizController extends Controller
             ->where('activity_id', $activityId)
             ->first();
 
+        // Get activity status using the existing method
+        $statusData = StudentQuizProgress::getActivityStatus($student->id, $activityId);
+        
+        // Check if quiz is already completed
+        if ($statusData['status'] === 'completed') {
+            return redirect()->route('student.quiz.results', $statusData['progress']->id)
+                ->with('info', 'Quiz already completed. Redirected to results.');
+        }
+
+        // Check if quiz is past due (get due date from activity model, fallback to created_at + 7 days)
+        $dueDate = $activity->due_date ?? $activity->created_at->addDays(7);
+        $isPastDue = $dueDate->isPast() && $statusData['status'] !== 'completed';
+        
+        if ($isPastDue) {
+            return redirect()->back()
+                ->with('error', "Quiz deadline has passed. This quiz was due on {$dueDate->format('M j, Y')} at {$dueDate->format('g:i A')}.");
+        }
+
+        // Use existing progress from status data or create new one
+        $progress = $statusData['progress'];
+        
         if (!$progress) {
             // Create new progress
             $progress = StudentQuizProgress::create([
@@ -43,6 +64,12 @@ class StudentQuizController extends Controller
                 'completed_questions' => 0,
             ]);
         } else {
+            // Double-check that the quiz is not completed (additional safety check)
+            if ($progress->is_completed) {
+                return redirect()->route('student.quiz.results', $progress->id)
+                    ->with('info', 'Quiz already completed. Redirected to results.');
+            }
+            
             // Update last accessed time
             $progress->update(['last_accessed_at' => now()]);
         }

@@ -9,7 +9,7 @@ export interface Notification {
 
 export function useNotification() {
   const notification = ref<Notification | null>(null);
-  let timeoutId: NodeJS.Timeout | null = null;
+  let timeoutId: number | null = null;
 
   const showNotification = (type: NotificationType, message: string, duration: number = 5000) => {
     notification.value = { type, message };

@@ -90,7 +90,7 @@ class ActivityController extends Controller
         ]);
 
         return redirect()->route('activities.show', $activity->id)
-            ->with('success', 'Activity created successfully.');
+            ->with('success', "'{$activity->title}' activity created successfully.");
     }
 
     /**

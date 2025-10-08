@@ -18,9 +18,10 @@ class ActivityTypeSeeder extends Seeder
 
         // Activity Types
         $activityTypes = [
-            ['name' => 'Quiz', 'description' => 'Interactive quiz with multiple questions'],
-            ['name' => 'Assignment', 'description' => 'Assignment with document submission'],
-            ['name' => 'Exercise', 'description' => 'Practice exercise for students'],
+            ['name' => 'Quiz', 'description' => 'Interactive quiz with multiple questions for knowledge assessment'],
+            ['name' => 'Assignment', 'description' => 'Assignment with document submission and grading'],
+            ['name' => 'Assessment', 'description' => 'Comprehensive assessment to evaluate student competency'],
+            ['name' => 'Exercise', 'description' => 'Practice exercise for skill development and reinforcement'],
         ];
 
         foreach ($activityTypes as $type) {

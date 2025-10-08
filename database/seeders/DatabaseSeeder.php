@@ -133,6 +133,12 @@ class DatabaseSeeder extends Seeder
             }
         }
 
+        // Create Student records for student users
+        $this->call(StudentSeeder::class);
+
+        // Create Instructor records for instructor/admin users
+        $this->call(InstructorSeeder::class);
+
         // Create Courses with modules and activities
         echo "\n📚 Creating Courses with Modules and Activities...\n";
         

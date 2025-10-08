@@ -1,6 +1,5 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import courses from './courses'
-import activities63c2d9 from './activities'
 import quiz from './quiz'
 /**
  * @see routes/web.php:34
@@ -164,8 +163,8 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
     
     details.form = detailsForm
 /**
-* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
- * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+* @see \App\Http\Controllers\Student\StudentCourseController::activities
+ * @see app/Http/Controllers/Student/StudentCourseController.php:335
  * @route '/student/activities'
  */
 export const activities = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -179,8 +178,8 @@ activities.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
- * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+* @see \App\Http\Controllers\Student\StudentCourseController::activities
+ * @see app/Http/Controllers/Student/StudentCourseController.php:335
  * @route '/student/activities'
  */
 activities.url = (options?: RouteQueryOptions) => {
@@ -188,8 +187,8 @@ activities.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
- * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+* @see \App\Http\Controllers\Student\StudentCourseController::activities
+ * @see app/Http/Controllers/Student/StudentCourseController.php:335
  * @route '/student/activities'
  */
 activities.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -197,8 +196,8 @@ activities.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
-* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
- * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+* @see \App\Http\Controllers\Student\StudentCourseController::activities
+ * @see app/Http/Controllers/Student/StudentCourseController.php:335
  * @route '/student/activities'
  */
 activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -207,8 +206,8 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
-* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
- * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+* @see \App\Http\Controllers\Student\StudentCourseController::activities
+ * @see app/Http/Controllers/Student/StudentCourseController.php:335
  * @route '/student/activities'
  */
     const activitiesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -217,8 +216,8 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
-* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
- * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+* @see \App\Http\Controllers\Student\StudentCourseController::activities
+ * @see app/Http/Controllers/Student/StudentCourseController.php:335
  * @route '/student/activities'
  */
         activitiesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -226,8 +225,8 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
-* @see \App\Http\Controllers\Student\StudentActivitiesController::activities
- * @see app/Http/Controllers/Student/StudentActivitiesController.php:27
+* @see \App\Http\Controllers\Student\StudentCourseController::activities
+ * @see app/Http/Controllers/Student/StudentCourseController.php:335
  * @route '/student/activities'
  */
         activitiesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -245,7 +244,7 @@ const student = {
     dashboard: Object.assign(dashboard, dashboard),
 details: Object.assign(details, details),
 courses: Object.assign(courses, courses),
-activities: Object.assign(activities, activities63c2d9),
+activities: Object.assign(activities, activities),
 quiz: Object.assign(quiz, quiz),
 }
 

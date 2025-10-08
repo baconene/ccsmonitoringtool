@@ -88,6 +88,38 @@ class Student extends Model
     }
 
     /**
+     * Get the full name with student ID.
+     */
+    public function getFullDisplayNameAttribute(): string
+    {
+        return "{$this->student_id} - {$this->name}";
+    }
+
+    /**
+     * Check if student is currently enrolled (active status).
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    /**
+     * Get student's academic standing based on metadata.
+     */
+    public function getAcademicStandingAttribute(): string
+    {
+        return $this->metadata['academic_status'] ?? 'regular';
+    }
+
+    /**
+     * Get student's scholarship information.
+     */
+    public function getScholarshipAttribute(): ?string
+    {
+        return $this->metadata['scholarship_type'] ?? null;
+    }
+
+    /**
      * Scope for active students.
      */
     public function scopeActive($query)
@@ -101,5 +133,32 @@ class Student extends Model
     public function scopeByAcademicYear($query, $year)
     {
         return $query->where('academic_year', $year);
+    }
+
+    /**
+     * Get all student activities for this student.
+     */
+    public function studentActivities()
+    {
+        return $this->hasMany(StudentActivity::class);
+    }
+
+    /**
+     * Get student activities for a specific module.
+     */
+    public function getModuleActivities(int $moduleId)
+    {
+        return $this->studentActivities()
+            ->where('module_id', $moduleId)
+            ->with(['activity', 'quizProgress', 'assignmentProgress', 'projectProgress', 'assessmentProgress'])
+            ->get();
+    }
+
+    /**
+     * Get student quiz progress records through user relationship.
+     */
+    public function quizProgress()
+    {
+        return $this->hasMany(StudentQuizProgress::class, 'student_id', 'user_id');
     }
 }

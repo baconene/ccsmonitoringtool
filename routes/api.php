@@ -63,6 +63,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/', [ScheduleApiController::class, 'index']);
         Route::get('/upcoming', [ScheduleApiController::class, 'upcoming']);
     });
+
+    // Student module status API routes
+    Route::prefix('student/module')->group(function () {
+        Route::get('/status/{module_id}', [App\Http\Controllers\Api\Student\ModuleStatusController::class, 'getModuleStatus']);
+        Route::post('/complete/{module_id}', [App\Http\Controllers\Api\Student\ModuleStatusController::class, 'markModuleComplete']);
+    });
 });
 
 // Public routes (if any)

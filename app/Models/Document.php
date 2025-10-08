@@ -15,4 +15,9 @@ class Document extends Model
     {
         return $this->belongsToMany(Lesson::class, 'lesson_document');
     }
+
+    public function modules()
+    {
+        return $this->belongsToMany(Module::class, 'module_document');
+    }
 }

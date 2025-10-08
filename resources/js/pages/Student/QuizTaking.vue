@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -34,6 +34,47 @@ const currentQuestionIndex = ref(0);
 const answers = ref<Record<number, any>>({});
 const showSubmitDialog = ref(false);
 const isSubmitting = ref(false);
+
+// Client-side protection: Check if quiz is completed or past due
+onMounted(() => {
+  // Check if quiz is already completed
+  if (props.progress.is_completed) {
+    router.visit(`/student/quiz/${props.progress.id}/results`, {
+      replace: true,
+      onError: () => {
+        // Fallback if results route fails
+        router.visit('/student/courses', { replace: true });
+      }
+    });
+    return;
+  }
+
+  // Check if quiz is past due (use activity due_date or fallback to created_at + 7 days)
+  const dueDate = props.activity.due_date 
+    ? new Date(props.activity.due_date)
+    : new Date(new Date(props.activity.created_at).getTime() + (7 * 24 * 60 * 60 * 1000));
+  const now = new Date();
+  
+  if (now > dueDate) {
+    alert(`Quiz deadline has passed. This quiz was due on ${dueDate.toLocaleDateString()} at ${dueDate.toLocaleTimeString()}.`);
+    router.visit('/student/courses', { replace: true });
+    return;
+  }
+
+  // Prevent browser back button from accessing completed/past due quizzes
+  const handlePopState = () => {
+    if (props.progress.is_completed) {
+      router.visit(`/student/quiz/${props.progress.id}/results`, { replace: true });
+    }
+  };
+  
+  window.addEventListener('popstate', handlePopState);
+  
+  // Cleanup listener when component unmounts
+  return () => {
+    window.removeEventListener('popstate', handlePopState);
+  };
+});
 
 // Initialize answers from existing progress
 if (props.progress.answers && props.progress.answers.length > 0) {

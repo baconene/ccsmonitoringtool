@@ -100,6 +100,9 @@ class StudentCourseController extends Controller
                             ->first();
                     }
                     
+                    $dueDate = $activity->due_date ?? $activity->created_at->addDays(7);
+                    $isPastDue = now()->isAfter($dueDate);
+                    
                     return [
                         'id' => $activity->id,
                         'title' => $activity->title,
@@ -107,6 +110,8 @@ class StudentCourseController extends Controller
                         'activity_type' => $activity->activityType,
                         'question_count' => $activity->quiz ? $activity->quiz->questions->count() : 0,
                         'total_points' => $activity->quiz ? $activity->quiz->questions->sum('points') : 0,
+                        'due_date' => $dueDate->toDateTimeString(),
+                        'is_past_due' => $isPastDue,
                         'quiz_progress' => $quizProgress ? [
                             'id' => $quizProgress->id,
                             'is_completed' => $quizProgress->is_completed,
@@ -175,6 +180,10 @@ class StudentCourseController extends Controller
                 'completed_modules' => $completedModulesCount,
                 'lessons' => $lessons,
                 'modules' => $modules,
+            ],
+            'enrollment' => [
+                'is_completed' => $enrollment->is_completed,
+                'created_at' => $enrollment->created_at->format('Y-m-d'),
             ]
         ]);
     }
@@ -192,13 +201,13 @@ class StudentCourseController extends Controller
             ->first();
             
         if (!$enrollment) {
-            return response()->json(['error' => 'Not enrolled in this course'], 403);
+            return response()->json(['error' => "You are not enrolled in the '{$course->title}' course"], 403);
         }
 
         // Verify lesson belongs to course
         $lesson = $course->lessons()->find($lessonId);
         if (!$lesson) {
-            return response()->json(['error' => 'Lesson not found'], 404);
+            return response()->json(['error' => "Lesson not found in the '{$course->title}' course"], 404);
         }
 
         // Check if already completed
@@ -208,7 +217,7 @@ class StudentCourseController extends Controller
             ->first();
             
         if ($existingCompletion) {
-            return response()->json(['message' => 'Lesson already completed']);
+            return response()->json(['message' => "You have already completed the '{$lesson->title}' lesson"]);
         }
 
         // Create lesson completion
@@ -287,13 +296,13 @@ class StudentCourseController extends Controller
             ->first();
             
         if (!$enrollment) {
-            return response()->json(['error' => 'Not enrolled in this course'], 403);
+            return response()->json(['error' => "You are not enrolled in the '{$course->title}' course"], 403);
         }
 
         // Get the module to check its weight
         $module = $course->modules()->find($moduleId);
         if (!$module) {
-            return response()->json(['error' => 'Module not found'], 404);
+            return response()->json(['error' => "Module not found in the '{$course->title}' course"], 404);
         }
 
         // Create or update module completion
@@ -315,10 +324,241 @@ class StudentCourseController extends Controller
         $enrollment->refresh();
 
         return redirect()->back()->with([
-            'success' => 'Module marked as completed',
+            'success' => "'{$module->title}' module marked as completed successfully",
             'progress' => (float) $enrollment->progress,
         ]);
     }
 
+    /**
+     * Display student's activity summary with status and due dates
+     */
+    public function activities(Request $request)
+    {
+        $user = auth()->user();
+        
+        // Use the new method from StudentQuizProgress to get all activities
+        $studentActivities = \App\Models\StudentQuizProgress::getStudentActivities($user->id);
 
+        $activities = [];
+        $courses = collect();
+        
+        foreach ($studentActivities as $item) {
+            $activity = $item['activity'];
+            $course = $item['course'];
+            $module = $item['module'];
+            $lesson = $item['lesson'];
+            
+            // Get activity status and progress
+            $statusData = \App\Models\StudentQuizProgress::getActivityStatus($user->id, $activity->id);
+            
+            // Get due date from activity model (fallback to created_at + 7 days if not set)
+            $dueDate = $activity->due_date ?? $activity->created_at->addDays(7);
+            $isPastDue = $dueDate->isPast() && $statusData['status'] !== 'completed';
+            
+            $activities[] = [
+                'id' => $activity->id,
+                'title' => $activity->title,
+                'description' => $activity->description,
+                'activity_type' => $activity->activityType ? $activity->activityType->name : 'Unknown',
+                'course_id' => $course->id,
+                'course_name' => $course->title,
+                'module_id' => $module->id,
+                'module_name' => $module->name,
+                'lesson_id' => $lesson ? $lesson->id : null,
+                'lesson_name' => $lesson ? $lesson->title : null,
+                'source' => $item['source'], // 'module' or 'lesson'
+                'due_date' => $dueDate->format('Y-m-d H:i:s'),
+                'due_date_formatted' => $dueDate->format('M j, Y'),
+                'status' => $statusData['status'],
+                'is_past_due' => $isPastDue,
+                'progress_id' => ($statusData['progress'] && is_object($statusData['progress'])) ? $statusData['progress']->id : null,
+                'progress' => ($statusData['progress'] && is_object($statusData['progress'])) ? [
+                    'score' => $statusData['progress']->score ?? 0,
+                    'percentage_score' => $statusData['progress']->percentage_score ?? 0,
+                    'completed_questions' => $statusData['progress']->completed_questions ?? 0,
+                    'total_questions' => $statusData['progress']->total_questions ?? 0,
+                ] : null,
+                'question_count' => $activity->quiz ? $activity->quiz->questions->count() : 0,
+                'total_points' => $activity->quiz ? $activity->quiz->questions->sum('points') : 0,
+            ];
+            
+            // Collect unique courses for filter dropdown
+            if (!$courses->contains('id', $course->id)) {
+                $courses->push([
+                    'id' => $course->id,
+                    'title' => $course->title,
+                ]);
+            }
+        }
+        
+        // Sort by due date (ascending) then by status priority
+        $statusPriority = ['in-progress' => 1, 'not-taken' => 2, 'completed' => 3];
+        
+        usort($activities, function ($a, $b) use ($statusPriority) {
+            // First sort by due date
+            $dateComparison = strcmp($a['due_date'], $b['due_date']);
+            if ($dateComparison !== 0) {
+                return $dateComparison;
+            }
+            // Then by status priority
+            return ($statusPriority[$a['status']] ?? 4) - ($statusPriority[$b['status']] ?? 4);
+        });
+
+        return Inertia::render('Student/MyActivity', [
+            'activities' => $activities,
+            'courses' => $courses->values()->toArray(),
+            'filters' => [
+                'course_id' => $request->get('course_id'),
+                'status' => $request->get('status'),
+            ]
+        ]);
+    }
+    /**
+     * Display detailed view of a specific module for the student
+     */
+    public function showModule(Course $course, $moduleId): Response
+    {
+        $user = auth()->user();
+        
+        // Check if student is enrolled in this course
+        $enrollment = CourseEnrollment::where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->first();
+            
+        if (!$enrollment) {
+            abort(403, 'You are not enrolled in this course.');
+        }
+
+        // Get the specific module with all relationships
+        $module = $course->modules()
+            ->with([
+                'lessons.documents',
+                'activities.activityType',
+                'activities.quiz.questions',
+                'documents'
+            ])
+            ->where('id', $moduleId)
+            ->first();
+            
+        if (!$module) {
+            abort(404, 'Module not found in this course.');
+        }
+
+        // Check module completion status
+        $moduleCompletion = \App\Models\ModuleCompletion::where('user_id', $user->id)
+            ->where('module_id', $moduleId)
+            ->where('course_id', $course->id)
+            ->first();
+
+        // Get lessons with completion status
+        $lessons = $module->lessons->map(function ($lesson) use ($user, $course) {
+            $completion = LessonCompletion::where('user_id', $user->id)
+                ->where('lesson_id', $lesson->id)
+                ->where('course_id', $course->id)
+                ->first();
+            
+            return [
+                'id' => $lesson->id,
+                'title' => $lesson->title,
+                'description' => $lesson->description,
+                'duration' => $lesson->duration ?? 45,
+                'order' => $lesson->order,
+                'content_type' => $lesson->content_type ?? 'text',
+                'is_completed' => $completion ? true : false,
+                'completed_at' => $completion ? $completion->completed_at : null,
+                'documents' => $lesson->documents->map(function ($doc) {
+                    return [
+                        'id' => $doc->id,
+                        'name' => $doc->name,
+                        'file_path' => $doc->file_path,
+                        'doc_type' => $doc->doc_type,
+                    ];
+                }),
+            ];
+        });
+
+        // Get activities with quiz progress
+        $activities = $module->activities->map(function ($activity) use ($user) {
+            $quizProgress = null;
+            
+            if ($activity->quiz) {
+                $quizProgress = \App\Models\StudentQuizProgress::where('student_id', $user->id)
+                    ->where('activity_id', $activity->id)
+                    ->first();
+            }
+            
+            return [
+                'id' => $activity->id,
+                'title' => $activity->title,
+                'description' => $activity->description,
+                'activity_type' => $activity->activityType ? $activity->activityType->name : 'Unknown',
+                'question_count' => $activity->quiz ? $activity->quiz->questions->count() : 0,
+                'total_points' => $activity->quiz ? $activity->quiz->questions->sum('points') : 0,
+                'is_completed' => $quizProgress ? ($quizProgress->is_completed && $quizProgress->is_submitted) : false,
+                'quiz_progress' => $quizProgress ? [
+                    'id' => $quizProgress->id,
+                    'is_completed' => $quizProgress->is_completed,
+                    'is_submitted' => $quizProgress->is_submitted,
+                    'score' => $quizProgress->score,
+                    'percentage_score' => $quizProgress->percentage_score,
+                    'completed_questions' => $quizProgress->completed_questions,
+                    'total_questions' => $quizProgress->total_questions,
+                ] : null,
+            ];
+        });
+
+        // Calculate completion status
+        $totalLessons = $lessons->count();
+        $completedLessons = $lessons->where('is_completed', true)->count();
+        $totalActivities = $activities->count();
+        $completedActivities = $activities->where('is_completed', true)->count();
+        
+        // Module can only be marked complete if all lessons and activities are completed
+        $canMarkComplete = ($totalLessons === $completedLessons) && ($totalActivities === $completedActivities);
+
+        // Update course enrollment progress
+        $enrollment->updateProgress();
+        $enrollment->refresh();
+
+        return Inertia::render('Student/CourseModuleDetail', [
+            'course' => [
+                'id' => $course->id,
+                'title' => $course->title,
+                'description' => $course->description,
+                'instructor_name' => $course->instructor_name,
+                'progress' => (float) $enrollment->progress,
+                'is_completed' => $enrollment->is_completed,
+                'enrolled_at' => $enrollment->created_at->format('Y-m-d'),
+            ],
+            'module' => [
+                'id' => $module->id,
+                'title' => $module->title,
+                'description' => $module->description,
+                'module_type' => $module->module_type,
+                'module_percentage' => $module->module_percentage,
+                'is_completed' => $moduleCompletion ? true : false,
+                'completed_at' => $moduleCompletion ? $moduleCompletion->completed_at : null,
+                'can_mark_complete' => $canMarkComplete,
+                'lessons' => $lessons,
+                'activities' => $activities,
+                'documents' => $module->documents->map(function ($doc) {
+                    return [
+                        'id' => $doc->id,
+                        'name' => $doc->name,
+                        'file_path' => $doc->file_path,
+                        'doc_type' => $doc->doc_type,
+                    ];
+                }),
+            ],
+            'stats' => [
+                'total_lessons' => $totalLessons,
+                'completed_lessons' => $completedLessons,
+                'total_activities' => $totalActivities,
+                'completed_activities' => $completedActivities,
+                'completion_percentage' => $totalLessons + $totalActivities > 0 
+                    ? round((($completedLessons + $completedActivities) / ($totalLessons + $totalActivities)) * 100, 1)
+                    : 0,
+            ]
+        ]);
+    }
 }

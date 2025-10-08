@@ -58,4 +58,25 @@ class Module extends Model
     {
         return $this->hasMany(ModuleActivity::class);
     }
+
+    // Module documents relationship
+    public function documents()
+    {
+        return $this->belongsToMany(Document::class, 'module_document');
+    }
+
+    // Student activities for this module
+    public function studentActivities()
+    {
+        return $this->hasMany(StudentActivity::class);
+    }
+
+    // Get student activities for a specific student
+    public function getStudentActivities(int $studentId)
+    {
+        return $this->studentActivities()
+            ->where('student_id', $studentId)
+            ->with(['activity', 'quizProgress', 'assignmentProgress', 'projectProgress', 'assessmentProgress'])
+            ->get();
+    }
 }

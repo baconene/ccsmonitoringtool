@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class StudentQuizProgress extends Model
 {
@@ -66,6 +67,16 @@ class StudentQuizProgress extends Model
     public function answers(): HasMany
     {
         return $this->hasMany(StudentQuizAnswer::class, 'quiz_progress_id');
+    }
+
+    /**
+     * Get the associated student activity (if exists)
+     */
+    public function studentActivity(): HasOne
+    {
+        return $this->hasOne(StudentActivity::class, 'activity_id', 'activity_id')
+            ->where('user_id', $this->student_id)
+            ->where('activity_type', 'quiz');
     }
 
     /**

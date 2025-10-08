@@ -234,13 +234,13 @@ Route::post('/modules/{module}/documents', [ModuleController::class, 'uploadDocu
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/courses', [App\Http\Controllers\Student\StudentCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [App\Http\Controllers\Student\StudentCourseController::class, 'show'])->name('courses.show');
+    Route::get('/courses/{course}/modules/{moduleId}', [App\Http\Controllers\Student\StudentCourseController::class, 'showModule'])->name('courses.modules.show');
     Route::post('/courses/{course}/lessons/{lessonId}/complete', [App\Http\Controllers\Student\StudentCourseController::class, 'completeLesson'])->name('courses.lessons.complete');
     Route::post('/courses/{course}/modules/{moduleId}/complete', [App\Http\Controllers\Student\StudentCourseController::class, 'completeModule'])->name('courses.modules.complete');
     Route::get('/courses/{course}/lessons', [App\Http\Controllers\Student\StudentCourseController::class, 'getLessons'])->name('courses.lessons');
     
     // Student Activities
-    Route::get('/activities', [App\Http\Controllers\Student\StudentActivitiesController::class, 'index'])->name('activities');
-    Route::get('/activities/{activity}', [App\Http\Controllers\Student\StudentActivitiesController::class, 'show'])->name('activities.show');
+    Route::get('/activities', [App\Http\Controllers\Student\StudentCourseController::class, 'activities'])->name('activities');
     
     // Quiz routes
     Route::get('/quiz/start/{activity}', [App\Http\Controllers\Student\StudentQuizController::class, 'start'])->name('quiz.start');
@@ -255,6 +255,7 @@ Route::middleware(['auth'])->prefix('api')->group(function () {
     // Dashboard API routes
     Route::prefix('dashboard')->group(function () {
         Route::get('/stats', [App\Http\Controllers\Api\DashboardApiController::class, 'getStats']);
+        Route::get('/student-data', [App\Http\Controllers\Api\StudentDashboardController::class, 'getDashboardData'])->middleware('role:student');
     });
 
     // Instructor API routes
