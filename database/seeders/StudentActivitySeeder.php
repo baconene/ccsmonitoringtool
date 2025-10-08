@@ -183,7 +183,7 @@ class StudentActivitySeeder extends Seeder
         $totalActivities = StudentActivity::count();
         $completedActivities = StudentActivity::where('status', 'completed')->count();
         $totalQuizzes = StudentQuizProgress::count();
-        $completedQuizzes = StudentQuizProgress::where('status', 'completed')->count();
+        $completedQuizzes = StudentQuizProgress::where('is_completed', true)->count();
 
         echo "\n📊 Summary:\n";
         echo "• Total Student Activities: {$totalActivities}\n";

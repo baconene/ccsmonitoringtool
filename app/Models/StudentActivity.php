@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 class StudentActivity extends Model
 {
     protected $fillable = [
-        'student_id',
+        'user_id',
         'module_id',
         'course_id',
         'activity_id',
@@ -39,9 +39,9 @@ class StudentActivity extends Model
     ];
 
     // Relationships
-    public function student(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(User::class);
     }
 
     public function module(): BelongsTo
