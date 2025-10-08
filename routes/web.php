@@ -287,5 +287,33 @@ Route::middleware(['auth'])->prefix('api')->group(function () {
     });
 });
 
+// GRADE REPORT ROUTES
+Route::middleware(['auth'])->group(function () {
+    // Student grade reports
+    Route::middleware(['role:student'])->prefix('student')->name('student.')->group(function () {
+        // Main report page (shows all courses or specific course)
+        Route::get('/report', [App\Http\Controllers\GradeController::class, 'studentReport'])->name('report');
+        Route::get('/{student}/report/course/{course}', [App\Http\Controllers\GradeController::class, 'studentCourseReport'])->name('course.report');
+        
+        // Export routes - general
+        Route::get('/report/pdf', [App\Http\Controllers\GradeController::class, 'studentReportPDF'])->name('report.pdf');
+        Route::get('/report/pdf/complete', [App\Http\Controllers\GradeController::class, 'studentCompleteReportPDF'])->name('report.pdf.complete');
+        Route::get('/report/csv', [App\Http\Controllers\GradeController::class, 'studentReportCSV'])->name('report.csv');
+        Route::get('/report/csv/complete', [App\Http\Controllers\GradeController::class, 'studentCompleteReportCSV'])->name('report.csv.complete');
+        
+        // Export routes - specific course
+        Route::get('/{student}/report/course/{course}/pdf', [App\Http\Controllers\GradeController::class, 'studentCourseReportPDF'])->name('course.report.pdf');
+        Route::get('/{student}/report/course/{course}/csv', [App\Http\Controllers\GradeController::class, 'studentCourseReportCSV'])->name('course.report.csv');
+    });
+
+    // Instructor grade reports
+    Route::middleware(['role:instructor,admin'])->prefix('instructor')->name('instructor.')->group(function () {
+        Route::get('/report', [App\Http\Controllers\GradeController::class, 'instructorReport'])->name('report');
+        Route::get('/report/pdf', [App\Http\Controllers\GradeController::class, 'instructorReportPDF'])->name('report.pdf');
+        Route::get('/report/csv', [App\Http\Controllers\GradeController::class, 'instructorReportCSV'])->name('report.csv');
+        Route::get('/student/{student}/detail', [App\Http\Controllers\GradeController::class, 'studentDetail'])->name('student.detail');
+    });
+});
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

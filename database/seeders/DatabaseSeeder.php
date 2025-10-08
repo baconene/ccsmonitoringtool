@@ -251,6 +251,9 @@ class DatabaseSeeder extends Seeder
             }
         }
 
+        // Create student activity data
+        $this->call(StudentActivitySeeder::class);
+
         // Re-enable foreign key checks
         DB::statement('PRAGMA foreign_keys = ON');
 

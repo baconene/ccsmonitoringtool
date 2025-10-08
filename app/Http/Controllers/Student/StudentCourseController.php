@@ -126,7 +126,7 @@ class StudentCourseController extends Controller
 
                 return [
                     'id' => $module->id,
-                    'title' => $module->title,
+                    'title' => $module->description,
                     'description' => $module->description,
                     'module_type' => $module->module_type,
                     'lessons' => $module->lessons,
@@ -324,7 +324,7 @@ class StudentCourseController extends Controller
         $enrollment->refresh();
 
         return redirect()->back()->with([
-            'success' => "'{$module->title}' module marked as completed successfully",
+            'success' => "'{$module->description}' module marked as completed successfully",
             'progress' => (float) $enrollment->progress,
         ]);
     }
@@ -532,7 +532,7 @@ class StudentCourseController extends Controller
             ],
             'module' => [
                 'id' => $module->id,
-                'title' => $module->title,
+                'title' => $module->description,
                 'description' => $module->description,
                 'module_type' => $module->module_type,
                 'module_percentage' => $module->module_percentage,

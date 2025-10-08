@@ -11,6 +11,7 @@ import CourseStudentController from './CourseStudentController'
 import LessonController from './LessonController'
 import Student from './Student'
 import GradeLevelController from './GradeLevelController'
+import GradeController from './GradeController'
 import Settings from './Settings'
 const Controllers = {
     Auth: Object.assign(Auth, Auth),
@@ -26,6 +27,7 @@ CourseStudentController: Object.assign(CourseStudentController, CourseStudentCon
 LessonController: Object.assign(LessonController, LessonController),
 Student: Object.assign(Student, Student),
 GradeLevelController: Object.assign(GradeLevelController, GradeLevelController),
+GradeController: Object.assign(GradeController, GradeController),
 Settings: Object.assign(Settings, Settings),
 }
 

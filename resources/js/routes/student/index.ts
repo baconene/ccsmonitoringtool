@@ -1,6 +1,8 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import courses from './courses'
 import quiz from './quiz'
+import report611039 from './report'
+import course from './course'
 /**
  * @see routes/web.php:34
  * @route '/student-dashboard'
@@ -240,12 +242,92 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
     
     activities.form = activitiesForm
+/**
+* @see \App\Http\Controllers\GradeController::report
+ * @see app/Http/Controllers/GradeController.php:28
+ * @route '/student/report'
+ */
+export const report = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: report.url(options),
+    method: 'get',
+})
+
+report.definition = {
+    methods: ["get","head"],
+    url: '/student/report',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\GradeController::report
+ * @see app/Http/Controllers/GradeController.php:28
+ * @route '/student/report'
+ */
+report.url = (options?: RouteQueryOptions) => {
+    return report.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\GradeController::report
+ * @see app/Http/Controllers/GradeController.php:28
+ * @route '/student/report'
+ */
+report.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: report.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\GradeController::report
+ * @see app/Http/Controllers/GradeController.php:28
+ * @route '/student/report'
+ */
+report.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: report.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\GradeController::report
+ * @see app/Http/Controllers/GradeController.php:28
+ * @route '/student/report'
+ */
+    const reportForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: report.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\GradeController::report
+ * @see app/Http/Controllers/GradeController.php:28
+ * @route '/student/report'
+ */
+        reportForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: report.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\GradeController::report
+ * @see app/Http/Controllers/GradeController.php:28
+ * @route '/student/report'
+ */
+        reportForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: report.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    report.form = reportForm
 const student = {
     dashboard: Object.assign(dashboard, dashboard),
 details: Object.assign(details, details),
 courses: Object.assign(courses, courses),
 activities: Object.assign(activities, activities),
 quiz: Object.assign(quiz, quiz),
+report: Object.assign(report, report611039),
+course: Object.assign(course, course),
 }
 
 export default student

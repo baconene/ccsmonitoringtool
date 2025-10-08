@@ -55,8 +55,8 @@ const adminNavItems: NavItem[] = [
         icon: Users,
     }, 
     {
-        title: 'Report',
-        href: "/report",
+        title: 'Grade Reports',
+        href: "/instructor/report",
         icon: Folder,
     },
 ];
@@ -84,8 +84,8 @@ const instructorNavItems: NavItem[] = [
         icon: BookOpen,
     },
     {
-        title: 'Report',
-        href: "/report",
+        title: 'Grade Reports',
+        href: "/instructor/report",
         icon: Folder,
     },
 ];
@@ -113,8 +113,8 @@ const studentNavItems: NavItem[] = [
         icon: GraduationCap,
     },
     {
-        title: 'My Reports',
-        href: '/student/reports',
+        title: 'Grade Report',
+        href: '/student/report',
         icon: Folder,
     },
 ];

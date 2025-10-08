@@ -160,7 +160,7 @@ class ModuleStatusController extends Controller
 
         return response()->json([
             'module_id' => $moduleId,
-            'module_title' => $module->title,
+            'module_title' => $module->description,
             'module_type' => $module->module_type,
             'course_id' => $module->course_id,
             'course_title' => $module->course->title,
@@ -237,7 +237,7 @@ class ModuleStatusController extends Controller
             $missingActivities = $activityStatus['total'] - $activityStatus['completed'];
             $missingLessons = $lessonStatus['total'] - $lessonStatus['completed'];
             
-            $errorMessage = "Cannot complete '{$module->title}' module yet. ";
+            $errorMessage = "Cannot complete '{$module->description}' module yet. ";
             if ($missingActivities > 0 && $missingLessons > 0) {
                 $errorMessage .= "You need to complete {$missingActivities} more activities and {$missingLessons} more lessons.";
             } elseif ($missingActivities > 0) {
@@ -376,7 +376,7 @@ class ModuleStatusController extends Controller
             $actions[] = [
                 'type' => 'complete_module',
                 'title' => 'Mark Module as Complete',
-                'description' => "Complete the '{$module->title}' module to proceed to the next section of your course.",
+                'description' => "Complete the '{$module->description}' module to proceed to the next section of your course.",
                 'priority' => 'high'
             ];
             return $actions;

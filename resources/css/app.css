@@ -2,6 +2,23 @@
 
 @import 'tw-animate-css';
 
+/* Course Selection Enhancement */
+.course-button {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.course-button:hover {
+  @apply transform translate-y-[-1px] shadow-lg;
+}
+
+/* Custom text truncation for course descriptions */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
