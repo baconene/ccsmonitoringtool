@@ -42,10 +42,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ];
     });
 
-    // Dashboard API routes
-    Route::prefix('dashboard')->group(function () {
-        Route::get('/stats', [DashboardApiController::class, 'getStats']);
-    });
+    // Dashboard API routes moved to web.php for web authentication
 
     // Instructor API routes
     Route::prefix('instructor')->group(function () {
@@ -53,13 +50,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Course API routes
-    Route::get('/courses', [App\Http\Controllers\CourseController::class, 'getCourses']);
-    Route::apiResource('courses', CourseApiController::class)->except(['index'])->names([
-        'show' => 'api.courses.show',
-        'store' => 'api.courses.store',
-        'update' => 'api.courses.update',
-        'destroy' => 'api.courses.destroy'
-    ]);
+    // Route::get('/courses', [App\Http\Controllers\CourseController::class, 'getCourses']);
+    // Route::apiResource('courses', CourseApiController::class)->except(['index'])->names([
+    //     'show' => 'api.courses.show',
+    //     'store' => 'api.courses.store',
+    //     'update' => 'api.courses.update',
+    //     'destroy' => 'api.courses.destroy'
+    // ]);
     Route::get('/courses/{course}/students', [CourseApiController::class, 'getStudents']);
 
     // Student API routes
@@ -69,6 +66,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('schedule')->group(function () {
         Route::get('/', [ScheduleApiController::class, 'index']);
         Route::get('/upcoming', [ScheduleApiController::class, 'upcoming']);
+    });
+    
+    // Schedule CRUD routes
+    Route::prefix('schedules')->group(function () {
+        Route::put('/{schedule}', [ScheduleApiController::class, 'update']);
+        Route::delete('/{schedule}', [ScheduleApiController::class, 'destroy']);
     });
 
     // Student module status API routes

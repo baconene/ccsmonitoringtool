@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\ActivityType;
+use App\Models\Schedule;
+use App\Models\ScheduleActivity;
+use App\Models\ScheduleParticipant;
 use App\Services\QuizCsvUploadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -100,39 +104,107 @@ class ActivityController extends Controller
             'csv_file' => 'required_if:create_with_csv,true|file|mimes:csv,txt|max:512000'
         ]);
 
-        $activity = Activity::create([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'activity_type_id' => $validated['activity_type_id'],
-            'due_date' => $validated['due_date'] ?? null,
-            'created_by' => auth()->id(),
-        ]);
+        DB::beginTransaction();
+        
+        try {
+            $activity = Activity::create([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'activity_type_id' => $validated['activity_type_id'],
+                'due_date' => $validated['due_date'] ?? null,
+                'created_by' => auth()->id(),
+            ]);
 
-        // If creating with CSV upload, process the quiz
-        if ($request->boolean('create_with_csv') && $request->hasFile('csv_file')) {
-            try {
-                $uploadService = app(QuizCsvUploadService::class);
-                
-                $result = $uploadService->processQuizCsv(
-                    $request->file('csv_file'),
-                    $activity->id,
-                    $validated['quiz_title'],
-                    $validated['quiz_description'] ?? null
-                );
-
-                return redirect()->route('activities.show', $activity->id)
-                    ->with('success', "Activity '{$activity->title}' created successfully with {$result['questions_count']} questions!");
-
-            } catch (\Exception $e) {
-                // If CSV processing fails, we still keep the activity but show error
-                return redirect()->route('activities.show', $activity->id)
-                    ->withErrors(['csv_upload' => 'Activity created but CSV upload failed: ' . $e->getMessage()])
-                    ->with('warning', "Activity '{$activity->title}' created, but quiz upload failed. You can upload the quiz manually.");
+            // Automatically create schedule if due_date is provided
+            if (!empty($validated['due_date'])) {
+                $this->createScheduleForActivity($activity);
             }
+
+            // If creating with CSV upload, process the quiz
+            if ($request->boolean('create_with_csv') && $request->hasFile('csv_file')) {
+                try {
+                    $uploadService = app(QuizCsvUploadService::class);
+                    
+                    $result = $uploadService->processQuizCsv(
+                        $request->file('csv_file'),
+                        $activity->id,
+                        $validated['quiz_title'],
+                        $validated['quiz_description'] ?? null
+                    );
+
+                    DB::commit();
+                    
+                    return redirect()->route('activities.show', $activity->id)
+                        ->with('success', "Activity '{$activity->title}' created successfully with {$result['questions_count']} questions!");
+
+                } catch (\Exception $e) {
+                    // If CSV processing fails, we still keep the activity but show error
+                    DB::commit();
+                    
+                    return redirect()->route('activities.show', $activity->id)
+                        ->withErrors(['csv_upload' => 'Activity created but CSV upload failed: ' . $e->getMessage()])
+                        ->with('warning', "Activity '{$activity->title}' created, but quiz upload failed. You can upload the quiz manually.");
+                }
+            }
+
+            DB::commit();
+            
+            return redirect()->route('activities.show', $activity->id)
+                ->with('success', "'{$activity->title}' activity created successfully.");
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to create activity: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Create a schedule for an activity based on its due date
+     */
+    private function createScheduleForActivity(Activity $activity)
+    {
+        if (!$activity->due_date) {
+            return;
         }
 
-        return redirect()->route('activities.show', $activity->id)
-            ->with('success', "'{$activity->title}' activity created successfully.");
+        // Create schedule (to_datetime is the due_date, from_datetime is 1 hour before)
+        $toDatetime = $activity->due_date;
+        $fromDatetime = $activity->due_date->copy()->subHour();
+
+        $schedule = Schedule::create([
+            'schedule_type_id' => 1, // Activity type
+            'title' => $activity->title,
+            'description' => $activity->description,
+            'from_datetime' => $fromDatetime,
+            'to_datetime' => $toDatetime,
+            'is_all_day' => false,
+            'is_recurring' => false,
+            'status' => 'scheduled',
+            'created_by' => $activity->created_by,
+            'schedulable_type' => Activity::class,
+            'schedulable_id' => $activity->id,
+        ]);
+
+        // Create schedule_activity record
+        ScheduleActivity::create([
+            'schedule_id' => $schedule->id,
+            'activity_id' => $activity->id,
+            'submission_deadline' => $toDatetime,
+            'passing_score' => $activity->passing_percentage,
+        ]);
+
+        // Add the activity creator as a participant (organizer role)
+        ScheduleParticipant::create([
+            'schedule_id' => $schedule->id,
+            'user_id' => $activity->created_by,
+            'role_in_schedule' => 'organizer',
+            'participation_status' => 'accepted',
+        ]);
+
+        return $schedule;
     }
 
     /**
@@ -194,10 +266,73 @@ class ActivityController extends Controller
             'due_date' => 'nullable|date',
         ]);
 
-        $activity->update($validated);
+        DB::beginTransaction();
+        
+        try {
+            $activity->update($validated);
 
-        return redirect()->route('activities.show', $activity->id)
-            ->with('success', 'Activity updated successfully.');
+            // Handle schedule updates based on due_date changes
+            $this->syncScheduleForActivity($activity);
+
+            DB::commit();
+            
+            return redirect()->route('activities.show', $activity->id)
+                ->with('success', 'Activity updated successfully.');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to update activity: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Sync schedule for an activity (create, update, or delete based on due_date)
+     */
+    private function syncScheduleForActivity(Activity $activity)
+    {
+        // Find existing schedule for this activity
+        $existingSchedule = Schedule::where('schedulable_type', Activity::class)
+            ->where('schedulable_id', $activity->id)
+            ->where('schedule_type_id', 1) // Activity type
+            ->first();
+
+        if ($activity->due_date) {
+            // If activity has due_date, create or update schedule
+            if ($existingSchedule) {
+                // Update existing schedule
+                $toDatetime = $activity->due_date;
+                $fromDatetime = $activity->due_date->copy()->subHour();
+
+                $existingSchedule->update([
+                    'title' => $activity->title,
+                    'description' => $activity->description,
+                    'from_datetime' => $fromDatetime,
+                    'to_datetime' => $toDatetime,
+                ]);
+
+                // Update schedule_activity record
+                $existingSchedule->activityDetails()->updateOrCreate(
+                    ['schedule_id' => $existingSchedule->id],
+                    [
+                        'activity_id' => $activity->id,
+                        'submission_deadline' => $toDatetime,
+                        'passing_score' => $activity->passing_percentage,
+                    ]
+                );
+            } else {
+                // Create new schedule
+                $this->createScheduleForActivity($activity);
+            }
+        } else {
+            // If activity no longer has due_date, delete associated schedule
+            if ($existingSchedule) {
+                $existingSchedule->activityDetails()->delete();
+                $existingSchedule->delete();
+            }
+        }
     }
 
     /**

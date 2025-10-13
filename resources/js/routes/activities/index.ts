@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\ActivityController::index
- * @see app/Http/Controllers/ActivityController.php:17
+ * @see app/Http/Controllers/ActivityController.php:21
  * @route '/activity-management'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\ActivityController::index
- * @see app/Http/Controllers/ActivityController.php:17
+ * @see app/Http/Controllers/ActivityController.php:21
  * @route '/activity-management'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ActivityController::index
- * @see app/Http/Controllers/ActivityController.php:17
+ * @see app/Http/Controllers/ActivityController.php:21
  * @route '/activity-management'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\ActivityController::index
- * @see app/Http/Controllers/ActivityController.php:17
+ * @see app/Http/Controllers/ActivityController.php:21
  * @route '/activity-management'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\ActivityController::index
- * @see app/Http/Controllers/ActivityController.php:17
+ * @see app/Http/Controllers/ActivityController.php:21
  * @route '/activity-management'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\ActivityController::index
- * @see app/Http/Controllers/ActivityController.php:17
+ * @see app/Http/Controllers/ActivityController.php:21
  * @route '/activity-management'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\ActivityController::index
- * @see app/Http/Controllers/ActivityController.php:17
+ * @see app/Http/Controllers/ActivityController.php:21
  * @route '/activity-management'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\ActivityController::create
- * @see app/Http/Controllers/ActivityController.php:78
+ * @see app/Http/Controllers/ActivityController.php:82
  * @route '/activities/create'
  */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\ActivityController::create
- * @see app/Http/Controllers/ActivityController.php:78
+ * @see app/Http/Controllers/ActivityController.php:82
  * @route '/activities/create'
  */
 create.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ActivityController::create
- * @see app/Http/Controllers/ActivityController.php:78
+ * @see app/Http/Controllers/ActivityController.php:82
  * @route '/activities/create'
  */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\ActivityController::create
- * @see app/Http/Controllers/ActivityController.php:78
+ * @see app/Http/Controllers/ActivityController.php:82
  * @route '/activities/create'
  */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\ActivityController::create
- * @see app/Http/Controllers/ActivityController.php:78
+ * @see app/Http/Controllers/ActivityController.php:82
  * @route '/activities/create'
  */
     const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\ActivityController::create
- * @see app/Http/Controllers/ActivityController.php:78
+ * @see app/Http/Controllers/ActivityController.php:82
  * @route '/activities/create'
  */
         createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\ActivityController::create
- * @see app/Http/Controllers/ActivityController.php:78
+ * @see app/Http/Controllers/ActivityController.php:82
  * @route '/activities/create'
  */
         createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\ActivityController::store
- * @see app/Http/Controllers/ActivityController.php:90
+ * @see app/Http/Controllers/ActivityController.php:94
  * @route '/activities'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\ActivityController::store
- * @see app/Http/Controllers/ActivityController.php:90
+ * @see app/Http/Controllers/ActivityController.php:94
  * @route '/activities'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ActivityController::store
- * @see app/Http/Controllers/ActivityController.php:90
+ * @see app/Http/Controllers/ActivityController.php:94
  * @route '/activities'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\ActivityController::store
- * @see app/Http/Controllers/ActivityController.php:90
+ * @see app/Http/Controllers/ActivityController.php:94
  * @route '/activities'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\ActivityController::store
- * @see app/Http/Controllers/ActivityController.php:90
+ * @see app/Http/Controllers/ActivityController.php:94
  * @route '/activities'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +212,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\ActivityController::show
- * @see app/Http/Controllers/ActivityController.php:141
+ * @see app/Http/Controllers/ActivityController.php:213
  * @route '/activities/{activity}'
  */
 export const show = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\ActivityController::show
- * @see app/Http/Controllers/ActivityController.php:141
+ * @see app/Http/Controllers/ActivityController.php:213
  * @route '/activities/{activity}'
  */
 show.url = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -260,7 +260,7 @@ show.url = (args: { activity: number | { id: number } } | [activity: number | { 
 
 /**
 * @see \App\Http\Controllers\ActivityController::show
- * @see app/Http/Controllers/ActivityController.php:141
+ * @see app/Http/Controllers/ActivityController.php:213
  * @route '/activities/{activity}'
  */
 show.get = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -269,7 +269,7 @@ show.get = (args: { activity: number | { id: number } } | [activity: number | { 
 })
 /**
 * @see \App\Http\Controllers\ActivityController::show
- * @see app/Http/Controllers/ActivityController.php:141
+ * @see app/Http/Controllers/ActivityController.php:213
  * @route '/activities/{activity}'
  */
 show.head = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -279,7 +279,7 @@ show.head = (args: { activity: number | { id: number } } | [activity: number | {
 
     /**
 * @see \App\Http\Controllers\ActivityController::show
- * @see app/Http/Controllers/ActivityController.php:141
+ * @see app/Http/Controllers/ActivityController.php:213
  * @route '/activities/{activity}'
  */
     const showForm = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +289,7 @@ show.head = (args: { activity: number | { id: number } } | [activity: number | {
 
             /**
 * @see \App\Http\Controllers\ActivityController::show
- * @see app/Http/Controllers/ActivityController.php:141
+ * @see app/Http/Controllers/ActivityController.php:213
  * @route '/activities/{activity}'
  */
         showForm.get = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -298,7 +298,7 @@ show.head = (args: { activity: number | { id: number } } | [activity: number | {
         })
             /**
 * @see \App\Http\Controllers\ActivityController::show
- * @see app/Http/Controllers/ActivityController.php:141
+ * @see app/Http/Controllers/ActivityController.php:213
  * @route '/activities/{activity}'
  */
         showForm.head = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -314,7 +314,7 @@ show.head = (args: { activity: number | { id: number } } | [activity: number | {
     show.form = showForm
 /**
 * @see \App\Http\Controllers\ActivityController::edit
- * @see app/Http/Controllers/ActivityController.php:175
+ * @see app/Http/Controllers/ActivityController.php:247
  * @route '/activities/{activity}/edit'
  */
 export const edit = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -329,7 +329,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\ActivityController::edit
- * @see app/Http/Controllers/ActivityController.php:175
+ * @see app/Http/Controllers/ActivityController.php:247
  * @route '/activities/{activity}/edit'
  */
 edit.url = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -362,7 +362,7 @@ edit.url = (args: { activity: number | { id: number } } | [activity: number | { 
 
 /**
 * @see \App\Http\Controllers\ActivityController::edit
- * @see app/Http/Controllers/ActivityController.php:175
+ * @see app/Http/Controllers/ActivityController.php:247
  * @route '/activities/{activity}/edit'
  */
 edit.get = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -371,7 +371,7 @@ edit.get = (args: { activity: number | { id: number } } | [activity: number | { 
 })
 /**
 * @see \App\Http\Controllers\ActivityController::edit
- * @see app/Http/Controllers/ActivityController.php:175
+ * @see app/Http/Controllers/ActivityController.php:247
  * @route '/activities/{activity}/edit'
  */
 edit.head = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -381,7 +381,7 @@ edit.head = (args: { activity: number | { id: number } } | [activity: number | {
 
     /**
 * @see \App\Http\Controllers\ActivityController::edit
- * @see app/Http/Controllers/ActivityController.php:175
+ * @see app/Http/Controllers/ActivityController.php:247
  * @route '/activities/{activity}/edit'
  */
     const editForm = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -391,7 +391,7 @@ edit.head = (args: { activity: number | { id: number } } | [activity: number | {
 
             /**
 * @see \App\Http\Controllers\ActivityController::edit
- * @see app/Http/Controllers/ActivityController.php:175
+ * @see app/Http/Controllers/ActivityController.php:247
  * @route '/activities/{activity}/edit'
  */
         editForm.get = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -400,7 +400,7 @@ edit.head = (args: { activity: number | { id: number } } | [activity: number | {
         })
             /**
 * @see \App\Http\Controllers\ActivityController::edit
- * @see app/Http/Controllers/ActivityController.php:175
+ * @see app/Http/Controllers/ActivityController.php:247
  * @route '/activities/{activity}/edit'
  */
         editForm.head = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -416,7 +416,7 @@ edit.head = (args: { activity: number | { id: number } } | [activity: number | {
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\ActivityController::update
- * @see app/Http/Controllers/ActivityController.php:188
+ * @see app/Http/Controllers/ActivityController.php:260
  * @route '/activities/{activity}'
  */
 export const update = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -431,7 +431,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\ActivityController::update
- * @see app/Http/Controllers/ActivityController.php:188
+ * @see app/Http/Controllers/ActivityController.php:260
  * @route '/activities/{activity}'
  */
 update.url = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -464,7 +464,7 @@ update.url = (args: { activity: number | { id: number } } | [activity: number | 
 
 /**
 * @see \App\Http\Controllers\ActivityController::update
- * @see app/Http/Controllers/ActivityController.php:188
+ * @see app/Http/Controllers/ActivityController.php:260
  * @route '/activities/{activity}'
  */
 update.put = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -473,7 +473,7 @@ update.put = (args: { activity: number | { id: number } } | [activity: number | 
 })
 /**
 * @see \App\Http\Controllers\ActivityController::update
- * @see app/Http/Controllers/ActivityController.php:188
+ * @see app/Http/Controllers/ActivityController.php:260
  * @route '/activities/{activity}'
  */
 update.patch = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -483,7 +483,7 @@ update.patch = (args: { activity: number | { id: number } } | [activity: number 
 
     /**
 * @see \App\Http\Controllers\ActivityController::update
- * @see app/Http/Controllers/ActivityController.php:188
+ * @see app/Http/Controllers/ActivityController.php:260
  * @route '/activities/{activity}'
  */
     const updateForm = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -498,7 +498,7 @@ update.patch = (args: { activity: number | { id: number } } | [activity: number 
 
             /**
 * @see \App\Http\Controllers\ActivityController::update
- * @see app/Http/Controllers/ActivityController.php:188
+ * @see app/Http/Controllers/ActivityController.php:260
  * @route '/activities/{activity}'
  */
         updateForm.put = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -512,7 +512,7 @@ update.patch = (args: { activity: number | { id: number } } | [activity: number 
         })
             /**
 * @see \App\Http\Controllers\ActivityController::update
- * @see app/Http/Controllers/ActivityController.php:188
+ * @see app/Http/Controllers/ActivityController.php:260
  * @route '/activities/{activity}'
  */
         updateForm.patch = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -528,7 +528,7 @@ update.patch = (args: { activity: number | { id: number } } | [activity: number 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\ActivityController::destroy
- * @see app/Http/Controllers/ActivityController.php:206
+ * @see app/Http/Controllers/ActivityController.php:341
  * @route '/activities/{activity}'
  */
 export const destroy = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -543,7 +543,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\ActivityController::destroy
- * @see app/Http/Controllers/ActivityController.php:206
+ * @see app/Http/Controllers/ActivityController.php:341
  * @route '/activities/{activity}'
  */
 destroy.url = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -576,7 +576,7 @@ destroy.url = (args: { activity: number | { id: number } } | [activity: number |
 
 /**
 * @see \App\Http\Controllers\ActivityController::destroy
- * @see app/Http/Controllers/ActivityController.php:206
+ * @see app/Http/Controllers/ActivityController.php:341
  * @route '/activities/{activity}'
  */
 destroy.delete = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -586,7 +586,7 @@ destroy.delete = (args: { activity: number | { id: number } } | [activity: numbe
 
     /**
 * @see \App\Http\Controllers\ActivityController::destroy
- * @see app/Http/Controllers/ActivityController.php:206
+ * @see app/Http/Controllers/ActivityController.php:341
  * @route '/activities/{activity}'
  */
     const destroyForm = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -601,7 +601,7 @@ destroy.delete = (args: { activity: number | { id: number } } | [activity: numbe
 
             /**
 * @see \App\Http\Controllers\ActivityController::destroy
- * @see app/Http/Controllers/ActivityController.php:206
+ * @see app/Http/Controllers/ActivityController.php:341
  * @route '/activities/{activity}'
  */
         destroyForm.delete = (args: { activity: number | { id: number } } | [activity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

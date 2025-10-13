@@ -141,9 +141,26 @@ const downloadCsvTemplate = () => {
 
             <!-- Quiz Info -->
             <div v-else>
-                <div class="text-sm text-gray-600 dark:text-gray-400">
+                <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                     <p><strong>Total Questions:</strong> {{ quiz.questions?.length || 0 }}</p>
                     <p><strong>Total Points:</strong> {{ quiz.questions?.reduce((sum: number, q: any) => sum + q.points, 0) || 0 }}</p>
+                    <p v-if="activity.due_date" class="flex items-center gap-2">
+                        <strong>Due Date:</strong> 
+                        <span :class="{
+                            'text-red-600 dark:text-red-400 font-semibold': new Date(activity.due_date) < new Date(),
+                            'text-orange-600 dark:text-orange-400 font-semibold': new Date(activity.due_date) >= new Date() && (new Date(activity.due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24) <= 7,
+                        }">
+                            {{ new Date(activity.due_date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            }) }}
+                            <span v-if="new Date(activity.due_date) < new Date()" class="ml-1">⚠️ (Overdue)</span>
+                            <span v-else-if="(new Date(activity.due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24) <= 7" class="ml-1">⏰ (Due Soon)</span>
+                        </span>
+                    </p>
                 </div>
             </div>
         </div>

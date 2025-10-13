@@ -31,6 +31,17 @@ class Activity extends Model
 
             // Detach from modules
             $activity->modules()->detach();
+
+            // Delete related schedules
+            $schedules = Schedule::where('schedulable_type', Activity::class)
+                ->where('schedulable_id', $activity->id)
+                ->get();
+
+            foreach ($schedules as $schedule) {
+                $schedule->activityDetails()->delete();
+                $schedule->participants()->delete();
+                $schedule->delete();
+            }
         });
     }
 
@@ -111,5 +122,22 @@ class Activity extends Model
         }
         
         return $query->with(['quizProgress', 'assignmentProgress', 'projectProgress', 'assessmentProgress'])->first();
+    }
+
+    /**
+     * Get schedules associated with this activity
+     */
+    public function schedules()
+    {
+        return $this->morphMany(Schedule::class, 'schedulable');
+    }
+
+    /**
+     * Get the primary schedule for this activity
+     */
+    public function schedule()
+    {
+        return $this->morphOne(Schedule::class, 'schedulable')
+            ->where('schedule_type_id', 1); // Activity type
     }
 }

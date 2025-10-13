@@ -68,6 +68,23 @@ const formatDate = (date: string) => {
                         <p class="text-gray-900 dark:text-white">{{ assignment.title }}</p>
                     </div>
 
+                    <div v-if="activity.due_date">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Due Date
+                        </label>
+                        <p class="flex items-center gap-2"
+                            :class="{
+                                'text-red-600 dark:text-red-400 font-semibold': new Date(activity.due_date) < new Date(),
+                                'text-orange-600 dark:text-orange-400 font-semibold': new Date(activity.due_date) >= new Date() && (new Date(activity.due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24) <= 7,
+                                'text-gray-900 dark:text-white': new Date(activity.due_date) >= new Date() && (new Date(activity.due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24) > 7,
+                            }">
+                            <Calendar :size="18" />
+                            {{ formatDate(activity.due_date) }}
+                            <span v-if="new Date(activity.due_date) < new Date()" class="ml-1 text-xs">⚠️ Overdue</span>
+                            <span v-else-if="(new Date(activity.due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24) <= 7" class="ml-1 text-xs">⏰ Due Soon</span>
+                        </p>
+                    </div>
+
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Description

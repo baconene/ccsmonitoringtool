@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG Test</title>
+</head>
+<body style="padding: 20px; font-family: Arial;">
+    <h1>SVG Loading Test</h1>
+    
+    <h2>Test 1: Inline Embed</h2>
+    <embed src="/images/erd-course-management.svg" width="800" height="600" type="image/svg+xml">
+    
+    <h2>Test 2: IMG Tag</h2>
+    <img src="/images/erd-course-management.svg" width="800" alt="ERD">
+    
+    <h2>Test 3: Object Tag</h2>
+    <object data="/images/erd-course-management.svg" width="800" height="600" type="image/svg+xml">
+        SVG not supported
+    </object>
+    
+    <h2>Test 4: Direct Link</h2>
+    <a href="/images/erd-course-management.svg" target="_blank">Open SVG in new tab</a>
+    
+    <h2>Test 5: Iframe</h2>
+    <iframe src="/images/erd-course-management.svg" width="800" height="600" style="border: 1px solid #ccc;"></iframe>
+</body>
+</html>

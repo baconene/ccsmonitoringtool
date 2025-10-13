@@ -32,16 +32,17 @@ const sections: DocSection[] = [
     icon: Home,
     subsections: [
       { id: 'introduction', title: 'Introduction' },
-      { id: 'system-overview', title: 'System Overview' },
+      { id: 'system-overview', title: 'System Overview & ERD' },
       { id: 'system-requirements', title: 'System Requirements' },
     ]
   },
   {
     id: 'user-roles',
-    title: 'User Roles & Access',
+    title: 'User Access & Role Management',
     icon: Users,
     subsections: [
-      { id: 'roles-permissions', title: 'Roles & Permissions' },
+      { id: 'roles-permissions', title: 'Roles & Permissions Overview' },
+      { id: 'role-management', title: 'Role Management System' },
       { id: 'student-role', title: 'Student Role' },
       { id: 'teacher-role', title: 'Teacher/Instructor Role' },
       { id: 'admin-role', title: 'Admin Role' },
@@ -53,9 +54,11 @@ const sections: DocSection[] = [
     title: 'Course Management',
     icon: BookOpen,
     subsections: [
+      { id: 'course-management-overview', title: 'Course Management Overview' },
       { id: 'creating-courses', title: 'Creating Courses' },
       { id: 'course-modules', title: 'Course Modules & Weights' },
       { id: 'course-progress', title: 'Course Progress Calculation' },
+      { id: 'course-enrollment', title: 'Course Enrollment System' },
       { id: 'grade-levels', title: 'Grade Levels' },
     ]
   },
@@ -64,6 +67,7 @@ const sections: DocSection[] = [
     title: 'Activities & Assessments',
     icon: FileText,
     subsections: [
+      { id: 'activity-system-overview', title: 'Activity System Overview' },
       { id: 'activity-types', title: 'Activity Types' },
       { id: 'creating-activities', title: 'Creating Activities' },
       { id: 'quiz-system', title: 'Quiz System' },
@@ -72,47 +76,27 @@ const sections: DocSection[] = [
     ]
   },
   {
-    id: 'student-enrollment',
-    title: 'Student Enrollment',
-    icon: GraduationCap,
+    id: 'scheduling-system',
+    title: 'Scheduling System',
+    icon: Settings,
     subsections: [
-      { id: 'enrolling-students', title: 'Enrolling Students' },
-      { id: 'managing-enrollments', title: 'Managing Enrollments' },
-      { id: 'grade-level-restrictions', title: 'Grade Level Restrictions' },
-    ]
-  },
-  {
-    id: 'grade-calculation',
-    title: 'Grade Calculation System',
-    icon: BarChart,
-    subsections: [
-      { id: 'grade-overview', title: 'Grade Calculation Overview' },
-      { id: 'module-grading', title: 'Module Grading Formula' },
-      { id: 'course-grading', title: 'Course Grade Calculation' },
-      { id: 'gpa-calculation', title: 'GPA & Letter Grades' },
-      { id: 'grade-weighting', title: 'Activity Weighting System' },
+      { id: 'scheduling-overview', title: 'Scheduling Overview' },
+      { id: 'creating-schedules', title: 'Creating Schedules' },
+      { id: 'schedule-types', title: 'Schedule Types' },
+      { id: 'managing-schedules', title: 'Managing Schedules' },
     ]
   },
   {
     id: 'grade-reporting',
-    title: 'Grade Reports & Export',
-    icon: FileText,
-    subsections: [
-      { id: 'student-reports', title: 'Student Grade Reports' },
-      { id: 'instructor-reports', title: 'Instructor Reports' },
-      { id: 'report-navigation', title: 'Report Navigation' },
-      { id: 'pdf-export', title: 'PDF Export Features' },
-      { id: 'csv-export', title: 'CSV Export Features' },
-    ]
-  },
-  {
-    id: 'analytics',
-    title: 'Analytics & Reports',
+    title: 'Grade Reporting & Analytics',
     icon: BarChart,
     subsections: [
-      { id: 'dashboard-overview', title: 'Dashboard Overview' },
-      { id: 'student-progress', title: 'Student Progress Tracking' },
-      { id: 'course-analytics', title: 'Course Analytics' },
+      { id: 'grade-reporting-overview', title: 'Grade Reporting Overview' },
+      { id: 'grade-calculation', title: 'Grade Calculation System' },
+      { id: 'student-reports', title: 'Student Grade Reports' },
+      { id: 'instructor-reports', title: 'Instructor Reports' },
+      { id: 'analytics-dashboard', title: 'Analytics Dashboard' },
+      { id: 'progress-tracking', title: 'Progress Tracking' },
     ]
   },
 ];
@@ -128,9 +112,9 @@ const activeContent = computed(() => {
 function getContentForSection(sectionId: string) {
   const contentMap: Record<string, any> = {
     'introduction': {
-      title: 'Welcome to Bacon Edu Learning Management System',
+      title: 'Welcome to AstroLearn Learning Management System',
       content: `
-        <p class="text-lg mb-6">Bacon Edu is a comprehensive Learning Management System (LMS) designed to streamline educational processes for schools, colleges, and training institutions. Built with Laravel 11, Vue 3, TypeScript, and Inertia.js, it provides a modern, intuitive interface for managing courses, activities, and student progress.</p>
+        <p class="text-lg mb-6">AstroLearn is a comprehensive Learning Management System (LMS) designed to streamline educational processes for schools, colleges, and training institutions. Built with Laravel 11, Vue 3, TypeScript, and Inertia.js, it provides a modern, intuitive interface for managing courses, activities, and student progress.</p>
         
         <h3 class="text-2xl font-bold mb-4">🎯 Key Features</h3>
         <ul class="list-disc pl-6 space-y-2 mb-6">
@@ -145,7 +129,7 @@ function getContentForSection(sectionId: string) {
         </ul>
 
         <h3 class="text-2xl font-bold mb-4">🎓 Who is this for?</h3>
-        <p class="mb-4">Bacon Edu is perfect for:</p>
+        <p class="mb-4">AstroLearn is perfect for:</p>
         <ul class="list-disc pl-6 space-y-2 mb-6">
           <li>K-12 schools and educational institutions</li>
           <li>Colleges and universities managing multiple courses</li>
@@ -180,7 +164,7 @@ function getContentForSection(sectionId: string) {
     'system-overview': {
       title: 'System Overview',
       content: `
-        <p class="text-lg mb-6">Understanding the core architecture and workflow of Bacon Edu LMS.</p>
+        <p class="text-lg mb-6">Understanding the core architecture and workflow of AstroLearn LMS.</p>
         
         <h3 class="text-2xl font-bold mb-4">📚 System Architecture</h3>
         
@@ -250,7 +234,7 @@ function getContentForSection(sectionId: string) {
     'system-requirements': {
       title: 'System Requirements',
       content: `
-        <p class="text-lg mb-6">Before installing Bacon Edu, ensure your system meets the following requirements:</p>
+        <p class="text-lg mb-6">Before installing AstroLearn, ensure your system meets the following requirements:</p>
         
         <h3 class="text-2xl font-bold mb-4">Server Requirements</h3>
         <ul class="list-disc pl-6 space-y-2 mb-6">
@@ -279,7 +263,7 @@ function getContentForSection(sectionId: string) {
     'roles-permissions': {
       title: 'Roles & Permissions Overview',
       content: `
-        <p class="text-lg mb-6">Bacon Edu uses a role-based access control (RBAC) system with three primary roles, each designed for specific functions within the learning management ecosystem.</p>
+        <p class="text-lg mb-6">AstroLearn uses a role-based access control (RBAC) system with three primary roles, each designed for specific functions within the learning management ecosystem.</p>
         
         <h3 class="text-2xl font-bold mb-4">👥 User Roles Summary</h3>
         
@@ -802,7 +786,7 @@ function getContentForSection(sectionId: string) {
     'adding-users': {
       title: 'Adding Users',
       content: `
-        <p class="text-lg mb-6">Learn how to add new users to your Bacon Edu system.</p>
+        <p class="text-lg mb-6">Learn how to add new users to your AstroLearn system.</p>
         
         <h3 class="text-2xl font-bold mb-4">Step-by-Step Guide</h3>
         
@@ -842,9 +826,9 @@ function getContentForSection(sectionId: string) {
       `
     },
     'activity-types': {
-      title: 'Activity Types in Bacon Edu',
+      title: 'Activity Types in AstroLearn',
       content: `
-        <p class="text-lg mb-6">Bacon Edu supports multiple activity types that can be attached to course modules. Each activity type serves a different educational purpose.</p>
+        <p class="text-lg mb-6">AstroLearn supports multiple activity types that can be attached to course modules. Each activity type serves a different educational purpose.</p>
         
         <h3 class="text-2xl font-bold mb-4">📝 Available Activity Types</h3>
         
@@ -1179,7 +1163,7 @@ function getContentForSection(sectionId: string) {
     'course-progress': {
       title: 'Course Progress Calculation',
       content: `
-        <p class="text-lg mb-6">Bacon Edu calculates course progress based on completed module weights, providing an accurate representation of student achievement.</p>
+        <p class="text-lg mb-6">AstroLearn calculates course progress based on completed module weights, providing an accurate representation of student achievement.</p>
         
         <h3 class="text-2xl font-bold mb-4">📊 How Progress is Calculated</h3>
         
@@ -1361,7 +1345,7 @@ function getContentForSection(sectionId: string) {
     'grade-levels': {
       title: 'Grade Levels',
       content: `
-        <p class="text-lg mb-6">Bacon Edu uses grade levels to control which students can enroll in specific courses.</p>
+        <p class="text-lg mb-6">AstroLearn uses grade levels to control which students can enroll in specific courses.</p>
         
         <h3 class="text-2xl font-bold mb-4">How Grade Levels Work</h3>
         
@@ -1445,7 +1429,7 @@ function getContentForSection(sectionId: string) {
     'quiz-system': {
       title: 'Quiz System Overview',
       content: `
-        <p class="text-lg mb-6">The quiz system in Bacon Edu is a comprehensive assessment tool supporting multiple question types with automatic and manual grading capabilities.</p>
+        <p class="text-lg mb-6">The quiz system in AstroLearn is a comprehensive assessment tool supporting multiple question types with automatic and manual grading capabilities.</p>
         
         <h3 class="text-2xl font-bold mb-4">🎯 Quiz Features</h3>
         
@@ -1742,7 +1726,7 @@ function getContentForSection(sectionId: string) {
     'quiz-taking': {
       title: 'Taking Quizzes - Student Guide',
       content: `
-        <p class="text-lg mb-6">A complete guide for students on how to take quizzes effectively in Bacon Edu.</p>
+        <p class="text-lg mb-6">A complete guide for students on how to take quizzes effectively in AstroLearn.</p>
         
         <h3 class="text-2xl font-bold mb-4">📝 Quiz Taking Process</h3>
         
@@ -2217,6 +2201,413 @@ function getContentForSection(sectionId: string) {
         </div>
       `
     },
+    'course-management-overview': {
+      title: 'Course Management Overview',
+      content: `
+        <p class="text-lg mb-6">The Course Management system is the backbone of AstroLearn, organizing educational content into a hierarchical structure with automated grade tracking.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">📊 Entity Relationship Diagram</h3>
+        <div class="bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900/20 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-8 mb-8 font-mono text-sm overflow-x-auto">
+    <img src="/images/erd-course-management.svg" width="800" alt="ERD">
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🔑 Key Relationships</h3>
+        <div class="space-y-4 mb-6">
+          <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Course → Modules (One-to-Many)</h4>
+            <p class="text-sm">Each course contains multiple modules. Modules have a <strong>weight</strong> property (e.g., 20%, 30%) that determines their contribution to the final course grade.</p>
+          </div>
+          
+          <div class="bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Module → Activities (One-to-Many)</h4>
+            <p class="text-sm">Modules contain activities (quizzes, lessons, assignments). Progress is tracked by marking entire modules as complete.</p>
+          </div>
+          
+          <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Activity → ActivityType (Many-to-One)</h4>
+            <p class="text-sm">Each activity has a type (quiz, lesson, video, reading, assignment) that defines its behavior and display.</p>
+          </div>
+          
+          <div class="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Course ↔ GradeLevel (Many-to-Many)</h4>
+            <p class="text-sm">Courses can be assigned to multiple grade levels (e.g., Grade 7, Grade 8). Only students in those grade levels can be enrolled.</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📈 Progress Calculation</h3>
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-6">
+          <p class="text-lg font-semibold mb-4">Course Progress = Sum of Completed Module Weights</p>
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-4 font-mono text-sm">
+            <code>progress = completed_modules.sum('weight')</code>
+          </div>
+          <p class="text-sm mt-3 text-gray-600 dark:text-gray-400">Example: If you complete a 20% module and a 30% module, your progress is 50%.</p>
+        </div>
+      `
+    },
+    'activity-system-overview': {
+      title: 'Activity System Overview',
+      content: `
+        <p class="text-lg mb-6">The Activity System manages all learning interactions including quizzes, assignments, lessons, and assessments. Activities are the primary way students engage with course content.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">📊 Entity Relationship Diagram</h3>
+        <div class="bg-gradient-to-br from-slate-50 to-purple-50 dark:from-slate-900 dark:to-purple-900/20 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-8 mb-8">
+          <img src="/images/erd-activity-system.svg" alt="Activity System ERD" class="w-full h-auto rounded-lg">
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🔑 Key Relationships</h3>
+        <div class="space-y-4 mb-6">
+          <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Activity → ActivityType (Many-to-One)</h4>
+            <p class="text-sm">Each activity belongs to a specific type that determines its behavior:</p>
+            <ul class="text-sm mt-2 space-y-1 list-disc list-inside">
+              <li><strong>Quiz:</strong> Interactive assessment with questions and auto-grading</li>
+              <li><strong>Lesson:</strong> Reading material or instructional content</li>
+              <li><strong>Video:</strong> Video-based learning content</li>
+              <li><strong>Reading:</strong> Text-based educational material</li>
+              <li><strong>Assignment:</strong> Task requiring submission and manual grading</li>
+            </ul>
+          </div>
+          
+          <div class="bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Activity → StudentActivity (One-to-Many)</h4>
+            <p class="text-sm">Tracks individual student progress on each activity including status (not_started, in_progress, completed), score, and time spent.</p>
+          </div>
+          
+          <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">StudentActivity → QuizAttempt (One-to-One for quizzes)</h4>
+            <p class="text-sm">For quiz activities, detailed attempt data is stored including score, percentage, start/end times, and individual question responses.</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🎯 Activity Types Explained</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h4 class="font-bold text-lg mb-2">📝 Quiz</h4>
+            <p class="text-sm mb-2">Auto-graded assessments with multiple-choice, true/false, or short-answer questions.</p>
+            <div class="text-xs text-gray-600 dark:text-gray-400">
+              ✓ Auto-scored<br>
+              ✓ Immediate feedback<br>
+              ✓ Time tracking
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+            <h4 class="font-bold text-lg mb-2">📚 Lesson</h4>
+            <p class="text-sm mb-2">Reading materials, instructional content, and learning resources.</p>
+            <div class="text-xs text-gray-600 dark:text-gray-400">
+              ✓ Content delivery<br>
+              ✓ Completion tracking<br>
+              ✓ No grading
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+            <h4 class="font-bold text-lg mb-2">🎥 Video</h4>
+            <p class="text-sm mb-2">Video-based learning content with embedded players and progress tracking.</p>
+            <div class="text-xs text-gray-600 dark:text-gray-400">
+              ✓ Video playback<br>
+              ✓ Watch time tracking<br>
+              ✓ Completion based on viewing
+            </div>
+          </div>
+          
+          <div class="bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <h4 class="font-bold text-lg mb-2">✏️ Assignment</h4>
+            <p class="text-sm mb-2">Tasks requiring student submission and instructor review.</p>
+            <div class="text-xs text-gray-600 dark:text-gray-400">
+              ✓ File upload<br>
+              ✓ Manual grading<br>
+              ✓ Due dates
+            </div>
+          </div>
+        </div>
+      `
+    },
+    'scheduling-overview': {
+      title: 'Scheduling System Overview',
+      content: `
+        <p class="text-lg mb-6">The Scheduling System manages class sessions, activity deadlines, and learning events. It helps organize when and where learning takes place.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">📊 Entity Relationship Diagram</h3>
+        <div class="bg-gradient-to-br from-slate-50 to-green-50 dark:from-slate-900 dark:to-green-900/20 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-8 mb-8">
+          <img src="/images/erd-scheduling-system.svg" alt="Scheduling System ERD" class="w-full h-auto rounded-lg">
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🔑 Key Relationships</h3>
+        <div class="space-y-4 mb-6">
+          <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Schedule → ScheduleType (Many-to-One)</h4>
+            <p class="text-sm">Each schedule has a type that categorizes the event (class session, exam, activity deadline, meeting, or general event).</p>
+          </div>
+          
+          <div class="bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Schedule → Course/Activity (Optional Many-to-One)</h4>
+            <p class="text-sm">Schedules can be linked to specific courses or activities. This is optional—some schedules are standalone events.</p>
+          </div>
+          
+          <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Schedule ↔ Student (Many-to-Many via ScheduleParticipants)</h4>
+            <p class="text-sm">Students can participate in multiple schedules, and each schedule can have multiple student participants. Attendance status is tracked per participant.</p>
+          </div>
+          
+          <div class="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Schedule → Instructor (Many-to-One)</h4>
+            <p class="text-sm">Each schedule is created by an instructor who owns and manages that schedule event.</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📅 Schedule Types</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h4 class="font-bold mb-2">🏫 Class Session</h4>
+            <p class="text-xs">Regular class meetings linked to courses with attendance tracking.</p>
+          </div>
+          
+          <div class="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <h4 class="font-bold mb-2">📝 Activity Deadline</h4>
+            <p class="text-xs">Due dates for assignments, quizzes, or projects.</p>
+          </div>
+          
+          <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+            <h4 class="font-bold mb-2">🎯 Exam</h4>
+            <p class="text-xs">Scheduled tests and major assessments.</p>
+          </div>
+          
+          <div class="bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <h4 class="font-bold mb-2">👥 Meeting</h4>
+            <p class="text-xs">Office hours, parent-teacher conferences, or study sessions.</p>
+          </div>
+          
+          <div class="bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+            <h4 class="font-bold mb-2">🎉 Event</h4>
+            <p class="text-xs">Special events, workshops, or educational activities.</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4 mt-6">🔄 Recurring Schedules</h3>
+        <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-6">
+          <p class="mb-3">Schedules can repeat on a regular pattern:</p>
+          <ul class="list-disc list-inside space-y-2 text-sm">
+            <li><strong>Daily:</strong> Every day at the same time</li>
+            <li><strong>Weekly:</strong> Same day(s) each week (e.g., Mon/Wed/Fri)</li>
+            <li><strong>Monthly:</strong> Same date each month</li>
+            <li><strong>Custom:</strong> Advanced patterns defined by instructors</li>
+          </ul>
+        </div>
+      `
+    },
+    'role-management': {
+      title: 'Role Management System',
+      content: `
+        <p class="text-lg mb-6">AstroLearn implements a robust Role-Based Access Control (RBAC) system to manage user permissions and ensure secure access to platform features.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">📊 User & Role ERD</h3>
+        <div class="bg-gradient-to-br from-slate-50 to-red-50 dark:from-slate-900 dark:to-red-900/20 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-8 mb-8">
+          <img src="/images/erd-user-role-management.svg" alt="User & Role Management ERD" class="w-full h-auto rounded-lg">
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🛡️ Security Implementation</h3>
+        <div class="space-y-4 mb-6">
+          <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Backend Middleware Protection</h4>
+            <p class="text-sm">Laravel middleware checks user roles before processing requests:</p>
+            <div class="bg-white dark:bg-gray-800 rounded mt-2 p-3 font-mono text-xs">
+              Route::middleware(['auth', 'role:admin'])-&gt;group(...)
+            </div>
+          </div>
+          
+          <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Frontend Route Guards</h4>
+            <p class="text-sm">Inertia.js checks user role before rendering protected pages, preventing unauthorized access attempts.</p>
+          </div>
+          
+          <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded-r-lg">
+            <h4 class="font-bold mb-2">Database-Level Constraints</h4>
+            <p class="text-sm">Foreign key relationships and unique constraints prevent data inconsistencies and unauthorized modifications.</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">👤 User Role Assignment</h3>
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-6">
+          <ol class="space-y-3">
+            <li class="flex gap-3">
+              <span class="flex-shrink-0 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">1</span>
+              <div>
+                <strong>User Created:</strong> Admin creates user account with email and temporary password
+              </div>
+            </li>
+            <li class="flex gap-3">
+              <span class="flex-shrink-0 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">2</span>
+              <div>
+                <strong>Role Assigned:</strong> Admin selects role (admin/teacher/student) during creation
+              </div>
+            </li>
+            <li class="flex gap-3">
+              <span class="flex-shrink-0 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">3</span>
+              <div>
+                <strong>Profile Created:</strong> System automatically creates Student or Instructor profile based on role
+              </div>
+            </li>
+            <li class="flex gap-3">
+              <span class="flex-shrink-0 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">4</span>
+              <div>
+                <strong>Access Granted:</strong> User can log in and access role-appropriate features
+              </div>
+            </li>
+          </ol>
+        </div>
+      `
+    },
+    'grade-reporting-overview': {
+      title: 'Grade Reporting & Analytics Overview',
+      content: `
+        <p class="text-lg mb-6">The Grade Reporting system provides comprehensive insights into student performance, course progress, and learning analytics with export capabilities.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">📊 Reporting System ERD</h3>
+        <div class="bg-gradient-to-br from-slate-50 to-teal-50 dark:from-slate-900 dark:to-teal-900/20 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-8 mb-8">
+          <img src="/images/erd-grade-reporting.svg" alt="Grade Reporting System ERD" class="w-full h-auto rounded-lg">
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📈 Available Reports</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-6">
+            <h4 class="text-xl font-bold mb-3 flex items-center gap-2">
+              <span class="text-2xl">📊</span> Student Progress Report
+            </h4>
+            <ul class="text-sm space-y-2">
+              <li>✓ Course-by-course breakdown</li>
+              <li>✓ Module completion status</li>
+              <li>✓ Activity scores and percentages</li>
+              <li>✓ Time spent on each activity</li>
+              <li>✓ Overall course progress (%)</li>
+              <li>✓ Quiz attempt history</li>
+            </ul>
+            <div class="mt-4 text-xs bg-blue-100 dark:bg-blue-900/30 rounded px-3 py-2">
+              <strong>Export:</strong> PDF, CSV
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200 dark:border-purple-800 rounded-xl p-6">
+            <h4 class="text-xl font-bold mb-3 flex items-center gap-2">
+              <span class="text-2xl">👨‍🏫</span> Instructor Analytics
+            </h4>
+            <ul class="text-sm space-y-2">
+              <li>✓ Class performance overview</li>
+              <li>✓ Student engagement metrics</li>
+              <li>✓ Activity completion rates</li>
+              <li>✓ Average quiz scores</li>
+              <li>✓ At-risk student identification</li>
+              <li>✓ Module difficulty analysis</li>
+            </ul>
+            <div class="mt-4 text-xs bg-purple-100 dark:bg-purple-900/30 rounded px-3 py-2">
+              <strong>Export:</strong> PDF, CSV, Excel
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-6">
+            <h4 class="text-xl font-bold mb-3 flex items-center gap-2">
+              <span class="text-2xl">🎯</span> Course Analytics
+            </h4>
+            <ul class="text-sm space-y-2">
+              <li>✓ Enrollment statistics</li>
+              <li>✓ Completion rates</li>
+              <li>✓ Average time to completion</li>
+              <li>✓ Module effectiveness metrics</li>
+              <li>✓ Activity engagement patterns</li>
+              <li>✓ Grade distribution charts</li>
+            </ul>
+            <div class="mt-4 text-xs bg-green-100 dark:bg-green-900/30 rounded px-3 py-2">
+              <strong>View:</strong> Dashboard widgets
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-2 border-orange-200 dark:border-orange-800 rounded-xl p-6">
+            <h4 class="text-xl font-bold mb-3 flex items-center gap-2">
+              <span class="text-2xl">📉</span> Performance Trends
+            </h4>
+            <ul class="text-sm space-y-2">
+              <li>✓ Historical grade data</li>
+              <li>✓ Progress over time graphs</li>
+              <li>✓ Comparison with class averages</li>
+              <li>✓ Improvement indicators</li>
+              <li>✓ Predictive success metrics</li>
+              <li>✓ Semester/year comparisons</li>
+            </ul>
+            <div class="mt-4 text-xs bg-orange-100 dark:bg-orange-900/30 rounded px-3 py-2">
+              <strong>View:</strong> Interactive charts
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🔢 GPA Calculation</h3>
+        <div class="bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900/20 border border-slate-200 dark:border-slate-700 rounded-lg p-6 mb-6">
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+            <div class="text-center p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <div class="font-bold text-xl">A</div>
+              <div class="text-sm">90-100%</div>
+              <div class="text-lg font-bold text-green-600">4.0</div>
+            </div>
+            <div class="text-center p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <div class="font-bold text-xl">B</div>
+              <div class="text-sm">80-89%</div>
+              <div class="text-lg font-bold text-blue-600">3.0</div>
+            </div>
+            <div class="text-center p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+              <div class="font-bold text-xl">C</div>
+              <div class="text-sm">70-79%</div>
+              <div class="text-lg font-bold text-yellow-600">2.0</div>
+            </div>
+            <div class="text-center p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+              <div class="font-bold text-xl">D</div>
+              <div class="text-sm">60-69%</div>
+              <div class="text-lg font-bold text-orange-600">1.0</div>
+            </div>
+            <div class="text-center p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
+              <div class="font-bold text-xl">F</div>
+              <div class="text-sm">0-59%</div>
+              <div class="text-lg font-bold text-red-600">0.0</div>
+            </div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-4 font-mono text-sm">
+            <strong>Cumulative GPA:</strong> Average of all completed course GPAs<br>
+            <code class="text-xs">cumulative_gpa = sum(course_gpa) / count(completed_courses)</code>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📄 Export Options</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <h4 class="font-bold text-lg mb-2">📕 PDF Export</h4>
+            <p class="text-sm mb-2">Formatted report with charts and graphs, perfect for printing and official records.</p>
+            <ul class="text-xs space-y-1">
+              <li>✓ Professional formatting</li>
+              <li>✓ Embedded visualizations</li>
+              <li>✓ School branding</li>
+            </ul>
+          </div>
+          
+          <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <h4 class="font-bold text-lg mb-2">📗 CSV Export</h4>
+            <p class="text-sm mb-2">Raw data export for analysis in Excel, Google Sheets, or other tools.</p>
+            <ul class="text-xs space-y-1">
+              <li>✓ All data columns</li>
+              <li>✓ Easy to import</li>
+              <li>✓ Custom analysis</li>
+            </ul>
+          </div>
+          
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h4 class="font-bold text-lg mb-2">📘 Excel Export</h4>
+            <p class="text-sm mb-2">Advanced Excel workbooks with multiple sheets, formulas, and pivot tables.</p>
+            <ul class="text-xs space-y-1">
+              <li>✓ Multiple worksheets</li>
+              <li>✓ Pre-built charts</li>
+              <li>✓ Formula support</li>
+            </ul>
+          </div>
+        </div>
+      `
+    },
     'grade-weighting': {
       title: 'Grade Weighting System',
       content: `
@@ -2316,7 +2707,7 @@ function selectSection(sectionId: string) {
 </script>
 
 <template>
-  <Head title="Documentation - Bacon Edu" />
+  <Head title="Documentation - AstroLearn" />
   
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Header -->
@@ -2328,7 +2719,7 @@ function selectSection(sectionId: string) {
             <div class="w-8 h-8 bg-gradient-to-r from-pink-500 to-violet-500 rounded-lg flex items-center justify-center">
               <Book class="w-5 h-5 text-white" />
             </div>
-            <span class="text-xl font-bold text-gray-900 dark:text-white">Bacon Edu Docs</span>
+            <span class="text-xl font-bold text-gray-900 dark:text-white">AstroLearn Docs</span>
           </Link>
 
           <!-- Mobile Menu Button -->

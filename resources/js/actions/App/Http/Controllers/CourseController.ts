@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\CourseController::getCourses
- * @see app/Http/Controllers/CourseController.php:86
+ * @see app/Http/Controllers/CourseController.php:90
  * @route '/api/courses'
  */
 export const getCourses = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ getCourses.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::getCourses
- * @see app/Http/Controllers/CourseController.php:86
+ * @see app/Http/Controllers/CourseController.php:90
  * @route '/api/courses'
  */
 getCourses.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ getCourses.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CourseController::getCourses
- * @see app/Http/Controllers/CourseController.php:86
+ * @see app/Http/Controllers/CourseController.php:90
  * @route '/api/courses'
  */
 getCourses.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ getCourses.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\CourseController::getCourses
- * @see app/Http/Controllers/CourseController.php:86
+ * @see app/Http/Controllers/CourseController.php:90
  * @route '/api/courses'
  */
 getCourses.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ getCourses.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\CourseController::getCourses
- * @see app/Http/Controllers/CourseController.php:86
+ * @see app/Http/Controllers/CourseController.php:90
  * @route '/api/courses'
  */
     const getCoursesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ getCourses.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\CourseController::getCourses
- * @see app/Http/Controllers/CourseController.php:86
+ * @see app/Http/Controllers/CourseController.php:90
  * @route '/api/courses'
  */
         getCoursesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ getCourses.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\CourseController::getCourses
- * @see app/Http/Controllers/CourseController.php:86
+ * @see app/Http/Controllers/CourseController.php:90
  * @route '/api/courses'
  */
         getCoursesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ getCourses.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     getCourses.form = getCoursesForm
 /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/course-management'
  */
 const index0a0081d6d653fafb98e0ba542b6152c2 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ index0a0081d6d653fafb98e0ba542b6152c2.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/course-management'
  */
 index0a0081d6d653fafb98e0ba542b6152c2.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ index0a0081d6d653fafb98e0ba542b6152c2.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/course-management'
  */
 index0a0081d6d653fafb98e0ba542b6152c2.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ index0a0081d6d653fafb98e0ba542b6152c2.get = (options?: RouteQueryOptions): Route
 })
 /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/course-management'
  */
 index0a0081d6d653fafb98e0ba542b6152c2.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ index0a0081d6d653fafb98e0ba542b6152c2.head = (options?: RouteQueryOptions): Rout
 
     /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/course-management'
  */
     const index0a0081d6d653fafb98e0ba542b6152c2Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ index0a0081d6d653fafb98e0ba542b6152c2.head = (options?: RouteQueryOptions): Rout
 
             /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/course-management'
  */
         index0a0081d6d653fafb98e0ba542b6152c2Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ index0a0081d6d653fafb98e0ba542b6152c2.head = (options?: RouteQueryOptions): Rout
         })
             /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/course-management'
  */
         index0a0081d6d653fafb98e0ba542b6152c2Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ index0a0081d6d653fafb98e0ba542b6152c2.head = (options?: RouteQueryOptions): Rout
     index0a0081d6d653fafb98e0ba542b6152c2.form = index0a0081d6d653fafb98e0ba542b6152c2Form
     /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/courses'
  */
 const indexae0d8013bc7dd1aeb7c9b49bac5f9e3b = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ indexae0d8013bc7dd1aeb7c9b49bac5f9e3b.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/courses'
  */
 indexae0d8013bc7dd1aeb7c9b49bac5f9e3b.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ indexae0d8013bc7dd1aeb7c9b49bac5f9e3b.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/courses'
  */
 indexae0d8013bc7dd1aeb7c9b49bac5f9e3b.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -190,7 +190,7 @@ indexae0d8013bc7dd1aeb7c9b49bac5f9e3b.get = (options?: RouteQueryOptions): Route
 })
 /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/courses'
  */
 indexae0d8013bc7dd1aeb7c9b49bac5f9e3b.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -200,7 +200,7 @@ indexae0d8013bc7dd1aeb7c9b49bac5f9e3b.head = (options?: RouteQueryOptions): Rout
 
     /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/courses'
  */
     const indexae0d8013bc7dd1aeb7c9b49bac5f9e3bForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,7 +210,7 @@ indexae0d8013bc7dd1aeb7c9b49bac5f9e3b.head = (options?: RouteQueryOptions): Rout
 
             /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/courses'
  */
         indexae0d8013bc7dd1aeb7c9b49bac5f9e3bForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ indexae0d8013bc7dd1aeb7c9b49bac5f9e3b.head = (options?: RouteQueryOptions): Rout
         })
             /**
 * @see \App\Http\Controllers\CourseController::index
- * @see app/Http/Controllers/CourseController.php:33
+ * @see app/Http/Controllers/CourseController.php:34
  * @route '/courses'
  */
         indexae0d8013bc7dd1aeb7c9b49bac5f9e3bForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -241,7 +241,7 @@ export const index = {
 
 /**
 * @see \App\Http\Controllers\CourseController::store
- * @see app/Http/Controllers/CourseController.php:129
+ * @see app/Http/Controllers/CourseController.php:196
  * @route '/courses'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -256,7 +256,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::store
- * @see app/Http/Controllers/CourseController.php:129
+ * @see app/Http/Controllers/CourseController.php:196
  * @route '/courses'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -265,7 +265,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CourseController::store
- * @see app/Http/Controllers/CourseController.php:129
+ * @see app/Http/Controllers/CourseController.php:196
  * @route '/courses'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -275,7 +275,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\CourseController::store
- * @see app/Http/Controllers/CourseController.php:129
+ * @see app/Http/Controllers/CourseController.php:196
  * @route '/courses'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -285,7 +285,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\CourseController::store
- * @see app/Http/Controllers/CourseController.php:129
+ * @see app/Http/Controllers/CourseController.php:196
  * @route '/courses'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -296,7 +296,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:216
+ * @see app/Http/Controllers/CourseController.php:283
  * @route '/courses/{course}'
  */
 export const update = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -311,7 +311,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:216
+ * @see app/Http/Controllers/CourseController.php:283
  * @route '/courses/{course}'
  */
 update.url = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -344,7 +344,7 @@ update.url = (args: { course: number | { id: number } } | [course: number | { id
 
 /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:216
+ * @see app/Http/Controllers/CourseController.php:283
  * @route '/courses/{course}'
  */
 update.put = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -353,7 +353,7 @@ update.put = (args: { course: number | { id: number } } | [course: number | { id
 })
 /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:216
+ * @see app/Http/Controllers/CourseController.php:283
  * @route '/courses/{course}'
  */
 update.patch = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -363,7 +363,7 @@ update.patch = (args: { course: number | { id: number } } | [course: number | { 
 
     /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:216
+ * @see app/Http/Controllers/CourseController.php:283
  * @route '/courses/{course}'
  */
     const updateForm = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -378,7 +378,7 @@ update.patch = (args: { course: number | { id: number } } | [course: number | { 
 
             /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:216
+ * @see app/Http/Controllers/CourseController.php:283
  * @route '/courses/{course}'
  */
         updateForm.put = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -392,7 +392,7 @@ update.patch = (args: { course: number | { id: number } } | [course: number | { 
         })
             /**
 * @see \App\Http\Controllers\CourseController::update
- * @see app/Http/Controllers/CourseController.php:216
+ * @see app/Http/Controllers/CourseController.php:283
  * @route '/courses/{course}'
  */
         updateForm.patch = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -408,7 +408,7 @@ update.patch = (args: { course: number | { id: number } } | [course: number | { 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\CourseController::destroy
- * @see app/Http/Controllers/CourseController.php:346
+ * @see app/Http/Controllers/CourseController.php:413
  * @route '/courses/{course}'
  */
 export const destroy = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -423,7 +423,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::destroy
- * @see app/Http/Controllers/CourseController.php:346
+ * @see app/Http/Controllers/CourseController.php:413
  * @route '/courses/{course}'
  */
 destroy.url = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -456,7 +456,7 @@ destroy.url = (args: { course: number | { id: number } } | [course: number | { i
 
 /**
 * @see \App\Http\Controllers\CourseController::destroy
- * @see app/Http/Controllers/CourseController.php:346
+ * @see app/Http/Controllers/CourseController.php:413
  * @route '/courses/{course}'
  */
 destroy.delete = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -466,7 +466,7 @@ destroy.delete = (args: { course: number | { id: number } } | [course: number | 
 
     /**
 * @see \App\Http\Controllers\CourseController::destroy
- * @see app/Http/Controllers/CourseController.php:346
+ * @see app/Http/Controllers/CourseController.php:413
  * @route '/courses/{course}'
  */
     const destroyForm = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -481,7 +481,7 @@ destroy.delete = (args: { course: number | { id: number } } | [course: number | 
 
             /**
 * @see \App\Http\Controllers\CourseController::destroy
- * @see app/Http/Controllers/CourseController.php:346
+ * @see app/Http/Controllers/CourseController.php:413
  * @route '/courses/{course}'
  */
         destroyForm.delete = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -497,7 +497,7 @@ destroy.delete = (args: { course: number | { id: number } } | [course: number | 
     destroy.form = destroyForm
 /**
 * @see \App\Http\Controllers\CourseController::assignGradeLevels
- * @see app/Http/Controllers/CourseController.php:394
+ * @see app/Http/Controllers/CourseController.php:461
  * @route '/courses/{course}/assign-grade-levels'
  */
 export const assignGradeLevels = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -512,7 +512,7 @@ assignGradeLevels.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::assignGradeLevels
- * @see app/Http/Controllers/CourseController.php:394
+ * @see app/Http/Controllers/CourseController.php:461
  * @route '/courses/{course}/assign-grade-levels'
  */
 assignGradeLevels.url = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -545,7 +545,7 @@ assignGradeLevels.url = (args: { course: number | { id: number } } | [course: nu
 
 /**
 * @see \App\Http\Controllers\CourseController::assignGradeLevels
- * @see app/Http/Controllers/CourseController.php:394
+ * @see app/Http/Controllers/CourseController.php:461
  * @route '/courses/{course}/assign-grade-levels'
  */
 assignGradeLevels.post = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -555,7 +555,7 @@ assignGradeLevels.post = (args: { course: number | { id: number } } | [course: n
 
     /**
 * @see \App\Http\Controllers\CourseController::assignGradeLevels
- * @see app/Http/Controllers/CourseController.php:394
+ * @see app/Http/Controllers/CourseController.php:461
  * @route '/courses/{course}/assign-grade-levels'
  */
     const assignGradeLevelsForm = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -565,7 +565,7 @@ assignGradeLevels.post = (args: { course: number | { id: number } } | [course: n
 
             /**
 * @see \App\Http\Controllers\CourseController::assignGradeLevels
- * @see app/Http/Controllers/CourseController.php:394
+ * @see app/Http/Controllers/CourseController.php:461
  * @route '/courses/{course}/assign-grade-levels'
  */
         assignGradeLevelsForm.post = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -576,7 +576,7 @@ assignGradeLevels.post = (args: { course: number | { id: number } } | [course: n
     assignGradeLevels.form = assignGradeLevelsForm
 /**
 * @see \App\Http\Controllers\CourseController::getAvailableGradeLevels
- * @see app/Http/Controllers/CourseController.php:435
+ * @see app/Http/Controllers/CourseController.php:502
  * @route '/grade-levels'
  */
 export const getAvailableGradeLevels = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -591,7 +591,7 @@ getAvailableGradeLevels.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::getAvailableGradeLevels
- * @see app/Http/Controllers/CourseController.php:435
+ * @see app/Http/Controllers/CourseController.php:502
  * @route '/grade-levels'
  */
 getAvailableGradeLevels.url = (options?: RouteQueryOptions) => {
@@ -600,7 +600,7 @@ getAvailableGradeLevels.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CourseController::getAvailableGradeLevels
- * @see app/Http/Controllers/CourseController.php:435
+ * @see app/Http/Controllers/CourseController.php:502
  * @route '/grade-levels'
  */
 getAvailableGradeLevels.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -609,7 +609,7 @@ getAvailableGradeLevels.get = (options?: RouteQueryOptions): RouteDefinition<'ge
 })
 /**
 * @see \App\Http\Controllers\CourseController::getAvailableGradeLevels
- * @see app/Http/Controllers/CourseController.php:435
+ * @see app/Http/Controllers/CourseController.php:502
  * @route '/grade-levels'
  */
 getAvailableGradeLevels.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -619,7 +619,7 @@ getAvailableGradeLevels.head = (options?: RouteQueryOptions): RouteDefinition<'h
 
     /**
 * @see \App\Http\Controllers\CourseController::getAvailableGradeLevels
- * @see app/Http/Controllers/CourseController.php:435
+ * @see app/Http/Controllers/CourseController.php:502
  * @route '/grade-levels'
  */
     const getAvailableGradeLevelsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -629,7 +629,7 @@ getAvailableGradeLevels.head = (options?: RouteQueryOptions): RouteDefinition<'h
 
             /**
 * @see \App\Http\Controllers\CourseController::getAvailableGradeLevels
- * @see app/Http/Controllers/CourseController.php:435
+ * @see app/Http/Controllers/CourseController.php:502
  * @route '/grade-levels'
  */
         getAvailableGradeLevelsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -638,7 +638,7 @@ getAvailableGradeLevels.head = (options?: RouteQueryOptions): RouteDefinition<'h
         })
             /**
 * @see \App\Http\Controllers\CourseController::getAvailableGradeLevels
- * @see app/Http/Controllers/CourseController.php:435
+ * @see app/Http/Controllers/CourseController.php:502
  * @route '/grade-levels'
  */
         getAvailableGradeLevelsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -654,7 +654,7 @@ getAvailableGradeLevels.head = (options?: RouteQueryOptions): RouteDefinition<'h
     getAvailableGradeLevels.form = getAvailableGradeLevelsForm
 /**
 * @see \App\Http\Controllers\CourseController::getCoursesForGradeLevel
- * @see app/Http/Controllers/CourseController.php:467
+ * @see app/Http/Controllers/CourseController.php:534
  * @route '/courses/by-grade-level'
  */
 export const getCoursesForGradeLevel = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -669,7 +669,7 @@ getCoursesForGradeLevel.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseController::getCoursesForGradeLevel
- * @see app/Http/Controllers/CourseController.php:467
+ * @see app/Http/Controllers/CourseController.php:534
  * @route '/courses/by-grade-level'
  */
 getCoursesForGradeLevel.url = (options?: RouteQueryOptions) => {
@@ -678,7 +678,7 @@ getCoursesForGradeLevel.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\CourseController::getCoursesForGradeLevel
- * @see app/Http/Controllers/CourseController.php:467
+ * @see app/Http/Controllers/CourseController.php:534
  * @route '/courses/by-grade-level'
  */
 getCoursesForGradeLevel.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -687,7 +687,7 @@ getCoursesForGradeLevel.get = (options?: RouteQueryOptions): RouteDefinition<'ge
 })
 /**
 * @see \App\Http\Controllers\CourseController::getCoursesForGradeLevel
- * @see app/Http/Controllers/CourseController.php:467
+ * @see app/Http/Controllers/CourseController.php:534
  * @route '/courses/by-grade-level'
  */
 getCoursesForGradeLevel.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -697,7 +697,7 @@ getCoursesForGradeLevel.head = (options?: RouteQueryOptions): RouteDefinition<'h
 
     /**
 * @see \App\Http\Controllers\CourseController::getCoursesForGradeLevel
- * @see app/Http/Controllers/CourseController.php:467
+ * @see app/Http/Controllers/CourseController.php:534
  * @route '/courses/by-grade-level'
  */
     const getCoursesForGradeLevelForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -707,7 +707,7 @@ getCoursesForGradeLevel.head = (options?: RouteQueryOptions): RouteDefinition<'h
 
             /**
 * @see \App\Http\Controllers\CourseController::getCoursesForGradeLevel
- * @see app/Http/Controllers/CourseController.php:467
+ * @see app/Http/Controllers/CourseController.php:534
  * @route '/courses/by-grade-level'
  */
         getCoursesForGradeLevelForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -716,7 +716,7 @@ getCoursesForGradeLevel.head = (options?: RouteQueryOptions): RouteDefinition<'h
         })
             /**
 * @see \App\Http\Controllers\CourseController::getCoursesForGradeLevel
- * @see app/Http/Controllers/CourseController.php:467
+ * @see app/Http/Controllers/CourseController.php:534
  * @route '/courses/by-grade-level'
  */
         getCoursesForGradeLevelForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

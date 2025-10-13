@@ -1,6 +1,8 @@
-import courses from './courses'
+import users from './users'
+import schedules from './schedules'
 const api = {
-    courses: Object.assign(courses, courses),
+    users: Object.assign(users, users),
+schedules: Object.assign(schedules, schedules),
 }
 
 export default api

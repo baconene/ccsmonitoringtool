@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 850" style="background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 100%);">
+  <defs>
+    <style>
+      .entity-box { fill: white; stroke: #10b981; stroke-width: 2; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+      .entity-title { fill: #059669; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; }
+      .entity-attr { fill: #374151; font-family: 'Courier New', monospace; font-size: 11px; }
+      .relationship-line { stroke: #10b981; stroke-width: 2; fill: none; }
+      .relationship-text { fill: #059669; font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; }
+      .cardinality { fill: #10b981; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; }
+      .pk { fill: #eab308; font-weight: bold; }
+      .fk { fill: #ef4444; font-weight: bold; }
+      .status-enum { fill: #059669; font-size: 10px; font-style: italic; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="700" y="30" text-anchor="middle" style="fill: #059669; font-family: Arial, sans-serif; font-size: 24px; font-weight: bold;">Scheduling System - ERD</text>
+  
+  <!-- SCHEDULES Entity (Center) -->
+  <g id="schedules">
+    <rect x="540" y="200" width="320" height="340" rx="8" class="entity-box"/>
+    <rect x="540" y="200" width="320" height="40" rx="8" fill="#10b981"/>
+    <text x="700" y="225" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">SCHEDULES</text>
+    <text x="560" y="260" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="560" y="280" class="entity-attr">• title</text>
+    <text x="560" y="300" class="entity-attr">• description</text>
+    <text x="560" y="320" class="entity-attr"><tspan class="fk">• schedule_type_id</tspan> (FK)</text>
+    <text x="560" y="340" class="entity-attr"><tspan class="fk">• course_id</tspan> (FK) [optional]</text>
+    <text x="560" y="360" class="entity-attr"><tspan class="fk">• activity_id</tspan> (FK) [optional]</text>
+    <text x="560" y="380" class="entity-attr"><tspan class="fk">• created_by</tspan> (instructor_id FK)</text>
+    <text x="560" y="400" class="entity-attr">• start_datetime</text>
+    <text x="560" y="420" class="entity-attr">• end_datetime</text>
+    <text x="560" y="440" class="entity-attr">• location</text>
+    <text x="560" y="460" class="entity-attr">• is_recurring</text>
+    <text x="560" y="480" class="entity-attr">• recurrence_pattern</text>
+    <text x="560" y="500" class="entity-attr">• max_participants</text>
+    <text x="560" y="520" class="entity-attr">• created_at</text>
+  </g>
+  
+  <!-- SCHEDULE_TYPES Entity -->
+  <g id="schedule-types">
+    <rect x="1030" y="200" width="300" height="240" rx="8" class="entity-box"/>
+    <rect x="1030" y="200" width="300" height="40" rx="8" fill="#f59e0b"/>
+    <text x="1180" y="225" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">SCHEDULE_TYPES</text>
+    <text x="1050" y="260" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="1050" y="280" class="entity-attr">• name</text>
+    <text x="1050" y="300" class="status-enum">  (class_session, activity_deadline,</text>
+    <text x="1050" y="315" class="status-enum">   exam, meeting, event)</text>
+    <text x="1050" y="335" class="entity-attr">• icon</text>
+    <text x="1050" y="355" class="entity-attr">• color</text>
+    <text x="1050" y="375" class="entity-attr">• description</text>
+    <text x="1050" y="395" class="entity-attr">• is_active</text>
+    <text x="1050" y="415" class="entity-attr">• created_at</text>
+  </g>
+  
+  <!-- COURSES Entity (reference) -->
+  <g id="courses">
+    <rect x="70" y="80" width="220" height="140" rx="8" class="entity-box"/>
+    <rect x="70" y="80" width="220" height="40" rx="8" fill="#3b82f6"/>
+    <text x="180" y="105" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">COURSES</text>
+    <text x="90" y="140" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="90" y="160" class="entity-attr">• title</text>
+    <text x="90" y="180" class="entity-attr">• description</text>
+    <text x="90" y="200" class="entity-attr">• is_active</text>
+  </g>
+  
+  <!-- ACTIVITIES Entity (reference) -->
+  <g id="activities">
+    <rect x="70" y="280" width="220" height="140" rx="8" class="entity-box"/>
+    <rect x="70" y="280" width="220" height="40" rx="8" fill="#ec4899"/>
+    <text x="180" y="305" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">ACTIVITIES</text>
+    <text x="90" y="340" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="90" y="360" class="entity-attr"><tspan class="fk">• module_id</tspan> (FK)</text>
+    <text x="90" y="380" class="entity-attr">• title</text>
+    <text x="90" y="400" class="entity-attr">• points</text>
+  </g>
+  
+  <!-- INSTRUCTORS Entity (reference) -->
+  <g id="instructors">
+    <rect x="70" y="480" width="220" height="160" rx="8" class="entity-box"/>
+    <rect x="70" y="480" width="220" height="40" rx="8" fill="#8b5cf6"/>
+    <text x="180" y="505" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">INSTRUCTORS</text>
+    <text x="90" y="540" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="90" y="560" class="entity-attr"><tspan class="fk">• user_id</tspan> (FK)</text>
+    <text x="90" y="580" class="entity-attr">• department</text>
+    <text x="90" y="600" class="entity-attr">• bio</text>
+    <text x="90" y="620" class="entity-attr">• expertise</text>
+  </g>
+  
+  <!-- SCHEDULE_PARTICIPANTS Entity -->
+  <g id="schedule-participants">
+    <rect x="540" y="600" width="320" height="200" rx="8" class="entity-box"/>
+    <rect x="540" y="600" width="320" height="40" rx="8" fill="#06b6d4"/>
+    <text x="700" y="625" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">SCHEDULE_PARTICIPANTS</text>
+    <text x="560" y="660" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="560" y="680" class="entity-attr"><tspan class="fk">• schedule_id</tspan> (FK)</text>
+    <text x="560" y="700" class="entity-attr"><tspan class="fk">• student_id</tspan> (FK)</text>
+    <text x="560" y="720" class="entity-attr">• attendance_status</text>
+    <text x="560" y="735" class="status-enum">  (pending, present, absent, excused)</text>
+    <text x="560" y="755" class="entity-attr">• joined_at</text>
+    <text x="560" y="775" class="entity-attr">• notes</text>
+  </g>
+  
+  <!-- STUDENTS Entity (reference) -->
+  <g id="students">
+    <rect x="1030" y="600" width="300" height="140" rx="8" class="entity-box"/>
+    <rect x="1030" y="600" width="300" height="40" rx="8" fill="#10b981"/>
+    <text x="1180" y="625" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">STUDENTS</text>
+    <text x="1050" y="660" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="1050" y="680" class="entity-attr"><tspan class="fk">• user_id</tspan> (FK)</text>
+    <text x="1050" y="700" class="entity-attr">• student_id</text>
+    <text x="1050" y="720" class="entity-attr">• grade_level_id</text>
+  </g>
+  
+  <!-- Relationships -->
+  
+  <!-- Schedules to ScheduleTypes (M:1) -->
+  <path d="M 860 320 L 1030 320" class="relationship-line" marker-end="url(#arrowgreen)"/>
+  <text x="880" y="310" class="cardinality">M</text>
+  <text x="1005" y="310" class="cardinality">1</text>
+  <text x="910" y="340" class="relationship-text">has type</text>
+  
+  <!-- Schedules to Courses (M:1) optional -->
+  <path d="M 540 260 Q 350 150 290 150" class="relationship-line" marker-end="url(#arrowgreen)" stroke-dasharray="5,5"/>
+  <text x="380" y="140" class="cardinality">M</text>
+  <text x="300" y="140" class="cardinality">0..1</text>
+  <text x="360" y="120" class="relationship-text">linked to</text>
+  
+  <!-- Schedules to Activities (M:1) optional -->
+  <path d="M 540 360 Q 400 350 290 350" class="relationship-line" marker-end="url(#arrowgreen)" stroke-dasharray="5,5"/>
+  <text x="380" y="340" class="cardinality">M</text>
+  <text x="300" y="340" class="cardinality">0..1</text>
+  <text x="360" y="370" class="relationship-text">for activity</text>
+  
+  <!-- Schedules to Instructors (M:1) -->
+  <path d="M 540 500 Q 350 550 290 560" class="relationship-line" marker-end="url(#arrowgreen)"/>
+  <text x="380" y="520" class="cardinality">M</text>
+  <text x="300" y="550" class="cardinality">1</text>
+  <text x="360" y="540" class="relationship-text">created by</text>
+  
+  <!-- Schedules to ScheduleParticipants (1:M) -->
+  <path d="M 700 540 L 700 600" class="relationship-line" marker-end="url(#arrowgreen)"/>
+  <text x="685" y="560" class="cardinality">1</text>
+  <text x="685" y="590" class="cardinality">M</text>
+  <text x="715" y="575" class="relationship-text">has participants</text>
+  
+  <!-- ScheduleParticipants to Students (M:1) -->
+  <path d="M 860 680 L 1030 680" class="relationship-line" marker-end="url(#arrowgreen)"/>
+  <text x="880" y="670" class="cardinality">M</text>
+  <text x="1005" y="670" class="cardinality">1</text>
+  <text x="910" y="700" class="relationship-text">belongs to</text>
+  
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrowgreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#10b981" />
+    </marker>
+  </defs>
+  
+  <!-- Legend -->
+  <g id="legend">
+    <rect x="370" y="70" width="460" height="100" rx="8" fill="white" stroke="#94a3b8" stroke-width="2" opacity="0.95"/>
+    <text x="600" y="95" text-anchor="middle" style="fill: #059669; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">Legend</text>
+    <text x="390" y="115" class="entity-attr"><tspan class="pk">• PK</tspan> = Primary Key</text>
+    <text x="390" y="135" class="entity-attr"><tspan class="fk">• FK</tspan> = Foreign Key</text>
+    <text x="390" y="155" class="entity-attr">— Solid = Required relationship</text>
+    <text x="600" y="115" class="entity-attr">- - Dashed = Optional link</text>
+    <text x="600" y="135" class="entity-attr"><tspan style="fill: #10b981; font-weight: bold;">M:1</tspan> = Many to One</text>
+    <text x="600" y="155" class="entity-attr"><tspan style="fill: #10b981; font-weight: bold;">1:M</tspan> = One to Many</text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="700" y="840" text-anchor="middle" style="fill: #64748b; font-family: Arial, sans-serif; font-size: 12px;">AstroLearn LMS - Scheduling System ERD © 2025</text>
+</svg>

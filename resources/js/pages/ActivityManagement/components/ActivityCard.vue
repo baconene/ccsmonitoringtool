@@ -25,6 +25,7 @@ interface Activity {
     created_by: number;
     created_at: string;
     updated_at: string;
+    due_date?: string | null;
     activityType?: ActivityType;
     creator?: User;
     question_count?: number;
@@ -95,6 +96,30 @@ const formatDate = (date: string) => {
     });
 };
 
+const formatDueDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+};
+
+const isDueSoon = (dueDate: string) => {
+    const due = new Date(dueDate);
+    const now = new Date();
+    const diffTime = due.getTime() - now.getTime();
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    return diffDays <= 7 && diffDays >= 0;
+};
+
+const isOverdue = (dueDate: string) => {
+    const due = new Date(dueDate);
+    const now = new Date();
+    return due.getTime() < now.getTime();
+};
+
 const showDeleteModal = ref(false);
 const isDeleting = ref(false);
 
@@ -160,10 +185,23 @@ const handleCloseModal = () => {
                 <div v-if="activity.total_points" class="flex items-center gap-1 px-2 py-1 bg-pink-100 dark:bg-pink-900/30 rounded-full">
                     <span class="font-semibold">{{ activity.total_points }} Points</span>
                 </div>
-                <div v-if="activity.has_due_date" class="flex items-center gap-1 px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 rounded-full">
-                    <Clock :size="14" />
-                    <span>Has Due Date</span>
-                </div>
+            </div>
+
+            <!-- Due Date Display -->
+            <div v-if="activity.due_date" class="flex items-center gap-1 text-xs">
+                <Clock :size="14" />
+                <span
+                    :class="{
+                        'text-red-600 dark:text-red-400 font-semibold': isOverdue(activity.due_date),
+                        'text-orange-600 dark:text-orange-400 font-semibold': !isOverdue(activity.due_date) && isDueSoon(activity.due_date),
+                        'text-gray-600 dark:text-gray-400': !isOverdue(activity.due_date) && !isDueSoon(activity.due_date)
+                    }"
+                >
+                    <span v-if="isOverdue(activity.due_date)" class="mr-1">⚠️ Overdue:</span>
+                    <span v-else-if="isDueSoon(activity.due_date)" class="mr-1">⏰ Due Soon:</span>
+                    <span v-else class="mr-1">Due:</span>
+                    {{ formatDueDate(activity.due_date) }}
+                </span>
             </div>
 
             <!-- Created Date -->

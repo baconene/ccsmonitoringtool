@@ -106,6 +106,7 @@ export const coursesApi = {
       
       console.log('Making courses API request...');
       const response = await apiClient.get('/courses');
+      console.log('courses', response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching courses:', error);

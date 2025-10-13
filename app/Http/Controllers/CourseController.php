@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
+use App\Models\CourseEnrollment;
 use App\Models\Student;
 use App\Services\CourseService;
 use App\Services\StudentCourseEnrollmentService;
@@ -82,45 +83,111 @@ class CourseController extends Controller
 
     /**
      * Get courses for API (dashboard use).
+     * Returns courses based on user role:
+     * - Students: courses they are enrolled in
+     * - Instructors/Admins: courses they teach/manage
      */
     public function getCourses()
     {
         $user = Auth::user();
-       //update later $instructorId = $user->instructor->id;
-        // Get courses for the authenticated instructor with students
-        $courses = Course::with(['students.user', 'instructor'])
-            ->where('user_id', $user->id)
-            ->get()
-            ->map(function ($course) {
-                return [
-                    'id' => $course->id,
-                    'title' => $course->title ?: $course->name,
-                    'name' => $course->name, // For backward compatibility
-                    'description' => $course->description,
-                    'instructor_id' => $course->instructor_id,
-                    'instructor_name' => $course->instructor->name ?? '',
-                    'created_at' => $course->created_at->toISOString(),
-                    'updated_at' => $course->updated_at->toISOString(),
-                    'students' => $course->students->map(function ($student) use ($course) {
-                        return [
-                            'id' => $student->id,
-                            'student_id' => $student->student_id,
-                            'name' => $student->name,
-                            'email' => $student->email,
-                            'enrollment_number' => $student->enrollment_number,
-                            'program' => $student->program,
-                            'department' => $student->department,
-                            'status' => $student->pivot->status ?? 'enrolled',
-                            'enrolled_at' => $student->pivot->enrolled_at ?? null,
-                            'grade' => $student->pivot->grade ?? null,
-                            'courseId' => $course->id,
-                            'courseTitle' => $course->title ?: $course->name,
-                        ];
-                    })
-                ];
-            });
+        
+        try {
+            // Check if user is a student
+            if ($user->isStudent()) {
+                // Get student record
+                $student = $user->student;
+                
+                if (!$student) {
+                    Log::warning('Student record not found for user', ['user_id' => $user->id]);
+                    return response()->json([]);
+                }
+                
+                // Get courses the student is enrolled in
+                $courses = 
 
-        return response()->json($courses);
+$courses = CourseEnrollment::query()
+    ->with(['course.instructor', 'course.instructor.user', 'instructor'])
+    ->where('student_id', $student->id)
+    ->get()
+    ->map(function ($enrollment) {
+        $course = $enrollment->course;
+        $instructor = $course?->instructor ?? $enrollment->instructor;
+
+        return [
+            'id' => $course?->id,
+            'title' => $course?->title ?: $course?->name,
+            'name' => $course?->name,
+            'description' => $course?->description,
+            'instructor_id' => $instructor?->id,
+            'instructor_name' => $instructor?->user?->name
+                ?? $instructor?->name
+                ?? 'N/A',
+            'created_at' => optional($course?->created_at)->toISOString(),
+            'updated_at' => optional($course?->updated_at)->toISOString(),
+            'enrolled_at' => $enrollment->enrolled_at,
+            'progress' => $enrollment->progress ?? 0,
+            'enrollment_status' => $enrollment->is_completed ? 'completed' : 'enrolled',
+        ];
+    });
+
+                return response()->json($courses);
+            }
+            
+            // For instructors and admins: Get courses they teach/manage
+            $instructor = $user->instructor;
+            
+            if (!$instructor) {
+                Log::warning('Instructor record not found for user', ['user_id' => $user->id]);
+                return response()->json([]);
+            }
+            
+            // Get courses for the authenticated instructor with students
+            $courses = Course::with(['students.user', 'instructor'])
+                ->where('instructor_id', $instructor->id)
+                ->get()
+                ->map(function ($course) {
+                    return [
+                        'id' => $course->id,
+                        'title' => $course->title ?: $course->name,
+                        'name' => $course->name, // For backward compatibility
+                        'description' => $course->description,
+                        'instructor_id' => $course->instructor_id,
+                        'instructor_name' => $course->instructor->user->name ?? $course->instructor->name ?? '',
+                        'created_at' => $course->created_at->toISOString(),
+                        'updated_at' => $course->updated_at->toISOString(),
+                        'students' => $course->students->map(function ($student) use ($course) {
+                            return [
+                                'id' => $student->id,
+                                'student_id' => $student->student_id,
+                                'name' => $student->user->name ?? $student->name,
+                                'email' => $student->user->email ?? $student->email,
+                                'enrollment_number' => $student->enrollment_number,
+                                'program' => $student->program,
+                                'department' => $student->department,
+                                'status' => $student->pivot->status ?? 'enrolled',
+                                'enrolled_at' => $student->pivot->enrolled_at ?? null,
+                                'grade' => $student->pivot->grade ?? null,
+                                'courseId' => $course->id,
+                                'courseTitle' => $course->title ?: $course->name,
+                            ];
+                        })
+                    ];
+                });
+
+            return response()->json($courses);
+            
+        } catch (\Exception $e) {
+            Log::error('Error in getCourses', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'error' => 'Failed to fetch courses',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

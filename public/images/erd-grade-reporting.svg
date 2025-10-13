@@ -1,0 +1,228 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" style="background: linear-gradient(135deg, #ecfeff 0%, #ddd6fe 100%);">
+  <defs>
+    <style>
+      .entity-box { fill: white; stroke: #06b6d4; stroke-width: 2; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+      .entity-title { fill: #0891b2; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; }
+      .entity-attr { fill: #374151; font-family: 'Courier New', monospace; font-size: 11px; }
+      .relationship-line { stroke: #06b6d4; stroke-width: 2; fill: none; }
+      .relationship-text { fill: #0891b2; font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; }
+      .cardinality { fill: #06b6d4; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; }
+      .pk { fill: #eab308; font-weight: bold; }
+      .fk { fill: #ef4444; font-weight: bold; }
+      .formula { fill: #7c3aed; font-family: 'Courier New', monospace; font-size: 12px; font-weight: bold; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="700" y="30" text-anchor="middle" style="fill: #0891b2; font-family: Arial, sans-serif; font-size: 24px; font-weight: bold;">Grade Reporting and Analytics System - ERD</text>
+  
+  <!-- COURSES Entity (reference) -->
+  <g id="courses">
+    <rect x="50" y="80" width="250" height="140" rx="8" class="entity-box"/>
+    <rect x="50" y="80" width="250" height="40" rx="8" fill="#3b82f6"/>
+    <text x="175" y="105" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">COURSES</text>
+    <text x="70" y="140" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="70" y="160" class="entity-attr">• title</text>
+    <text x="70" y="180" class="entity-attr">• description</text>
+    <text x="70" y="200" class="entity-attr">• is_active</text>
+  </g>
+  
+  <!-- STUDENTS Entity (reference) -->
+  <g id="students">
+    <rect x="50" y="280" width="250" height="160" rx="8" class="entity-box"/>
+    <rect x="50" y="280" width="250" height="40" rx="8" fill="#10b981"/>
+    <text x="175" y="305" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">STUDENTS</text>
+    <text x="70" y="340" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="70" y="360" class="entity-attr"><tspan class="fk">• user_id</tspan> (FK)</text>
+    <text x="70" y="380" class="entity-attr">• student_id</text>
+    <text x="70" y="400" class="entity-attr">• grade_level_id</text>
+    <text x="70" y="420" class="entity-attr">• cumulative_gpa</text>
+  </g>
+  
+  <!-- COURSE_ENROLLMENTS Entity (Central) -->
+  <g id="course-enrollments">
+    <rect x="420" y="120" width="320" height="280" rx="8" class="entity-box"/>
+    <rect x="420" y="120" width="320" height="40" rx="8" fill="#06b6d4"/>
+    <text x="580" y="145" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">COURSE_ENROLLMENTS</text>
+    <text x="440" y="180" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="440" y="200" class="entity-attr"><tspan class="fk">• course_id</tspan> (FK)</text>
+    <text x="440" y="220" class="entity-attr"><tspan class="fk">• student_id</tspan> (FK)</text>
+    <text x="440" y="240" class="entity-attr">• enrolled_at</text>
+    <text x="440" y="260" class="entity-attr">• is_completed</text>
+    <text x="440" y="280" class="entity-attr">• completion_date</text>
+    <text x="440" y="300" class="entity-attr">• progress_percentage</text>
+    <text x="440" y="320" class="entity-attr">• final_grade</text>
+    <text x="440" y="340" class="entity-attr">• letter_grade (A-F)</text>
+    <text x="440" y="360" class="entity-attr">• gpa (0.0-4.0)</text>
+    <text x="440" y="380" class="entity-attr">• created_at</text>
+  </g>
+  
+  <!-- ACTIVITIES Entity (reference) -->
+  <g id="activities">
+    <rect x="880" y="80" width="250" height="160" rx="8" class="entity-box"/>
+    <rect x="880" y="80" width="250" height="40" rx="8" fill="#ec4899"/>
+    <text x="1005" y="105" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">ACTIVITIES</text>
+    <text x="900" y="140" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="900" y="160" class="entity-attr"><tspan class="fk">• module_id</tspan> (FK)</text>
+    <text x="900" y="180" class="entity-attr">• title</text>
+    <text x="900" y="200" class="entity-attr">• points</text>
+    <text x="900" y="220" class="entity-attr">• activity_type_id</text>
+  </g>
+  
+  <!-- STUDENT_ACTIVITIES Entity -->
+  <g id="student-activities">
+    <rect x="880" y="300" width="250" height="240" rx="8" class="entity-box"/>
+    <rect x="880" y="300" width="250" height="40" rx="8" fill="#8b5cf6"/>
+    <text x="1005" y="325" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">STUDENT_ACTIVITIES</text>
+    <text x="900" y="360" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="900" y="380" class="entity-attr"><tspan class="fk">• student_id</tspan> (FK)</text>
+    <text x="900" y="400" class="entity-attr"><tspan class="fk">• activity_id</tspan> (FK)</text>
+    <text x="900" y="420" class="entity-attr">• status</text>
+    <text x="900" y="440" class="entity-attr">• score</text>
+    <text x="900" y="460" class="entity-attr">• max_score</text>
+    <text x="900" y="480" class="entity-attr">• percentage</text>
+    <text x="900" y="500" class="entity-attr">• time_spent_minutes</text>
+    <text x="900" y="520" class="entity-attr">• completed_at</text>
+  </g>
+  
+  <!-- Relationships -->
+  
+  <!-- Courses to CourseEnrollments (1:M) -->
+  <path d="M 300 150 L 420 200" class="relationship-line" marker-end="url(#arrowcyan)"/>
+  <text x="320" y="160" class="cardinality">1</text>
+  <text x="395" y="190" class="cardinality">M</text>
+  <text x="330" y="180" class="relationship-text">has enrollments</text>
+  
+  <!-- Students to CourseEnrollments (1:M) -->
+  <path d="M 300 340 L 420 300" class="relationship-line" marker-end="url(#arrowcyan)"/>
+  <text x="320" y="330" class="cardinality">1</text>
+  <text x="395" y="310" class="cardinality">M</text>
+  <text x="330" y="325" class="relationship-text">enrolled in</text>
+  
+  <!-- Activities to StudentActivities (1:M) -->
+  <path d="M 1005 240 L 1005 300" class="relationship-line" marker-end="url(#arrowcyan)"/>
+  <text x="990" y="260" class="cardinality">1</text>
+  <text x="990" y="290" class="cardinality">M</text>
+  <text x="1020" y="275" class="relationship-text">tracked by</text>
+  
+  <!-- Students to StudentActivities (1:M) -->
+  <path d="M 300 380 Q 600 420 880 420" class="relationship-line" marker-end="url(#arrowcyan)"/>
+  <text x="350" y="390" class="cardinality">1</text>
+  <text x="850" y="410" class="cardinality">M</text>
+  <text x="550" y="440" class="relationship-text">completes activities</text>
+  
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrowcyan" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#06b6d4" />
+    </marker>
+  </defs>
+  
+  <!-- Grade Calculation Flow -->
+  <g id="calculation-flow">
+    <rect x="50" y="500" width="1300" height="350" rx="8" fill="white" stroke="#8b5cf6" stroke-width="3" opacity="0.98"/>
+    <text x="700" y="530" text-anchor="middle" style="fill: #7c3aed; font-family: Arial, sans-serif; font-size: 20px; font-weight: bold;">Grade Calculation Flow</text>
+    
+    <!-- Step 1 -->
+    <g id="step1">
+      <circle cx="150" cy="600" r="50" fill="#ec4899" stroke="#be185d" stroke-width="2"/>
+      <text x="150" y="595" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">STEP 1</text>
+      <text x="150" y="610" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Activity</text>
+      <text x="150" y="625" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Completed</text>
+      <text x="150" y="670" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">Student completes</text>
+      <text x="150" y="685" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">quiz/assignment</text>
+    </g>
+    
+    <path d="M 200 600 L 280 600" stroke="#8b5cf6" stroke-width="3" marker-end="url(#arrowpurple)"/>
+    
+    <!-- Step 2 -->
+    <g id="step2">
+      <circle cx="330" cy="600" r="50" fill="#8b5cf6" stroke="#6b21a8" stroke-width="2"/>
+      <text x="330" y="595" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">STEP 2</text>
+      <text x="330" y="610" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Score</text>
+      <text x="330" y="625" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Recorded</text>
+      <text x="330" y="670" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">StudentActivity</text>
+      <text x="330" y="685" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">score saved</text>
+    </g>
+    
+    <path d="M 380 600 L 460 600" stroke="#8b5cf6" stroke-width="3" marker-end="url(#arrowpurple)"/>
+    
+    <!-- Step 3 -->
+    <g id="step3">
+      <circle cx="510" cy="600" r="50" fill="#3b82f6" stroke="#1e40af" stroke-width="2"/>
+      <text x="510" y="595" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">STEP 3</text>
+      <text x="510" y="610" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Module</text>
+      <text x="510" y="625" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Progress</text>
+      <text x="510" y="670" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">Module marked</text>
+      <text x="510" y="685" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">complete</text>
+    </g>
+    
+    <path d="M 560 600 L 640 600" stroke="#8b5cf6" stroke-width="3" marker-end="url(#arrowpurple)"/>
+    
+    <!-- Step 4 -->
+    <g id="step4">
+      <circle cx="690" cy="600" r="50" fill="#06b6d4" stroke="#0891b2" stroke-width="2"/>
+      <text x="690" y="595" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">STEP 4</text>
+      <text x="690" y="610" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Course</text>
+      <text x="690" y="625" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Progress</text>
+      <text x="690" y="670" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">Sum module</text>
+      <text x="690" y="685" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">weights</text>
+    </g>
+    
+    <path d="M 740 600 L 820 600" stroke="#8b5cf6" stroke-width="3" marker-end="url(#arrowpurple)"/>
+    
+    <!-- Step 5 -->
+    <g id="step5">
+      <circle cx="870" cy="600" r="50" fill="#10b981" stroke="#059669" stroke-width="2"/>
+      <text x="870" y="595" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">STEP 5</text>
+      <text x="870" y="610" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Final</text>
+      <text x="870" y="625" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Grade</text>
+      <text x="870" y="670" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">Calculate</text>
+      <text x="870" y="685" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">weighted avg</text>
+    </g>
+    
+    <path d="M 920 600 L 1000 600" stroke="#8b5cf6" stroke-width="3" marker-end="url(#arrowpurple)"/>
+    
+    <!-- Step 6 -->
+    <g id="step6">
+      <circle cx="1050" cy="600" r="50" fill="#eab308" stroke="#ca8a04" stroke-width="2"/>
+      <text x="1050" y="595" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">STEP 6</text>
+      <text x="1050" y="610" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">GPA</text>
+      <text x="1050" y="625" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Calculated</text>
+      <text x="1050" y="670" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">Convert to</text>
+      <text x="1050" y="685" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">0.0-4.0 scale</text>
+    </g>
+    
+    <path d="M 1100 600 L 1180 600" stroke="#8b5cf6" stroke-width="3" marker-end="url(#arrowpurple)"/>
+    
+    <!-- Step 7 -->
+    <g id="step7">
+      <circle cx="1230" cy="600" r="50" fill="#6366f1" stroke="#4338ca" stroke-width="2"/>
+      <text x="1230" y="595" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">STEP 7</text>
+      <text x="1230" y="610" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Display</text>
+      <text x="1230" y="625" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 11px;">Reports</text>
+      <text x="1230" y="670" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">Show in</text>
+      <text x="1230" y="685" text-anchor="middle" style="fill: #374151; font-family: Arial, sans-serif; font-size: 10px;">dashboard</text>
+    </g>
+    
+    <!-- Formulas -->
+    <rect x="70" y="730" width="1260" height="100" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="700" y="755" text-anchor="middle" style="fill: #1e293b; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">Key Formulas</text>
+    
+    <text x="100" y="780" class="formula">progress = Σ(completed_module_weights)</text>
+    <text x="100" y="800" class="formula">final_grade = Σ(module_grades × module_weights)</text>
+    
+    <text x="650" y="780" class="formula">GPA: A(90-100%)=4.0, B(80-89%)=3.0</text>
+    <text x="650" y="800" class="formula">     C(70-79%)=2.0, D(60-69%)=1.0, F(0-59%)=0.0</text>
+  </g>
+  
+  <!-- Purple arrow marker for flow -->
+  <defs>
+    <marker id="arrowpurple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#8b5cf6" />
+    </marker>
+  </defs>
+  
+  <!-- Footer -->
+  <text x="700" y="890" text-anchor="middle" style="fill: #64748b; font-family: Arial, sans-serif; font-size: 12px;">AstroLearn LMS - Grade Reporting and Analytics ERD © 2025</text>
+</svg>

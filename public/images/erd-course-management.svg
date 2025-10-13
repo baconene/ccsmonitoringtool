@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);">
+  <defs>
+    <style>
+      .entity-box { fill: white; stroke: #3b82f6; stroke-width: 2; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+      .entity-title { fill: #1e40af; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; }
+      .entity-attr { fill: #374151; font-family: 'Courier New', monospace; font-size: 12px; }
+      .relationship-line { stroke: #6366f1; stroke-width: 2; fill: none; }
+      .relationship-text { fill: #4f46e5; font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; }
+      .cardinality { fill: #6366f1; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; }
+      .pk { fill: #eab308; font-weight: bold; }
+      .fk { fill: #ef4444; font-weight: bold; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" style="fill: #1e40af; font-family: Arial, sans-serif; font-size: 24px; font-weight: bold;">Course Management System - ERD</text>
+  
+  <!-- COURSES Entity -->
+  <g id="courses">
+    <rect x="50" y="80" width="250" height="220" rx="8" class="entity-box"/>
+    <rect x="50" y="80" width="250" height="40" rx="8" fill="#3b82f6"/>
+    <text x="175" y="105" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">COURSES</text>
+    <text x="70" y="145" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="70" y="165" class="entity-attr">• title</text>
+    <text x="70" y="185" class="entity-attr">• description</text>
+    <text x="70" y="205" class="entity-attr">• image_url</text>
+    <text x="70" y="225" class="entity-attr">• is_active</text>
+    <text x="70" y="245" class="entity-attr">• created_at</text>
+    <text x="70" y="265" class="entity-attr">• updated_at</text>
+  </g>
+  
+  <!-- MODULES Entity -->
+  <g id="modules">
+    <rect x="475" y="80" width="250" height="240" rx="8" class="entity-box"/>
+    <rect x="475" y="80" width="250" height="40" rx="8" fill="#8b5cf6"/>
+    <text x="600" y="105" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">MODULES</text>
+    <text x="495" y="145" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="495" y="165" class="entity-attr"><tspan class="fk">• course_id</tspan> (FK)</text>
+    <text x="495" y="185" class="entity-attr">• title</text>
+    <text x="495" y="205" class="entity-attr">• description</text>
+    <text x="495" y="225" class="entity-attr">• weight (%)</text>
+    <text x="495" y="245" class="entity-attr">• order</text>
+    <text x="495" y="265" class="entity-attr">• is_completed</text>
+    <text x="495" y="285" class="entity-attr">• created_at</text>
+  </g>
+  
+  <!-- ACTIVITIES Entity -->
+  <g id="activities">
+    <rect x="900" y="80" width="250" height="220" rx="8" class="entity-box"/>
+    <rect x="900" y="80" width="250" height="40" rx="8" fill="#ec4899"/>
+    <text x="1025" y="105" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">ACTIVITIES</text>
+    <text x="920" y="145" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="920" y="165" class="entity-attr"><tspan class="fk">• module_id</tspan> (FK)</text>
+    <text x="920" y="185" class="entity-attr"><tspan class="fk">• activity_type_id</tspan> (FK)</text>
+    <text x="920" y="205" class="entity-attr">• title</text>
+    <text x="920" y="225" class="entity-attr">• description</text>
+    <text x="920" y="245" class="entity-attr">• points</text>
+    <text x="920" y="265" class="entity-attr">• order</text>
+  </g>
+  
+  <!-- ACTIVITY_TYPES Entity -->
+  <g id="activity-types">
+    <rect x="900" y="360" width="250" height="180" rx="8" class="entity-box"/>
+    <rect x="900" y="360" width="250" height="40" rx="8" fill="#f59e0b"/>
+    <text x="1025" y="385" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">ACTIVITY_TYPES</text>
+    <text x="920" y="425" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="920" y="445" class="entity-attr">• name</text>
+    <text x="920" y="465" class="entity-attr" style="font-size: 10px;">  (quiz, lesson, video,</text>
+    <text x="920" y="480" class="entity-attr" style="font-size: 10px;">   reading, assignment)</text>
+    <text x="920" y="500" class="entity-attr">• icon</text>
+    <text x="920" y="520" class="entity-attr">• color</text>
+  </g>
+  
+  <!-- GRADE_LEVELS Entity -->
+  <g id="grade-levels">
+    <rect x="50" y="380" width="250" height="140" rx="8" class="entity-box"/>
+    <rect x="50" y="380" width="250" height="40" rx="8" fill="#10b981"/>
+    <text x="175" y="405" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">GRADE_LEVELS</text>
+    <text x="70" y="445" class="entity-attr"><tspan class="pk">• id</tspan> (PK)</text>
+    <text x="70" y="465" class="entity-attr">• name</text>
+    <text x="70" y="485" class="entity-attr">• level</text>
+    <text x="70" y="505" class="entity-attr">• created_at</text>
+  </g>
+  
+  <!-- COURSE_GRADE_LEVELS Pivot Entity -->
+  <g id="course-grade-levels">
+    <rect x="50" y="580" width="250" height="120" rx="8" class="entity-box"/>
+    <rect x="50" y="580" width="250" height="40" rx="8" fill="#06b6d4"/>
+    <text x="175" y="605" text-anchor="middle" style="fill: white; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">COURSE_GRADE_LEVELS</text>
+    <text x="70" y="645" class="entity-attr"><tspan class="fk">• course_id</tspan> (FK)</text>
+    <text x="70" y="665" class="entity-attr"><tspan class="fk">• grade_level_id</tspan> (FK)</text>
+    <text x="70" y="685" class="entity-attr">• created_at</text>
+  </g>
+  
+  <!-- Relationships -->
+  
+  <!-- Course to Modules (1:M) -->
+  <path d="M 300 190 L 475 190" class="relationship-line" marker-end="url(#arrowblue)"/>
+  <text x="350" y="180" class="cardinality">1</text>
+  <text x="445" y="180" class="cardinality">M</text>
+  <text x="360" y="210" class="relationship-text">has many</text>
+  
+  <!-- Modules to Activities (1:M) -->
+  <path d="M 725 190 L 900 190" class="relationship-line" marker-end="url(#arrowblue)"/>
+  <text x="775" y="180" class="cardinality">1</text>
+  <text x="870" y="180" class="cardinality">M</text>
+  <text x="785" y="210" class="relationship-text">contains</text>
+  
+  <!-- Activities to ActivityTypes (M:1) -->
+  <path d="M 1025 300 L 1025 360" class="relationship-line" marker-end="url(#arrowblue)"/>
+  <text x="1010" y="320" class="cardinality">M</text>
+  <text x="1010" y="350" class="cardinality">1</text>
+  <text x="1040" y="335" class="relationship-text">belongs to</text>
+  
+  <!-- Course to CourseGradeLevels (1:M) -->
+  <path d="M 175 300 L 175 580" class="relationship-line" marker-end="url(#arrowblue)"/>
+  <text x="160" y="320" class="cardinality">1</text>
+  <text x="160" y="570" class="cardinality">M</text>
+  
+  <!-- GradeLevels to CourseGradeLevels (1:M) -->
+  <path d="M 175 520 L 175 580" class="relationship-line" marker-end="url(#arrowblue)"/>
+  <text x="160" y="540" class="cardinality">1</text>
+  <text x="160" y="570" class="cardinality">M</text>
+  
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrowblue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6366f1" />
+    </marker>
+  </defs>
+  
+  <!-- Legend -->
+  <g id="legend">
+    <rect x="420" y="550" width="360" height="140" rx="8" fill="white" stroke="#94a3b8" stroke-width="2" opacity="0.95"/>
+    <text x="600" y="575" text-anchor="middle" style="fill: #1e40af; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">Legend</text>
+    <text x="440" y="600" class="entity-attr"><tspan class="pk">• PK</tspan> = Primary Key</text>
+    <text x="440" y="620" class="entity-attr"><tspan class="fk">• FK</tspan> = Foreign Key</text>
+    <text x="440" y="640" class="entity-attr"><tspan style="fill: #6366f1; font-weight: bold;">1</tspan> = One</text>
+    <text x="440" y="660" class="entity-attr"><tspan style="fill: #6366f1; font-weight: bold;">M</tspan> = Many</text>
+    <text x="600" y="600" class="entity-attr">Course → Modules (1:M)</text>
+    <text x="600" y="620" class="entity-attr">Module → Activities (1:M)</text>
+    <text x="600" y="640" class="entity-attr">Activity → Type (M:1)</text>
+    <text x="600" y="660" class="entity-attr">Course ↔ GradeLevel (M:M)</text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="600" y="770" text-anchor="middle" style="fill: #64748b; font-family: Arial, sans-serif; font-size: 12px;">AstroLearn LMS - Course Management ERD © 2025</text>
+</svg>

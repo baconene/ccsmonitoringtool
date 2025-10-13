@@ -13,6 +13,9 @@ use App\Models\Course;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+// Load API routes for scheduling
+require __DIR__.'/api_schedules.php';
+
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
@@ -33,10 +36,53 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard', ['dashboardComponent' => 'InstructorDashboard']);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Dashboard and other API routes (must be before student-dashboard route to avoid conflicts)
+Route::middleware(['auth', 'verified'])->prefix('api')->group(function () {
+    // Dashboard API routes
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/stats', [App\Http\Controllers\Api\DashboardApiController::class, 'getStats']);
+        Route::get('/student-data', [App\Http\Controllers\Api\DashboardApiController::class, 'getStudentData']);
+        Route::get('/instructor-data', [App\Http\Controllers\Api\DashboardApiController::class, 'getInstructorData']);
+    });
+    
+    // Instructor API routes
+    Route::prefix('instructor')->group(function () {
+        Route::get('/profile', [App\Http\Controllers\Api\DashboardApiController::class, 'getInstructorProfile']);
+    });
+    
+    // Course API routes
+    Route::get('/courses', [App\Http\Controllers\CourseController::class, 'getCourses']);
+    
+    // Grade Level API routes
+    Route::get('/grade-levels', [App\Http\Controllers\GradeLevelController::class, 'index']);
+    
+    // Schedule API routes
+    Route::prefix('schedule')->group(function () {
+        Route::get('/', [App\Http\Controllers\Api\ScheduleApiController::class, 'index']);
+        Route::get('/upcoming', [App\Http\Controllers\Api\ScheduleApiController::class, 'upcoming']);
+    });
+    
+    // Debug authentication status
+    Route::get('/debug/auth', function (Illuminate\Http\Request $request) {
+        return response()->json([
+            'authenticated' => auth()->check(),
+            'user_id' => auth()->id(),
+            'user' => auth()->user()?->only(['id', 'name', 'email', 'role_name']),
+            'session_id' => session()->getId(),
+            'csrf_token' => csrf_token(),
+        ]);
+    });
+});
+
 // Student-specific dashboard route (for direct access)
 Route::get('student-dashboard', function () {
     return Inertia::render('Dashboard', ['dashboardComponent' => 'StudentDashboard']);
 })->middleware(['auth', 'verified', 'role:student'])->name('student.dashboard');
+
+// Schedule page (authenticated users)
+Route::get('schedule', function () {
+    return Inertia::render('SchedulingManagement/UserSchedule');
+})->middleware(['auth', 'verified'])->name('schedule.index');
 
 // Role management page (admin only)
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -333,42 +379,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/quiz/{activity}/progress', [App\Http\Controllers\Student\StudentQuizController::class, 'getProgress'])->name('quiz.progress');
 });
 
-// API ROUTES FOR WEB (Session-based authentication)
-Route::middleware(['auth'])->prefix('api')->group(function () {
-    // Dashboard API routes
-    Route::prefix('dashboard')->group(function () {
-        Route::get('/stats', [App\Http\Controllers\Api\DashboardApiController::class, 'getStats']);
-        Route::get('/student-data', [App\Http\Controllers\Api\StudentDashboardController::class, 'getDashboardData'])->middleware('role:student');
-    });
-
-    // Instructor API routes
-    Route::prefix('instructor')->group(function () {
-        Route::get('/profile', [App\Http\Controllers\Api\DashboardApiController::class, 'getInstructorProfile']);
-    });
-
-    // Course API routes
-    Route::get('/courses', [App\Http\Controllers\CourseController::class, 'getCourses']);
-    
-    // Grade Level API routes
-    Route::get('/grade-levels', [App\Http\Controllers\GradeLevelController::class, 'index']);
-    
-    // Schedule API routes
-    Route::prefix('schedule')->group(function () {
-        Route::get('/', [App\Http\Controllers\Api\ScheduleApiController::class, 'index']);
-        Route::get('/upcoming', [App\Http\Controllers\Api\ScheduleApiController::class, 'upcoming']);
-    });
-    
-    // Debug authentication status
-    Route::get('/debug/auth', function (Illuminate\Http\Request $request) {
-        return response()->json([
-            'authenticated' => auth()->check(),
-            'user_id' => auth()->id(),
-            'user' => auth()->user()?->only(['id', 'name', 'email']),
-            'session_id' => session()->getId(),
-            'csrf_token' => csrf_token(),
-        ]);
-    });
-});
+// Additional API routes moved to top of file with Dashboard routes
 
 // GRADE REPORT ROUTES
 Route::middleware(['auth'])->group(function () {
