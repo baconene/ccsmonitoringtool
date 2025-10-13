@@ -24,15 +24,15 @@ use App\Models\CourseEnrollment;
 use App\Models\Document;
 use App\Models\GradeLevel;
 use Carbon\Carbon;
-use Faker\Factory as Faker;
 
 class ComprehensiveSeeder extends Seeder
 {
-    private $faker;
-
-    public function __construct()
+    /**
+     * Get faker instance
+     */
+    private function faker()
     {
-        $this->faker = Faker::create();
+        return \Illuminate\Container\Container::getInstance()->make(\Faker\Generator::class);
     }
 
     public function run(): void
@@ -151,28 +151,35 @@ class ComprehensiveSeeder extends Seeder
     private function seedStudentsAndInstructors(): void
     {
         // Create instructor records
+        $this->command->info("Creating 5 instructors...");
         for ($i = 1; $i <= 5; $i++) {
             $userId = $i + 3;
-            Instructor::create([
+            $this->command->info("Creating instructor $i (user_id: $userId)...");
+            try {
+                Instructor::create([
                 'instructor_id' => "INST" . str_pad($i, 4, '0', STR_PAD_LEFT),
                 'user_id' => $userId,
                 'employee_id' => "EMP" . str_pad($i, 4, '0', STR_PAD_LEFT),
-                'title' => $this->faker->randomElement(['Dr.', 'Prof.', 'Mr.', 'Ms.']),
-                'department' => $this->faker->randomElement(['Mathematics', 'Science', 'English', 'History', 'Computer Science']),
-                'specialization' => $this->faker->randomElement(['Algebra', 'Physics', 'Literature', 'World History', 'Programming']),
-                'bio' => $this->faker->paragraphs(2, true),
-                'office_location' => $this->faker->address(),
-                'phone' => $this->faker->phoneNumber(),
+                'title' => $this->faker()->randomElement(['Dr.', 'Prof.', 'Mr.', 'Ms.']),
+                'department' => $this->faker()->randomElement(['Mathematics', 'Science', 'English', 'History', 'Computer Science']),
+                'specialization' => $this->faker()->randomElement(['Algebra', 'Physics', 'Literature', 'World History', 'Programming']),
+                'bio' => $this->faker()->paragraphs(2, true),
+                'office_location' => $this->faker()->address(),
+                'phone' => $this->faker()->phoneNumber(),
                 'office_hours' => 'Mon-Fri 9:00-17:00',
-                'hire_date' => $this->faker->dateTimeBetween('-5 years', '-1 year'),
+                'hire_date' => $this->faker()->dateTimeBetween('-5 years', '-1 year'),
                 'employment_type' => 'full-time',
                 'status' => 'active',
-                'salary' => $this->faker->numberBetween(50000, 100000),
+                'salary' => $this->faker()->numberBetween(50000, 100000),
                 'education_level' => 'PhD',
                 'years_experience' => rand(5, 20),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            } catch (\Exception $e) {
+                $this->command->error("Failed to create instructor $i: " . $e->getMessage());
+                throw $e;
+            }
         }
 
         // Create student records
@@ -192,9 +199,9 @@ class ComprehensiveSeeder extends Seeder
                 'section' => $section,
                 'enrollment_number' => "ENR-" . date('Y') . "-" . str_pad($i, 4, '0', STR_PAD_LEFT),
                 'academic_year' => '2024-2025',
-                'program' => $this->faker->randomElement(['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology']),
-                'department' => $this->faker->randomElement(['STEM', 'Liberal Arts', 'Sciences']),
-                'enrollment_date' => $this->faker->dateTimeBetween('-2 years', 'now'),
+                'program' => $this->faker()->randomElement(['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology']),
+                'department' => $this->faker()->randomElement(['STEM', 'Liberal Arts', 'Sciences']),
+                'enrollment_date' => $this->faker()->dateTimeBetween('-2 years', 'now'),
                 'status' => 'active',
                 'metadata' => [
                     'created_by_seeder' => true,
@@ -748,10 +755,10 @@ class ComprehensiveSeeder extends Seeder
                     'student_id' => $studentId,
                     'course_id' => $courseId,
                     'instructor_id' => $courseId + 3, // Instructor IDs 4, 5, 6
-                    'enrolled_at' => $this->faker->dateTimeBetween('-3 months', '-1 month'),
+                    'enrolled_at' => $this->faker()->dateTimeBetween('-3 months', '-1 month'),
                     'progress' => rand(10, 95),
                     'is_completed' => rand(0, 1),
-                    'completed_at' => rand(0, 1) ? $this->faker->dateTimeBetween('-1 month', 'now') : null,
+                    'completed_at' => rand(0, 1) ? $this->faker()->dateTimeBetween('-1 month', 'now') : null,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -792,12 +799,12 @@ class ComprehensiveSeeder extends Seeder
         $submittedAt = null;
         
         if ($status !== 'not_started') {
-            $startedAt = $this->faker->dateTimeBetween('-2 months', '-1 week');
+            $startedAt = $this->faker()->dateTimeBetween('-2 months', '-1 week');
             $score = rand(60, $maxScore);
             $percentageScore = ($score / $maxScore) * 100;
             
             if (in_array($status, ['completed', 'submitted'])) {
-                $completedAt = $this->faker->dateTimeBetween($startedAt, 'now');
+                $completedAt = $this->faker()->dateTimeBetween($startedAt, 'now');
                 if ($status === 'submitted') {
                     $submittedAt = $completedAt;
                 }
@@ -817,9 +824,9 @@ class ComprehensiveSeeder extends Seeder
             'started_at' => $startedAt,
             'completed_at' => $completedAt,
             'submitted_at' => $submittedAt,
-            'graded_at' => $submittedAt ? $this->faker->dateTimeBetween($submittedAt, 'now') : null,
+            'graded_at' => $submittedAt ? $this->faker()->dateTimeBetween($submittedAt, 'now') : null,
             'progress_data' => json_encode(['progress' => rand(0, 100)]),
-            'feedback' => rand(0, 1) ? $this->faker->sentence(10) : null,
+            'feedback' => rand(0, 1) ? $this->faker()->sentence(10) : null,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -856,7 +863,7 @@ class ComprehensiveSeeder extends Seeder
         
         $startedAt = $studentActivity->started_at 
             ? Carbon::parse($studentActivity->started_at)
-            : $this->faker->dateTimeBetween('-1 month', '-1 week');
+            : $this->faker()->dateTimeBetween('-1 month', '-1 week');
         
         $progress = StudentQuizProgress::updateOrCreate(
             [
@@ -867,8 +874,8 @@ class ComprehensiveSeeder extends Seeder
             [
                 'started_at' => $startedAt,
                 'last_accessed_at' => $isCompleted 
-                    ? $this->faker->dateTimeBetween($startedAt, 'now')
-                    : $this->faker->dateTimeBetween($startedAt, 'now'),
+                    ? $this->faker()->dateTimeBetween($startedAt, 'now')
+                    : $this->faker()->dateTimeBetween($startedAt, 'now'),
                 'is_completed' => $isCompleted,
                 'is_submitted' => $isCompleted,
                 'completed_questions' => $isCompleted ? $questions->count() : rand(0, $questions->count()),
@@ -902,7 +909,7 @@ class ComprehensiveSeeder extends Seeder
                     'answer_text' => $selectedOption->option_text, // Populate answer_text from option
                     'is_correct' => $isCorrect,
                     'points_earned' => $pointsEarned,
-                    'answered_at' => $this->faker->dateTimeBetween($startedAt, $startedAt->copy()->addHour()),
+                    'answered_at' => $this->faker()->dateTimeBetween($startedAt, $startedAt->copy()->addHour()),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]
@@ -918,3 +925,5 @@ class ComprehensiveSeeder extends Seeder
         ]);
     }
 }
+
+
