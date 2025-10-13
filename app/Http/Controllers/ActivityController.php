@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\ActivityType;
+use App\Services\QuizCsvUploadService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -36,13 +37,23 @@ class ActivityController extends Controller
         }
 
         $activities = $query->latest()->get()->map(function ($activity) {
+            // Load modules relationship
+            $activity->load('modules');
+            
             // Add computed properties
             $activity->question_count = $activity->quiz?->questions?->count() ?? 0;
             $activity->total_points = $activity->quiz?->questions?->sum('points') ?? 0;
             $activity->has_due_date = $activity->assignment?->due_date ? true : false;
             
-            // TODO: Add module usage - will be implemented when module-activity relationship is added
-            $activity->used_in_modules = [];
+            // Add module usage information
+            $activity->used_in_modules = $activity->modules->map(function ($module) {
+                return [
+                    'id' => $module->id,
+                    'title' => $module->title,
+                ];
+            })->toArray();
+            
+            $activity->modules_count = $activity->modules->count();
             
             return $activity;
         });
@@ -82,12 +93,43 @@ class ActivityController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'activity_type_id' => 'required|exists:activity_types,id',
+            'due_date' => 'nullable|date',
+            'create_with_csv' => 'boolean',
+            'quiz_title' => 'required_if:create_with_csv,true|string|max:255',
+            'quiz_description' => 'nullable|string',
+            'csv_file' => 'required_if:create_with_csv,true|file|mimes:csv,txt|max:512000'
         ]);
 
         $activity = Activity::create([
-            ...$validated,
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'activity_type_id' => $validated['activity_type_id'],
+            'due_date' => $validated['due_date'] ?? null,
             'created_by' => auth()->id(),
         ]);
+
+        // If creating with CSV upload, process the quiz
+        if ($request->boolean('create_with_csv') && $request->hasFile('csv_file')) {
+            try {
+                $uploadService = app(QuizCsvUploadService::class);
+                
+                $result = $uploadService->processQuizCsv(
+                    $request->file('csv_file'),
+                    $activity->id,
+                    $validated['quiz_title'],
+                    $validated['quiz_description'] ?? null
+                );
+
+                return redirect()->route('activities.show', $activity->id)
+                    ->with('success', "Activity '{$activity->title}' created successfully with {$result['questions_count']} questions!");
+
+            } catch (\Exception $e) {
+                // If CSV processing fails, we still keep the activity but show error
+                return redirect()->route('activities.show', $activity->id)
+                    ->withErrors(['csv_upload' => 'Activity created but CSV upload failed: ' . $e->getMessage()])
+                    ->with('warning', "Activity '{$activity->title}' created, but quiz upload failed. You can upload the quiz manually.");
+            }
+        }
 
         return redirect()->route('activities.show', $activity->id)
             ->with('success', "'{$activity->title}' activity created successfully.");
@@ -98,7 +140,29 @@ class ActivityController extends Controller
      */
     public function show(Activity $activity): Response
     {
-        $activity->load(['activityType', 'creator', 'quiz.questions.options', 'assignment.document']);
+        $activity->load([
+            'activityType', 
+            'creator', 
+            'quiz.questions.options', 
+            'assignment.document',
+            'modules.course'
+        ]);
+
+        // Get unique courses through modules
+        $courses = $activity->modules->map(function ($module) {
+            return [
+                'id' => $module->course->id,
+                'title' => $module->course->title,
+                'description' => $module->course->description,
+                'module_id' => $module->id,
+                'module_title' => $module->title,
+            ];
+        })->unique('id')->values();
+
+        // Count modules and courses
+        $activity->modules_count = $activity->modules->count();
+        $activity->courses_count = $courses->count();
+        $activity->related_courses = $courses;
 
         return Inertia::render('ActivityManagement/Show', [
             'activity' => $activity,
@@ -127,6 +191,7 @@ class ActivityController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'activity_type_id' => 'required|exists:activity_types,id',
+            'due_date' => 'nullable|date',
         ]);
 
         $activity->update($validated);

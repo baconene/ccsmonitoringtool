@@ -4,7 +4,7 @@ import quiz from './quiz'
 import report611039 from './report'
 import course from './course'
 /**
- * @see routes/web.php:34
+ * @see routes/web.php:37
  * @route '/student-dashboard'
  */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -18,7 +18,7 @@ dashboard.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:34
+ * @see routes/web.php:37
  * @route '/student-dashboard'
  */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -26,7 +26,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web.php:34
+ * @see routes/web.php:37
  * @route '/student-dashboard'
  */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web.php:34
+ * @see routes/web.php:37
  * @route '/student-dashboard'
  */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -43,7 +43,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web.php:34
+ * @see routes/web.php:37
  * @route '/student-dashboard'
  */
     const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -52,7 +52,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web.php:34
+ * @see routes/web.php:37
  * @route '/student-dashboard'
  */
         dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -60,7 +60,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web.php:34
+ * @see routes/web.php:37
  * @route '/student-dashboard'
  */
         dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -75,7 +75,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     
     dashboard.form = dashboardForm
 /**
- * @see routes/web.php:46
+ * @see routes/web.php:49
  * @route '/student/{id}/details'
  */
 export const details = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -89,7 +89,7 @@ details.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:46
+ * @see routes/web.php:49
  * @route '/student/{id}/details'
  */
 details.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -116,7 +116,7 @@ details.url = (args: { id: string | number } | [id: string | number ] | string |
 }
 
 /**
- * @see routes/web.php:46
+ * @see routes/web.php:49
  * @route '/student/{id}/details'
  */
 details.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -124,7 +124,7 @@ details.get = (args: { id: string | number } | [id: string | number ] | string |
     method: 'get',
 })
 /**
- * @see routes/web.php:46
+ * @see routes/web.php:49
  * @route '/student/{id}/details'
  */
 details.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -133,7 +133,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
 })
 
     /**
- * @see routes/web.php:46
+ * @see routes/web.php:49
  * @route '/student/{id}/details'
  */
     const detailsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -142,7 +142,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
     })
 
             /**
- * @see routes/web.php:46
+ * @see routes/web.php:49
  * @route '/student/{id}/details'
  */
         detailsForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -150,7 +150,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
             method: 'get',
         })
             /**
- * @see routes/web.php:46
+ * @see routes/web.php:49
  * @route '/student/{id}/details'
  */
         detailsForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -166,7 +166,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
     details.form = detailsForm
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:335
+ * @see app/Http/Controllers/Student/StudentCourseController.php:392
  * @route '/student/activities'
  */
 export const activities = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -181,7 +181,7 @@ activities.definition = {
 
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:335
+ * @see app/Http/Controllers/Student/StudentCourseController.php:392
  * @route '/student/activities'
  */
 activities.url = (options?: RouteQueryOptions) => {
@@ -190,7 +190,7 @@ activities.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:335
+ * @see app/Http/Controllers/Student/StudentCourseController.php:392
  * @route '/student/activities'
  */
 activities.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -199,7 +199,7 @@ activities.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:335
+ * @see app/Http/Controllers/Student/StudentCourseController.php:392
  * @route '/student/activities'
  */
 activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -209,7 +209,7 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:335
+ * @see app/Http/Controllers/Student/StudentCourseController.php:392
  * @route '/student/activities'
  */
     const activitiesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:335
+ * @see app/Http/Controllers/Student/StudentCourseController.php:392
  * @route '/student/activities'
  */
         activitiesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -228,7 +228,7 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:335
+ * @see app/Http/Controllers/Student/StudentCourseController.php:392
  * @route '/student/activities'
  */
         activitiesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

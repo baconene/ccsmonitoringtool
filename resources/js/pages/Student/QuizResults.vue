@@ -27,12 +27,8 @@ interface Props {
 const props = defineProps<Props>();
 const page = usePage();
 
-// Debug logging
-console.log('Quiz Results - Progress data:', props.progress);
-console.log('Quiz Results - Score:', props.progress.score, '(type:', typeof props.progress.score, ')');
-console.log('Quiz Results - Percentage:', props.progress.percentage_score, '(type:', typeof props.progress.percentage_score, ')');
-console.log('Quiz Results - Total Points:', props.progress.quiz.total_points, '(type:', typeof props.progress.quiz.total_points, ')');
-console.log('Quiz Results - Answers count:', props.progress.answers?.length);
+// Basic logging (keeping minimal for production)
+console.log('Quiz Results loaded - Answers count:', props.progress.answers?.length);
 
 // Computed properties
 const scorePercentage = computed(() => {
@@ -86,22 +82,48 @@ const getScoreColorClass = computed(() => {
 const getCorrectAnswerText = (answer: StudentQuizAnswer & { question: Question & { options?: QuestionOption[] } }) => {
   const question = answer.question;
   
-  if (question.question_type === 'multiple-choice' || question.question_type === 'true-false') {
+  if (question.question_type === 'multiple_choice' || question.question_type === 'true_false') {
     const correctOption = question.options?.find(opt => opt.is_correct);
     return correctOption?.option_text || 'N/A';
-  } else if (question.question_type === 'enumeration' || question.question_type === 'short-answer') {
+  } else if (question.question_type === 'enumeration' || question.question_type === 'short_answer') {
     return question.correct_answer || 'Pending instructor review';
   } else {
     return 'N/A';
   }
 };
 
-// Get student answer text for display
+// Get student answer text for display based on question type
 const getStudentAnswerText = (answer: StudentQuizAnswer & { question: Question; selectedOption?: QuestionOption }) => {
-  if (answer.selectedOption) {
-    return answer.selectedOption.option_text;
+  const question = answer.question;
+  
+  // Handle both camelCase (selectedOption) and snake_case (selected_option) from Laravel
+  const selectedOption = answer.selectedOption || (answer as any).selected_option;
+  
+  // For multiple choice and true-false questions, use selected option text
+  if (question.question_type === 'multiple_choice' || question.question_type === 'true_false') {
+    if (selectedOption && selectedOption.option_text) {
+      return selectedOption.option_text;
+    }
   }
-  return answer.answer_text || 'Not answered';
+  
+  // For enumeration and short-answer questions, use answer_text
+  if (question.question_type === 'enumeration' || question.question_type === 'short_answer') {
+    if (answer.answer_text) {
+      return answer.answer_text;
+    }
+  }
+  
+  // For any other case with answer_text
+  if (answer.answer_text) {
+    return answer.answer_text;
+  }
+  
+  // Fallback for selected option if available
+  if (selectedOption && selectedOption.option_text) {
+    return selectedOption.option_text;
+  }
+  
+  return 'Not answered';
 };
 </script>
 

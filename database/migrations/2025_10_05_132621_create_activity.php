@@ -82,7 +82,6 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->foreignId('document_id')->nullable()->constrained('documents')->onDelete('set null');
-            $table->timestamp('due_date')->nullable();
             $table->timestamps();
         });
     }

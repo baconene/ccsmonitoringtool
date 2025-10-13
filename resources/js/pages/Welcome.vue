@@ -1,36 +1,39 @@
 <script setup lang="ts">
 import { dashboard, login } from '@/routes';
 import { Head, Link } from '@inertiajs/vue3';
-import { Book } from 'lucide-vue-next';
+import { Book, Rocket, Sparkles } from 'lucide-vue-next';
+import ConstellationBackground from '@/components/ConstellationBackground.vue';
+import AppLogoIcon from '@/components/AppLogoIcon.vue';
 </script>
 
 <template>
-    <Head title="EduFlow - Transform Your Learning Experience">
+    <Head title="AstroLearn - Ignite Your Mind. Explore Universes.">
         <link rel="preconnect" href="https://rsms.me/" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     </Head>
     <div
-        class="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 relative overflow-hidden"
-        style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80'); background-size: cover; background-position: center;"
+        class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-indigo-950 relative overflow-hidden"
     >
-        <!-- Background Overlay -->
-        <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/90 via-purple-900/85 to-pink-800/90"></div>
+        <!-- Constellation Background -->
+        <ConstellationBackground />
         
-        <!-- Floating Elements -->
-        <div class="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
-        <div class="absolute top-40 right-20 w-32 h-32 bg-pink-400/20 rounded-full blur-2xl animate-bounce delay-1000"></div>
-        <div class="absolute bottom-32 left-1/4 w-24 h-24 bg-blue-400/20 rounded-full blur-xl animate-pulse delay-500"></div>
+        <!-- Cosmic Gradient Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-pink-900/20"></div>
+        
+        <!-- Animated Orbs -->
+        <div class="absolute top-20 left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute top-1/3 right-20 w-48 h-48 bg-pink-500/10 rounded-full blur-3xl" style="animation: float 8s ease-in-out infinite;"></div>
+        <div class="absolute bottom-32 left-1/4 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl" style="animation: float 6s ease-in-out infinite reverse;"></div>
         <!-- Navigation Header -->
         <header class="relative z-10 w-full px-6 py-6">
             <nav class="max-w-7xl mx-auto flex items-center justify-between">
                 <!-- Logo -->
-                <div class="flex items-center space-x-2">
-                    <div class="w-10 h-10 bg-gradient-to-r from-pink-500 to-violet-500 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                        </svg>
+                <div class="flex items-center space-x-3">
+                    <AppLogoIcon class="w-12 h-12" />
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">AstroLearn</span>
+                        <span class="text-xs text-gray-400">Explore Universes</span>
                     </div>
-                    <span class="text-2xl font-bold text-white">Bacon Edu</span>
                 </div>
                 
                 <!-- Navigation Links -->
@@ -64,37 +67,39 @@ import { Book } from 'lucide-vue-next';
             <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
                 <!-- Hero Content -->
                 <div class="text-center lg:text-left space-y-8">
-                    <div class="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white/90 text-sm font-medium border border-white/20">
-                        🚀 Revolutionary Learning Platform
+                    <div class="inline-flex items-center px-5 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm rounded-full text-white/90 text-sm font-medium border border-purple-400/30 shadow-lg">
+                        <Sparkles class="w-4 h-4 mr-2 text-pink-400" />
+                        Ignite Your Mind. Explore Universes.
                     </div>
                     
                     <h1 class="text-5xl lg:text-7xl font-extrabold text-white leading-tight">
-                        Transform Your 
-                        <span class="bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">
-                            Learning
+                        Journey Through
+                        <br />
+                        <span class="bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+                            Infinite Knowledge
                         </span>
-                        <br />Experience
                     </h1>
                     
-                    <p class="text-xl text-white/80 leading-relaxed max-w-2xl">
-                        Unlock the future of education with our cutting-edge Learning Management System. 
-                        Designed for modern learners and innovative instructors.
+                    <p class="text-xl text-gray-300 leading-relaxed max-w-2xl">
+                        Embark on a cosmic learning adventure. AstroLearn transforms education into 
+                        an exploration of limitless possibilities, connecting minds across the universe of knowledge.
                     </p>
                     
                     <!-- CTA Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                         <Link
                             :href="$page.props.auth.user ? '/dashboard' : login()"
-                            class="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-pink-600 hover:to-violet-600 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 text-center"
+                            class="group bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-purple-700 hover:via-pink-700 hover:to-indigo-700 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 text-center flex items-center justify-center gap-2"
                         >
-                            {{ $page.props.auth.user ? 'Go to Dashboard' : 'Sign In' }}
+                            <Rocket class="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                            {{ $page.props.auth.user ? 'Launch Dashboard' : 'Begin Journey' }}
                         </Link>
                         <Link
                             :href="'/documentation'"
-                            class="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all duration-300 border-2 border-white/30 text-center flex items-center justify-center gap-2"
+                            class="bg-white/5 backdrop-blur-sm text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-all duration-300 border-2 border-purple-400/30 text-center flex items-center justify-center gap-2"
                         >
                             <Book class="w-5 h-5" />
-                            <span>View Documentation</span>
+                            <span>Documentation</span>
                         </Link>
                     </div>
                 </div>
@@ -135,7 +140,7 @@ import { Book } from 'lucide-vue-next';
             <div class="max-w-7xl mx-auto">
                 <div class="text-center mb-16">
                     <h2 class="text-4xl font-bold text-white mb-4">
-                        Why Choose Bacon Edu?
+                        Why Choose Astro Learn?
                     </h2>
                     <p class="text-white/80 text-xl max-w-3xl mx-auto">
                         Experience the next generation of learning with features designed for success
@@ -208,3 +213,14 @@ import { Book } from 'lucide-vue-next';
         </section>
     </div>
 </template>
+
+<style scoped>
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-20px) scale(1.05);
+    }
+}
+</style>

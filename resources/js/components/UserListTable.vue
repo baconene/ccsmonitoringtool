@@ -279,7 +279,15 @@ const formatDate = (dateString: string) => {
                 >
                   View Details
                 </Link>
+                <Link
+                  v-if="user.role_name === 'instructor'"
+                  :href="`/instructor/${user.id}`"
+                  class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
+                >
+                  View Details
+                </Link>
                 <button
+                  v-if="user.role_name !== 'admin'"
                   @click="openEditUserModal(user)"
                   class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
                 >
@@ -288,6 +296,7 @@ const formatDate = (dateString: string) => {
                   </svg>
                 </button>
                 <button
+                  v-if="user.role_name !== 'admin'"
                   @click="openDeleteModal(user)"
                   class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                 >

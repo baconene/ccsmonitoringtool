@@ -192,7 +192,7 @@ const form = useForm({
   description: props.defaults?.description || "",
   sequence: props.defaults?.sequence || 1,
   completion_percentage: props.defaults?.completion_percentage || 0,
-  module_type: props.defaults?.module_type || "Mixed",
+  module_type: props.defaults?.module_type || "",
   module_percentage: props.defaults?.module_percentage || null,
 });
 
@@ -204,7 +204,7 @@ watch(
     form.description = newDefaults?.description || "";
     form.sequence = newDefaults?.sequence || 1;
     form.completion_percentage = newDefaults?.completion_percentage || 0;
-    form.module_type = newDefaults?.module_type || "Mixed";
+    form.module_type = newDefaults?.module_type || "";
     form.module_percentage = newDefaults?.module_percentage || null;
   }
 );

@@ -9,16 +9,34 @@ use Illuminate\Support\Carbon;
 
 class StudentActivity extends Model
 {
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($studentActivity) {
+            // Delete related progress records
+            if ($studentActivity->assignmentProgress) {
+                $studentActivity->assignmentProgress->delete();
+            }
+            if ($studentActivity->projectProgress) {
+                $studentActivity->projectProgress->delete();
+            }
+            if ($studentActivity->assessmentProgress) {
+                $studentActivity->assessmentProgress->delete();
+            }
+        });
+    }
+
     protected $fillable = [
-        'user_id',
+        'student_id',
+        'activity_id',
         'module_id',
         'course_id',
-        'activity_id',
         'activity_type',
-        'status',
         'score',
         'max_score',
         'percentage_score',
+        'status',
         'started_at',
         'completed_at',
         'submitted_at',
@@ -36,27 +54,48 @@ class StudentActivity extends Model
         'score' => 'decimal:2',
         'max_score' => 'decimal:2',
         'percentage_score' => 'decimal:2',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    // Relationships
-    public function user(): BelongsTo
+    /**
+     * Get the student that owns this activity.
+     */
+    public function student(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 
+    /**
+     * Get the user through the student relationship.
+     */
+    public function getUserAttribute()
+    {
+        return $this->student?->user;
+    }
+
+    /**
+     * Get the activity that this record tracks.
+     */
+    public function activity(): BelongsTo
+    {
+        return $this->belongsTo(Activity::class);
+    }
+
+    /**
+     * Get the module this activity belongs to.
+     */
     public function module(): BelongsTo
     {
         return $this->belongsTo(Module::class);
     }
 
+    /**
+     * Get the course this activity belongs to.
+     */
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
-    }
-
-    public function activity(): BelongsTo
-    {
-        return $this->belongsTo(Activity::class);
     }
 
     // Progress tracking relationships

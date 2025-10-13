@@ -16,11 +16,9 @@ class Assignment extends Model
         'title',
         'description',
         'document_id',
-        'due_date',
     ];
 
     protected $casts = [
-        'due_date' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

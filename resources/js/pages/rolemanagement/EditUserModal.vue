@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { X } from 'lucide-vue-next';
 import type { User } from '@/types';
+import axios from 'axios';
 
 const props = defineProps<{
   showModal: boolean;
@@ -19,9 +20,33 @@ const formData = ref({
   email: '',
   role: '',
   grade_level: '',
+  grade_level_id: null as number | null,
   section: '',
   password: ''
 });
+
+// Grade levels data
+const gradeLevels = ref([])
+const loadingGradeLevels = ref(false)
+
+// Fetch grade levels from API
+const fetchGradeLevels = async () => {
+  try {
+    loadingGradeLevels.value = true
+    const response = await axios.get('/api/grade-levels')
+    gradeLevels.value = response.data.grade_levels || []
+  } catch (error) {
+    console.error('Failed to fetch grade levels:', error)
+    gradeLevels.value = []
+  } finally {
+    loadingGradeLevels.value = false
+  }
+}
+
+// Load grade levels on mount
+onMounted(() => {
+  fetchGradeLevels()
+})
 
 // Watch for user prop changes and populate form
 watch(() => props.user, (newUser) => {
@@ -32,6 +57,7 @@ watch(() => props.user, (newUser) => {
       email: newUser.email,
       role: (newUser as any).role_name || '',
       grade_level: (newUser as any).grade_level || '',
+      grade_level_id: (newUser as any).grade_level_id || null,
       section: (newUser as any).section || '',
       password: '' // Password is optional for editing
     };
@@ -141,18 +167,23 @@ const handleClose = () => {
               Grade Level
             </label>
             <select
-              v-model="formData.grade_level"
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              v-model="formData.grade_level_id"
+              :disabled="loadingGradeLevels"
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <option value="">Select grade level</option>
-              <option value="Grade 7">Grade 7</option>
-              <option value="Grade 8">Grade 8</option>
-              <option value="Grade 9">Grade 9</option>
-              <option value="Grade 10">Grade 10</option>
-              <option value="Grade 11">Grade 11</option>
-              <option value="Grade 12">Grade 12</option>
+              <option value="">Select a grade level...</option>
+              <option 
+                v-for="gradeLevel in gradeLevels" 
+                :key="gradeLevel.id" 
+                :value="gradeLevel.id"
+              >
+                {{ gradeLevel.display_name }}
+              </option>
             </select>
-            <p class="text-xs text-gray-500 dark:text-gray-400">The student's current grade level</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              <span v-if="loadingGradeLevels">Loading grade levels...</span>
+              <span v-else>The student's current grade level</span>
+            </p>
           </div>
 
           <!-- Section (Only for Students) -->

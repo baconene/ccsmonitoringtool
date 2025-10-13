@@ -11,6 +11,19 @@ class Question extends Model
 {
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($question) {
+            // Delete all question options
+            $question->options()->delete();
+
+            // Delete student quiz answers for this question
+            StudentQuizAnswer::where('question_id', $question->id)->delete();
+        });
+    }
+
     protected $fillable = [
         'quiz_id',
         'question_text',

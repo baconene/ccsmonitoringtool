@@ -29,7 +29,7 @@ function handleSaved() {
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">Add Module</h3>
         <button
-          @click="$emit('close')"
+          @click="emit('close')"
           class="p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           title="Close"
         >

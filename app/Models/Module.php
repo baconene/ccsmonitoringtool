@@ -9,6 +9,33 @@ class Module extends Model
 {
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($module) {
+            // Delete module activities pivot records
+            $module->moduleActivities()->delete();
+
+            // Delete activities associated with this module
+            $module->activities()->each(function ($activity) {
+                $activity->delete();
+            });
+
+            // Detach lessons
+            $module->lessons()->detach();
+
+            // Detach documents
+            $module->documents()->detach();
+
+            // Delete module completions
+            $module->completions()->delete();
+
+            // Delete student activities
+            $module->studentActivities()->delete();
+        });
+    }
+
     protected $fillable = [
         'course_id', 
         'title',
@@ -22,6 +49,12 @@ class Module extends Model
 
     protected $casts = [
         'module_percentage' => 'decimal:2',
+        'completion_percentage' => 'integer',
+        'sequence' => 'integer',
+        'course_id' => 'integer',
+        'created_by' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function course()

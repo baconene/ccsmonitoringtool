@@ -12,6 +12,28 @@ class Lesson extends Model
 {
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($lesson) {
+            // Delete lesson completions
+            $lesson->completions()->delete();
+
+            // Detach documents
+            $lesson->documents()->detach();
+
+            // Detach modules
+            $lesson->modules()->detach();
+
+            // Delete lesson activities pivot records
+            $lesson->lessonActivities()->delete();
+
+            // Detach activities
+            $lesson->activities()->detach();
+        });
+    }
+
     protected $fillable = [
         'title', 
         'description', 

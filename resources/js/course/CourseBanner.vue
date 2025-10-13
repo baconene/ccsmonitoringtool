@@ -18,6 +18,25 @@
         </div>
       </div>
       <span class="text-sm text-gray-600 dark:text-gray-300 block mt-1">{{ reactiveCourse.description }}</span>
+      
+      <!-- Instructor and Creator Info -->
+      <div class="flex flex-col gap-1.5 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+        <!-- Instructor -->
+        <div v-if="reactiveCourse.instructor" class="flex items-center gap-2 text-sm">
+          <UserCircle class="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+          <span class="text-gray-600 dark:text-gray-400">Instructor:</span>
+          <span class="font-medium text-gray-900 dark:text-white">{{ reactiveCourse.instructor.user?.name || 'Unknown' }}</span>
+        </div>
+        
+        <!-- Creator -->
+        <div class="flex items-center gap-2 text-sm">
+          <UserPlus class="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+          <span class="text-gray-600 dark:text-gray-400">
+            {{ reactiveCourse.instructor ? 'Added by:' : 'Added by Admin:' }}
+          </span>
+          <span class="font-medium text-gray-900 dark:text-white">{{ reactiveCourse.creator?.name || 'Unknown' }}</span>
+        </div>
+      </div>
     </div>
 
     <!-- Stats + Actions -->
@@ -71,7 +90,7 @@
 
 <script setup lang="ts">
 import { reactive, computed, watch } from "vue";
-import { Edit3, Trash, Users, GraduationCap } from "lucide-vue-next";
+import { Edit3, Trash, Users, GraduationCap, UserCircle, UserPlus } from "lucide-vue-next";
 
 const props = defineProps<{
   course: {
@@ -87,6 +106,19 @@ const props = defineProps<{
     modules: Array<{
       completion_percentage: number;
     }>;
+    instructor?: {
+      id: number;
+      user?: {
+        id: number;
+        name: string;
+        email: string;
+      };
+    };
+    creator?: {
+      id: number;
+      name: string;
+      email: string;
+    };
   };
 }>();
 

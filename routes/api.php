@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ActivityTypeController;
 use App\Http\Controllers\Api\CourseApiController;
 use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\StudentApiController;
@@ -18,11 +19,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Public API routes (no authentication required)
+Route::get('/activity-types', [ActivityTypeController::class, 'index']);
+Route::get('/grade-levels', [App\Http\Controllers\GradeLevelController::class, 'index']);
+
 Route::middleware(['auth:sanctum'])->group(function () {
     // User info route
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+
     
     // Debug authentication status
     Route::get('/debug/auth', function (Request $request) {

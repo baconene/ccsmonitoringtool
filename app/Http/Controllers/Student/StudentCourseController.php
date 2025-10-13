@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
+use App\Models\Lesson;
 use App\Models\LessonCompletion;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -39,7 +40,7 @@ class StudentCourseController extends Controller
                     'id' => $course->id,
                     'title' => $course->title,
                     'description' => $course->description,
-                    'instructor_name' => $course->instructor_name,
+                    'instructor_name' => $course->instructor->name,
                     'progress' => (float) $enrollment->progress,
                     'is_completed' => $enrollment->is_completed,
                     'enrolled_at' => $enrollment->created_at->format('Y-m-d'),
@@ -66,6 +67,11 @@ class StudentCourseController extends Controller
     public function show(Course $course): Response
     {
         $user = auth()->user();
+        $student = $user->student;
+        
+        if (!$student) {
+            abort(404, 'Student record not found.');
+        }
         
         // Check if student is enrolled in this course
         $enrollment = CourseEnrollment::where('user_id', $user->id)
@@ -81,23 +87,52 @@ class StudentCourseController extends Controller
             ->with([
                 'lessons',
                 'activities.activityType',
-                'activities.quiz.questions'
+                'activities.quiz' => function($query) {
+                    $query->with('questions');
+                }
             ])
             ->get()
-            ->map(function ($module) use ($user, $course) {
+            ->map(function ($module) use ($user, $student, $course) {
                 // Check if module is completed
                 $moduleCompletion = \App\Models\ModuleCompletion::where('user_id', $user->id)
                     ->where('module_id', $module->id)
                     ->where('course_id', $course->id)
                     ->first();
-                // Map activities with quiz progress
-                $activities = $module->activities->map(function ($activity) use ($user) {
+                // Map activities with quiz progress and completion status
+                $activities = $module->activities->map(function ($activity) use ($student, $module, $course) {
                     $quizProgress = null;
                     
                     if ($activity->quiz) {
-                        $quizProgress = \App\Models\StudentQuizProgress::where('student_id', $user->id)
+                        $quizProgress = \App\Models\StudentQuizProgress::where('student_id', $student->id)
                             ->where('activity_id', $activity->id)
+                            ->orderBy('id', 'desc')
                             ->first();
+                    }
+                    
+                    // Get StudentActivity record (any status) to check completion and get scores
+                    $studentActivity = \App\Models\StudentActivity::where('student_id', $student->id)
+                        ->where('activity_id', $activity->id)
+                        ->first();
+                    
+                    // Auto-create StudentActivity record if it doesn't exist
+                    if (!$studentActivity) {
+                        $activityTypeName = $activity->activityType ? $activity->activityType->name : 'Unknown';
+                        $studentActivity = \App\Models\StudentActivity::create([
+                            'student_id' => $student->id,
+                            'module_id' => $module->id,
+                            'course_id' => $course->id,
+                            'activity_id' => $activity->id,
+                            'status' => 'not_started',
+                            'score' => null,
+                            'max_score' => 0,
+                            'percentage_score' => null,
+                            'activity_type' => strtolower($activityTypeName),
+                            'started_at' => null,
+                            'completed_at' => null,
+                            'submitted_at' => null,
+                            'progress_data' => null,
+                            'feedback' => null,
+                        ]);
                     }
                     
                     $dueDate = $activity->due_date ?? $activity->created_at->addDays(7);
@@ -107,11 +142,19 @@ class StudentCourseController extends Controller
                         'id' => $activity->id,
                         'title' => $activity->title,
                         'description' => $activity->description,
-                        'activity_type' => $activity->activityType,
+                        'activity_type' => $activity->activityType ? $activity->activityType->name : 'Unknown',
                         'question_count' => $activity->quiz ? $activity->quiz->questions->count() : 0,
                         'total_points' => $activity->quiz ? $activity->quiz->questions->sum('points') : 0,
                         'due_date' => $dueDate->toDateTimeString(),
                         'is_past_due' => $isPastDue,
+                        'is_completed' => $studentActivity && $studentActivity->status === 'completed' ? true : false, // Add completion status
+                        'student_activity' => $studentActivity ? [
+                            'score' => $studentActivity->score,
+                            'max_score' => $studentActivity->max_score,
+                            'percentage_score' => $studentActivity->percentage_score,
+                            'status' => $studentActivity->status,
+                            'completed_at' => $studentActivity->completed_at,
+                        ] : null,
                         'quiz_progress' => $quizProgress ? [
                             'id' => $quizProgress->id,
                             'is_completed' => $quizProgress->is_completed,
@@ -193,21 +236,35 @@ class StudentCourseController extends Controller
      */
     public function completeLesson(Request $request, Course $course, $lessonId)
     {
-        $user = auth()->user();
+        \Log::info('completeLesson called', ['courseId' => $course->id, 'lessonId' => $lessonId]);
         
-        // Verify enrollment
-        $enrollment = CourseEnrollment::where('user_id', $user->id)
-            ->where('course_id', $course->id)
-            ->first();
+        $user = auth()->user();
+        \Log::info('User found', ['userId' => $user->id, 'userName' => $user->name]);
+        
+        $student = $user->student;
+        \Log::info('Student lookup result', ['student' => $student ? $student->id : 'null']);
+        
+        if (!$student) {
+            \Log::error('Student record not found for user', ['userId' => $user->id]);
+            return redirect()->back()->with('error', 'Student record not found');
+        }
+        
+        // Verify enrollment (check both user_id for backward compatibility and student_id)
+        $enrollment = CourseEnrollment::where(function ($query) use ($user, $student) {
+            $query->where('user_id', $user->id)
+                  ->orWhere('student_id', $student->id);
+        })
+        ->where('course_id', $course->id)
+        ->first();
             
         if (!$enrollment) {
-            return response()->json(['error' => "You are not enrolled in the '{$course->title}' course"], 403);
+            return redirect()->back()->with('error', "You are not enrolled in the '{$course->title}' course");
         }
 
         // Verify lesson belongs to course
         $lesson = $course->lessons()->find($lessonId);
         if (!$lesson) {
-            return response()->json(['error' => "Lesson not found in the '{$course->title}' course"], 404);
+            return redirect()->back()->with('error', "Lesson not found in the '{$course->title}' course");
         }
 
         // Check if already completed
@@ -217,7 +274,7 @@ class StudentCourseController extends Controller
             ->first();
             
         if ($existingCompletion) {
-            return response()->json(['message' => "You have already completed the '{$lesson->title}' lesson"]);
+            return redirect()->back()->with('info', "You have already completed the '{$lesson->title}' lesson");
         }
 
         // Create lesson completion
@@ -296,13 +353,13 @@ class StudentCourseController extends Controller
             ->first();
             
         if (!$enrollment) {
-            return response()->json(['error' => "You are not enrolled in the '{$course->title}' course"], 403);
+            return redirect()->back()->with('error', "You are not enrolled in the '{$course->title}' course");
         }
 
         // Get the module to check its weight
         $module = $course->modules()->find($moduleId);
         if (!$module) {
-            return response()->json(['error' => "Module not found in the '{$course->title}' course"], 404);
+            return redirect()->back()->with('error', "Module not found in the '{$course->title}' course");
         }
 
         // Create or update module completion
@@ -419,6 +476,11 @@ class StudentCourseController extends Controller
     public function showModule(Course $course, $moduleId): Response
     {
         $user = auth()->user();
+        $student = $user->student;
+        
+        if (!$student) {
+            abort(404, 'Student record not found.');
+        }
         
         // Check if student is enrolled in this course
         $enrollment = CourseEnrollment::where('user_id', $user->id)
@@ -477,14 +539,29 @@ class StudentCourseController extends Controller
             ];
         });
 
-        // Get activities with quiz progress
-        $activities = $module->activities->map(function ($activity) use ($user) {
+        // Get activities with completion status
+        $activities = $module->activities->map(function ($activity) use ($student) {
             $quizProgress = null;
+            $studentActivity = null;
             
+            // Check for quiz progress
             if ($activity->quiz) {
-                $quizProgress = \App\Models\StudentQuizProgress::where('student_id', $user->id)
+                $quizProgress = \App\Models\StudentQuizProgress::where('student_id', $student->id)
                     ->where('activity_id', $activity->id)
                     ->first();
+            }
+            
+            // Check for general student activity completion
+            $studentActivity = \App\Models\StudentActivity::where('student_id', $student->id)
+                ->where('activity_id', $activity->id)
+                ->first();
+            
+            // Determine completion status
+            $isCompleted = false;
+            if ($quizProgress && $quizProgress->is_completed && $quizProgress->is_submitted) {
+                $isCompleted = true;
+            } elseif ($studentActivity && $studentActivity->status === 'completed') {
+                $isCompleted = true;
             }
             
             return [
@@ -494,7 +571,7 @@ class StudentCourseController extends Controller
                 'activity_type' => $activity->activityType ? $activity->activityType->name : 'Unknown',
                 'question_count' => $activity->quiz ? $activity->quiz->questions->count() : 0,
                 'total_points' => $activity->quiz ? $activity->quiz->questions->sum('points') : 0,
-                'is_completed' => $quizProgress ? ($quizProgress->is_completed && $quizProgress->is_submitted) : false,
+                'is_completed' => $isCompleted,
                 'quiz_progress' => $quizProgress ? [
                     'id' => $quizProgress->id,
                     'is_completed' => $quizProgress->is_completed,

@@ -7,6 +7,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class GradeLevel extends Model
 {
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($gradeLevel) {
+            // Detach all courses when grade level is deleted
+            $gradeLevel->courses()->detach();
+        });
+    }
+
     protected $fillable = [
         'name',
         'display_name',

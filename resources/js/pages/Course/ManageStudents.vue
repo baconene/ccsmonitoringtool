@@ -234,6 +234,21 @@ const goBack = () => {
             </div>
           </div>
 
+          <!-- Debug Info (Remove in production) -->
+          <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
+            <h3 class="text-sm font-semibold text-yellow-900 dark:text-yellow-100 mb-2">Debug Info:</h3>
+            <p class="text-xs text-yellow-800 dark:text-yellow-200">
+              Available Students: {{ availableStudents?.length || 0 }} | 
+              Enrolled Students: {{ enrolledStudents?.length || 0 }} |
+              Course ID: {{ course?.id }} |
+              Grade Levels: {{ course?.grade_levels?.length || 0 }}
+            </p>
+            <details class="mt-2">
+              <summary class="cursor-pointer text-xs text-yellow-700 dark:text-yellow-300">Show Raw Data</summary>
+              <pre class="text-xs mt-1 text-yellow-800 dark:text-yellow-200 overflow-x-auto">{{ JSON.stringify({ course, availableStudents: availableStudents?.slice(0, 3), enrolledStudents: enrolledStudents?.slice(0, 3) }, null, 2) }}</pre>
+            </details>
+          </div>
+
           <!-- Course Info -->
           <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <div class="flex items-start gap-3">

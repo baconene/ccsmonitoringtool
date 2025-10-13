@@ -40,7 +40,8 @@ public function store(Request $request, Course $course)
             'title' => 'nullable|string|max:255',
             'description' => 'required|string',
             'sequence' => 'nullable|integer',
-            'module_type' => 'nullable|string|in:Lessons,Activities,Mixed,Quizzes,Assignments,Assessment',
+            'completion_percentage' => 'nullable|integer|min:0|max:100',
+            'module_type' => 'required|string|in:Lessons,Activities,Mixed,Quizzes,Assignments,Assessment',
             'module_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
 
@@ -48,8 +49,8 @@ public function store(Request $request, Course $course)
             'title' => $validated['title'] ?? null,
             'description' => $validated['description'],
             'sequence' => $validated['sequence'] ?? ($course->modules()->count() + 1),
-            'completion_percentage' => 0,
-            'module_type' => $validated['module_type'] ?? 'Mixed',
+            'completion_percentage' => $validated['completion_percentage'] ?? 0,
+            'module_type' => $validated['module_type'],
             'module_percentage' => $validated['module_percentage'] ?? null,
             'created_by' => auth()->id(),
         ]);
@@ -83,7 +84,7 @@ public function update(Request $request, \App\Models\Module $module)
         'description' => 'nullable|string',
         'sequence' => 'required|integer',
         'completion_percentage' => 'nullable|integer',
-        'module_type' => 'nullable|string|in:Lessons,Activities,Mixed,Quizzes,Assignments,Assessment',
+        'module_type' => 'required|string|in:Lessons,Activities,Mixed,Quizzes,Assignments,Assessment',
         'module_percentage' => 'nullable|numeric|min:0|max:100',
     ]);
 
@@ -115,19 +116,16 @@ public function update(Request $request, \App\Models\Module $module)
         ]);
 
         // Get the next order number
-        $maxOrder = $module->moduleActivities()->max('order') ?? 0;
+        $maxOrder = $module->activities()->max('module_activities.order') ?? 0;
 
         foreach ($validated['activity_ids'] as $index => $activityId) {
             // Check if activity is already attached
-            $exists = $module->moduleActivities()
-                ->where('activity_id', $activityId)
-                ->exists();
-
-            if (!$exists) {
-                $module->moduleActivities()->create([
-                    'activity_id' => $activityId,
+            if (!$module->activities()->where('activity_id', $activityId)->exists()) {
+                $module->activities()->attach($activityId, [
                     'module_course_id' => $module->course_id,
                     'order' => $maxOrder + $index + 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
         }
@@ -140,9 +138,7 @@ public function update(Request $request, \App\Models\Module $module)
      */
     public function removeActivity(\App\Models\Module $module, $activityId)
     {
-        $module->moduleActivities()
-            ->where('activity_id', $activityId)
-            ->delete();
+        $module->activities()->detach($activityId);
 
         return redirect()->back()->with('success', 'Activity removed successfully.');
     }

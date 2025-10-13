@@ -11,6 +11,9 @@ use App\Models\Activity;
 use App\Models\StudentActivity;
 use App\Models\ModuleCompletion;
 use App\Models\StudentQuizProgress;
+use App\Models\StudentQuizAnswer;
+use App\Models\Question;
+use App\Models\QuestionOption;
 use Carbon\Carbon;
 
 class StudentActivitySeeder extends Seeder
@@ -112,7 +115,7 @@ class StudentActivitySeeder extends Seeder
                         
                         $studentActivity = StudentActivity::updateOrCreate(
                             [
-                                'user_id' => $user->id,
+                                'student_id' => $student->id,
                                 'activity_id' => $activity->id,
                                 'module_id' => $module->id,
                             ],
@@ -138,17 +141,21 @@ class StudentActivitySeeder extends Seeder
                             ]
                         );
 
-                        // If it's a quiz activity, create quiz progress
+                        // If it's a quiz activity, create quiz progress and answers
                         if ($activity->activityType && $activity->activityType->name === 'Quiz') {
                             // Find the quiz record for this activity
                             $quiz = $activity->quiz ?? null;
                             if ($quiz) {
-                                $totalQuestions = rand(5, 15);
-                                $completedQuestions = $isCompleted ? $totalQuestions : rand(1, $totalQuestions - 1);
+                                // Get questions for this quiz with their options
+                                $questions = Question::where('quiz_id', $quiz->id)
+                                    ->with('options')
+                                    ->get();
+                                $totalQuestions = $questions->count();
+                                $completedQuestions = $isCompleted ? $totalQuestions : rand(1, max(1, $totalQuestions - 1));
                                 
-                                StudentQuizProgress::updateOrCreate(
+                                $quizProgress = StudentQuizProgress::updateOrCreate(
                                     [
-                                        'student_id' => $user->id,
+                                        'student_id' => $student->id,
                                         'quiz_id' => $quiz->id,
                                         'activity_id' => $activity->id,
                                     ],
@@ -166,6 +173,11 @@ class StudentActivitySeeder extends Seeder
                                         'updated_at' => Carbon::now(),
                                     ]
                                 );
+
+                                // Create individual quiz answers if completed
+                                if ($isCompleted && $totalQuestions > 0) {
+                                    $this->createQuizAnswers($student, $quizProgress, $questions, $score);
+                                }
                             }
                         }
 
@@ -192,5 +204,75 @@ class StudentActivitySeeder extends Seeder
         echo "• Completed Quizzes: {$completedQuizzes}\n";
         echo "• Students with Activity Data: " . $studentUsers->count() . "\n";
         echo "• Courses with Student Data: " . $courses->count() . "\n";
+    }
+
+    /**
+     * Create individual quiz answers for a completed quiz
+     */
+    private function createQuizAnswers($student, $quizProgress, $questions, $overallScore)
+    {
+        if (empty($questions)) {
+            return;
+        }
+
+        $correctAnswersCount = 0;
+        $totalQuestions = count($questions);
+
+        foreach ($questions as $question) {
+            // Get question options
+            $options = $question->options ?? [];
+            if (empty($options)) {
+                continue;
+            }
+
+            // Determine if this answer should be correct based on overall score
+            $targetCorrectCount = round(($overallScore / 100) * $totalQuestions);
+            $shouldBeCorrect = $correctAnswersCount < $targetCorrectCount;
+
+            // Select an option (correct or incorrect based on shouldBeCorrect)
+            $correctOption = null;
+            $incorrectOptions = [];
+
+            foreach ($options as $option) {
+                if ($option->is_correct) {
+                    $correctOption = $option;
+                } else {
+                    $incorrectOptions[] = $option;
+                }
+            }
+
+            // Choose the option to select
+            $selectedOption = null;
+            $isCorrect = false;
+
+            if ($shouldBeCorrect && $correctOption) {
+                $selectedOption = $correctOption;
+                $isCorrect = true;
+                $correctAnswersCount++;
+            } elseif (!empty($incorrectOptions)) {
+                $selectedOption = $incorrectOptions[array_rand($incorrectOptions)];
+                $isCorrect = false;
+            } elseif ($correctOption) {
+                // Fallback if no incorrect options
+                $selectedOption = $correctOption;
+                $isCorrect = true;
+                $correctAnswersCount++;
+            }
+
+            if ($selectedOption) {
+                StudentQuizAnswer::create([
+                    'student_id' => $student->id,
+                    'quiz_progress_id' => $quizProgress->id,
+                    'question_id' => $question->id,
+                    'selected_option_id' => $selectedOption->id,
+                    'answer_text' => $selectedOption->option_text,
+                    'is_correct' => $isCorrect,
+                    'points_earned' => $isCorrect ? 1 : 0,
+                    'answered_at' => Carbon::now()->subDays(rand(1, 30)),
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]);
+            }
+        }
     }
 }

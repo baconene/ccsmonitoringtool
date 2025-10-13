@@ -7,6 +7,9 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\Student\StudentActivityController;
+use App\Http\Controllers\UserController;
+use App\Models\Course;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -44,7 +47,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Student Details Page
     Route::get('/student/{id}/details', function ($id) {
-        $student = \App\Models\User::with('role')->findOrFail($id);
+        $student = \App\Models\User::with(['role', 'student.gradeLevel'])->findOrFail($id);
         
         if (!$student->role || $student->role->name !== 'student') {
             abort(404, 'User is not a student');
@@ -85,8 +88,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
                 'email' => $student->email,
                 'role_name' => $student->role_name,
                 'role_display_name' => $student->role_display_name,
-                'grade_level' => $student->grade_level ?? null,
-                'section' => $student->section ?? null,
+                'grade_level' => $student->student?->gradeLevel?->display_name ?? null,
+                'section' => $student->student?->section ?? null,
             ],
             'enrolledCourses' => $enrolledCourses,
         ]);
@@ -100,8 +103,70 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         
         Route::apiResource('users', \App\Http\Controllers\UserController::class);
         Route::get('/users/{id}/student-details', [\App\Http\Controllers\UserController::class, 'studentDetails']);
+        Route::post('/users/bulk-upload', [\App\Http\Controllers\UserController::class, 'uploadCSV'])->name('users.bulk-upload');
     });
+
+    // Instructor Details Page
+    Route::get('/instructor/{id}', function ($id) {
+        $user = \App\Models\User::with(['instructor', 'role'])->findOrFail($id);
+        
+        if ($user->role_id !== 2) {
+            abort(404, 'Instructor not found');
+        }
+
+        // Get instructor model ID if exists
+        $instructorModelId = $user->instructor ? $user->instructor->id : null;
+
+        // Courses where instructor_id matches the instructor model ID
+        $coursesAsInstructor = \App\Models\Course::where('instructor_id', $instructorModelId)
+            ->withCount('students')
+            ->get();
+
+        // Courses where created_by matches the user ID
+        $coursesCreated = \App\Models\Course::where('created_by', $user->id)
+            ->withCount('students')
+            ->get();
+
+        // Calculate statistics
+        $totalCoursesAsInstructor = $coursesAsInstructor->count();
+        $totalStudentsEnrolled = $coursesAsInstructor->sum('students_count');
+        $totalCoursesCreated = $coursesCreated->count();
+
+        return Inertia::render('Instructor/InstructorDetails', [
+            'instructor' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'employee_id' => $user->instructor->employee_id ?? null,
+                'title' => $user->instructor->title ?? null,
+                'department' => $user->instructor->department ?? null,
+                'specialization' => $user->instructor->specialization ?? null,
+                'bio' => $user->instructor->bio ?? null,
+                'office_location' => $user->instructor->office_location ?? null,
+                'phone' => $user->instructor->phone ?? null,
+                'office_hours' => $user->instructor->office_hours ?? null,
+                'hire_date' => $user->instructor->hire_date ?? null,
+                'employment_type' => $user->instructor->employment_type ?? null,
+                'status' => $user->instructor->status ?? null,
+                'salary' => $user->instructor->salary ?? null,
+                'education_level' => $user->instructor->education_level ?? null,
+                'certifications' => $user->instructor->certifications ?? null,
+                'years_experience' => $user->instructor->years_experience ?? null,
+                'instructor_model_id' => $instructorModelId,
+            ],
+            'courses' => $coursesAsInstructor,
+            'stats' => [
+                'total_courses_as_instructor' => $totalCoursesAsInstructor,
+                'total_students_enrolled' => $totalStudentsEnrolled,
+                'total_courses_created' => $totalCoursesCreated,
+            ],
+        ]);
+    })->name('instructor.details');
+
+    // Update instructor details API
+    Route::put('/api/instructor/{id}', [UserController::class, 'updateInstructor'])->name('instructor.update');
 });
+
 Route::get('role-management', function () {
     return Inertia::render('RoleManagement');
 })->middleware(['auth', 'verified', 'role:admin'])->name('role.management');
@@ -195,6 +260,9 @@ Route::middleware(['auth'])->group(function () {
         
         // Quiz Management
         Route::resource('quizzes', QuizController::class);
+        Route::post('quizzes/bulk-upload', [QuizController::class, 'bulkUpload'])->name('quizzes.bulk-upload');
+        Route::get('quizzes/csv-example', [QuizController::class, 'getCsvExample'])->name('quizzes.csv-example');
+        Route::get('quizzes/csv-template', [QuizController::class, 'downloadCsvTemplate'])->name('quizzes.csv-template');
         
         // Question Management
         Route::post('questions', [QuestionController::class, 'store'])->name('questions.store');
@@ -203,13 +271,18 @@ Route::middleware(['auth'])->group(function () {
         
         // Assignment Management
         Route::resource('assignments', AssignmentController::class);
+        
+        // Course Management (Instructor and Admin)
+        Route::get('/course-management', [CourseController::class, 'index'])->name('course.index');
+        Route::post('/courses/{course}/modules', [ModuleController::class, 'store'])->name('modules.store');
+        Route::resource('courses', CourseController::class)->except(['create', 'show', 'edit']);
+        
+        // Course Grade Level Management
+        Route::post('/courses/{course}/assign-grade-levels', [CourseController::class, 'assignGradeLevels'])->name('courses.assign-grade-levels');
+        Route::get('/grade-levels', [CourseController::class, 'getAvailableGradeLevels'])->name('grade-levels.index');
+        Route::get('/courses/by-grade-level', [CourseController::class, 'getCoursesForGradeLevel'])->name('courses.by-grade-level');
     });
 });
-
-//COURSE ROUTES
-Route::get('/course-management', [CourseController::class, 'index'])->name('course.index');
-Route::post('/courses/{course}/modules', [ModuleController::class, 'store'])->name('modules.store');
-Route::resource('courses', CourseController::class)->except(['create', 'show', 'edit']);
 
 // Course Student Management Routes
 Route::middleware(['auth'])->prefix('courses')->name('courses.')->group(function () {
@@ -217,6 +290,11 @@ Route::middleware(['auth'])->prefix('courses')->name('courses.')->group(function
     Route::post('/{course}/enroll-students', [\App\Http\Controllers\CourseStudentController::class, 'enrollStudents'])->name('enroll-students');
     Route::post('/{course}/remove-students', [\App\Http\Controllers\CourseStudentController::class, 'removeStudents'])->name('remove-students');
     Route::get('/{course}/eligible-students', [\App\Http\Controllers\CourseStudentController::class, 'getEligibleStudents'])->name('eligible-students');
+    
+    // New routes using StudentCourseEnrollmentService
+    Route::get('/{course}/enrollment-statistics', [\App\Http\Controllers\CourseStudentController::class, 'getEnrollmentStatistics'])->name('enrollment-statistics');
+    Route::get('/{course}/enrollments', [\App\Http\Controllers\CourseStudentController::class, 'getCourseEnrollments'])->name('enrollments');
+    Route::put('/{course}/enrollments/{studentUser}/status', [\App\Http\Controllers\CourseStudentController::class, 'updateEnrollmentStatus'])->name('enrollments.update-status');
 });
 //LESSON ROUTES
 Route::post('/lessons', [LessonController::class, 'store'])->name('lessons.store');
@@ -235,8 +313,13 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/courses', [App\Http\Controllers\Student\StudentCourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [App\Http\Controllers\Student\StudentCourseController::class, 'show'])->name('courses.show');
     Route::get('/courses/{course}/modules/{moduleId}', [App\Http\Controllers\Student\StudentCourseController::class, 'showModule'])->name('courses.modules.show');
+    Route::post('/courses/{course}/lessons/{lessonId}/complete-test', function(Course $course, $lessonId) {
+        \Log::info('Test route hit', ['courseId' => $course->id, 'lessonId' => $lessonId]);
+        return redirect()->back()->with('success', 'Test route working!');
+    })->name('courses.lessons.complete.test');
     Route::post('/courses/{course}/lessons/{lessonId}/complete', [App\Http\Controllers\Student\StudentCourseController::class, 'completeLesson'])->name('courses.lessons.complete');
     Route::post('/courses/{course}/modules/{moduleId}/complete', [App\Http\Controllers\Student\StudentCourseController::class, 'completeModule'])->name('courses.modules.complete');
+    Route::post('/activities/{activity}/mark-complete', [StudentActivityController::class, 'markComplete'])->name('activities.mark-complete');
     Route::get('/courses/{course}/lessons', [App\Http\Controllers\Student\StudentCourseController::class, 'getLessons'])->name('courses.lessons');
     
     // Student Activities

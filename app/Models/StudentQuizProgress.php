@@ -11,6 +11,16 @@ class StudentQuizProgress extends Model
 {
     protected $table = 'student_quiz_progress';
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($progress) {
+            // Delete all quiz answers when progress is deleted
+            $progress->answers()->delete();
+        });
+    }
+
     protected $fillable = [
         'student_id',
         'quiz_id',
@@ -146,11 +156,20 @@ class StudentQuizProgress extends Model
     }
 
     /**
-     * Get student activity status and progress
+     * Get activity status for a student
      */
-    public static function getActivityStatus($studentId, $activityId)
+    public static function getActivityStatus($userId, $activityId)
     {
-        $progress = self::where('student_id', $studentId)
+        // Get the student record first to use the correct student_id
+        $student = \App\Models\User::find($userId)?->student;
+        if (!$student) {
+            return [
+                'status' => 'not-taken',
+                'progress' => null
+            ];
+        }
+        
+        $progress = self::where('student_id', $student->id)
             ->where('activity_id', $activityId)
             ->first();
 

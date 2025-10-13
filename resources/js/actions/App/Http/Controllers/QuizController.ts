@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\QuizController::index
- * @see app/Http/Controllers/QuizController.php:16
+ * @see app/Http/Controllers/QuizController.php:18
  * @route '/quizzes'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\QuizController::index
- * @see app/Http/Controllers/QuizController.php:16
+ * @see app/Http/Controllers/QuizController.php:18
  * @route '/quizzes'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\QuizController::index
- * @see app/Http/Controllers/QuizController.php:16
+ * @see app/Http/Controllers/QuizController.php:18
  * @route '/quizzes'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\QuizController::index
- * @see app/Http/Controllers/QuizController.php:16
+ * @see app/Http/Controllers/QuizController.php:18
  * @route '/quizzes'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\QuizController::index
- * @see app/Http/Controllers/QuizController.php:16
+ * @see app/Http/Controllers/QuizController.php:18
  * @route '/quizzes'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\QuizController::index
- * @see app/Http/Controllers/QuizController.php:16
+ * @see app/Http/Controllers/QuizController.php:18
  * @route '/quizzes'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\QuizController::index
- * @see app/Http/Controllers/QuizController.php:16
+ * @see app/Http/Controllers/QuizController.php:18
  * @route '/quizzes'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\QuizController::create
- * @see app/Http/Controllers/QuizController.php:25
+ * @see app/Http/Controllers/QuizController.php:27
  * @route '/quizzes/create'
  */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\QuizController::create
- * @see app/Http/Controllers/QuizController.php:25
+ * @see app/Http/Controllers/QuizController.php:27
  * @route '/quizzes/create'
  */
 create.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\QuizController::create
- * @see app/Http/Controllers/QuizController.php:25
+ * @see app/Http/Controllers/QuizController.php:27
  * @route '/quizzes/create'
  */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\QuizController::create
- * @see app/Http/Controllers/QuizController.php:25
+ * @see app/Http/Controllers/QuizController.php:27
  * @route '/quizzes/create'
  */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\QuizController::create
- * @see app/Http/Controllers/QuizController.php:25
+ * @see app/Http/Controllers/QuizController.php:27
  * @route '/quizzes/create'
  */
     const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\QuizController::create
- * @see app/Http/Controllers/QuizController.php:25
+ * @see app/Http/Controllers/QuizController.php:27
  * @route '/quizzes/create'
  */
         createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\QuizController::create
- * @see app/Http/Controllers/QuizController.php:25
+ * @see app/Http/Controllers/QuizController.php:27
  * @route '/quizzes/create'
  */
         createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\QuizController::store
- * @see app/Http/Controllers/QuizController.php:35
+ * @see app/Http/Controllers/QuizController.php:37
  * @route '/quizzes'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\QuizController::store
- * @see app/Http/Controllers/QuizController.php:35
+ * @see app/Http/Controllers/QuizController.php:37
  * @route '/quizzes'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\QuizController::store
- * @see app/Http/Controllers/QuizController.php:35
+ * @see app/Http/Controllers/QuizController.php:37
  * @route '/quizzes'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\QuizController::store
- * @see app/Http/Controllers/QuizController.php:35
+ * @see app/Http/Controllers/QuizController.php:37
  * @route '/quizzes'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\QuizController::store
- * @see app/Http/Controllers/QuizController.php:35
+ * @see app/Http/Controllers/QuizController.php:37
  * @route '/quizzes'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +212,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\QuizController::show
- * @see app/Http/Controllers/QuizController.php:56
+ * @see app/Http/Controllers/QuizController.php:58
  * @route '/quizzes/{quiz}'
  */
 export const show = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\QuizController::show
- * @see app/Http/Controllers/QuizController.php:56
+ * @see app/Http/Controllers/QuizController.php:58
  * @route '/quizzes/{quiz}'
  */
 show.url = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -260,7 +260,7 @@ show.url = (args: { quiz: number | { id: number } } | [quiz: number | { id: numb
 
 /**
 * @see \App\Http\Controllers\QuizController::show
- * @see app/Http/Controllers/QuizController.php:56
+ * @see app/Http/Controllers/QuizController.php:58
  * @route '/quizzes/{quiz}'
  */
 show.get = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -269,7 +269,7 @@ show.get = (args: { quiz: number | { id: number } } | [quiz: number | { id: numb
 })
 /**
 * @see \App\Http\Controllers\QuizController::show
- * @see app/Http/Controllers/QuizController.php:56
+ * @see app/Http/Controllers/QuizController.php:58
  * @route '/quizzes/{quiz}'
  */
 show.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -279,7 +279,7 @@ show.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: num
 
     /**
 * @see \App\Http\Controllers\QuizController::show
- * @see app/Http/Controllers/QuizController.php:56
+ * @see app/Http/Controllers/QuizController.php:58
  * @route '/quizzes/{quiz}'
  */
     const showForm = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +289,7 @@ show.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: num
 
             /**
 * @see \App\Http\Controllers\QuizController::show
- * @see app/Http/Controllers/QuizController.php:56
+ * @see app/Http/Controllers/QuizController.php:58
  * @route '/quizzes/{quiz}'
  */
         showForm.get = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -298,7 +298,7 @@ show.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: num
         })
             /**
 * @see \App\Http\Controllers\QuizController::show
- * @see app/Http/Controllers/QuizController.php:56
+ * @see app/Http/Controllers/QuizController.php:58
  * @route '/quizzes/{quiz}'
  */
         showForm.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -314,7 +314,7 @@ show.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: num
     show.form = showForm
 /**
 * @see \App\Http\Controllers\QuizController::edit
- * @see app/Http/Controllers/QuizController.php:65
+ * @see app/Http/Controllers/QuizController.php:67
  * @route '/quizzes/{quiz}/edit'
  */
 export const edit = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -329,7 +329,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\QuizController::edit
- * @see app/Http/Controllers/QuizController.php:65
+ * @see app/Http/Controllers/QuizController.php:67
  * @route '/quizzes/{quiz}/edit'
  */
 edit.url = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -362,7 +362,7 @@ edit.url = (args: { quiz: number | { id: number } } | [quiz: number | { id: numb
 
 /**
 * @see \App\Http\Controllers\QuizController::edit
- * @see app/Http/Controllers/QuizController.php:65
+ * @see app/Http/Controllers/QuizController.php:67
  * @route '/quizzes/{quiz}/edit'
  */
 edit.get = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -371,7 +371,7 @@ edit.get = (args: { quiz: number | { id: number } } | [quiz: number | { id: numb
 })
 /**
 * @see \App\Http\Controllers\QuizController::edit
- * @see app/Http/Controllers/QuizController.php:65
+ * @see app/Http/Controllers/QuizController.php:67
  * @route '/quizzes/{quiz}/edit'
  */
 edit.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -381,7 +381,7 @@ edit.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: num
 
     /**
 * @see \App\Http\Controllers\QuizController::edit
- * @see app/Http/Controllers/QuizController.php:65
+ * @see app/Http/Controllers/QuizController.php:67
  * @route '/quizzes/{quiz}/edit'
  */
     const editForm = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -391,7 +391,7 @@ edit.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: num
 
             /**
 * @see \App\Http\Controllers\QuizController::edit
- * @see app/Http/Controllers/QuizController.php:65
+ * @see app/Http/Controllers/QuizController.php:67
  * @route '/quizzes/{quiz}/edit'
  */
         editForm.get = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -400,7 +400,7 @@ edit.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: num
         })
             /**
 * @see \App\Http\Controllers\QuizController::edit
- * @see app/Http/Controllers/QuizController.php:65
+ * @see app/Http/Controllers/QuizController.php:67
  * @route '/quizzes/{quiz}/edit'
  */
         editForm.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -416,7 +416,7 @@ edit.head = (args: { quiz: number | { id: number } } | [quiz: number | { id: num
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\QuizController::update
- * @see app/Http/Controllers/QuizController.php:74
+ * @see app/Http/Controllers/QuizController.php:76
  * @route '/quizzes/{quiz}'
  */
 export const update = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -431,7 +431,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\QuizController::update
- * @see app/Http/Controllers/QuizController.php:74
+ * @see app/Http/Controllers/QuizController.php:76
  * @route '/quizzes/{quiz}'
  */
 update.url = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -464,7 +464,7 @@ update.url = (args: { quiz: number | { id: number } } | [quiz: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\QuizController::update
- * @see app/Http/Controllers/QuizController.php:74
+ * @see app/Http/Controllers/QuizController.php:76
  * @route '/quizzes/{quiz}'
  */
 update.put = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -473,7 +473,7 @@ update.put = (args: { quiz: number | { id: number } } | [quiz: number | { id: nu
 })
 /**
 * @see \App\Http\Controllers\QuizController::update
- * @see app/Http/Controllers/QuizController.php:74
+ * @see app/Http/Controllers/QuizController.php:76
  * @route '/quizzes/{quiz}'
  */
 update.patch = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -483,7 +483,7 @@ update.patch = (args: { quiz: number | { id: number } } | [quiz: number | { id: 
 
     /**
 * @see \App\Http\Controllers\QuizController::update
- * @see app/Http/Controllers/QuizController.php:74
+ * @see app/Http/Controllers/QuizController.php:76
  * @route '/quizzes/{quiz}'
  */
     const updateForm = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -498,7 +498,7 @@ update.patch = (args: { quiz: number | { id: number } } | [quiz: number | { id: 
 
             /**
 * @see \App\Http\Controllers\QuizController::update
- * @see app/Http/Controllers/QuizController.php:74
+ * @see app/Http/Controllers/QuizController.php:76
  * @route '/quizzes/{quiz}'
  */
         updateForm.put = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -512,7 +512,7 @@ update.patch = (args: { quiz: number | { id: number } } | [quiz: number | { id: 
         })
             /**
 * @see \App\Http\Controllers\QuizController::update
- * @see app/Http/Controllers/QuizController.php:74
+ * @see app/Http/Controllers/QuizController.php:76
  * @route '/quizzes/{quiz}'
  */
         updateForm.patch = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -528,7 +528,7 @@ update.patch = (args: { quiz: number | { id: number } } | [quiz: number | { id: 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\QuizController::destroy
- * @see app/Http/Controllers/QuizController.php:90
+ * @see app/Http/Controllers/QuizController.php:92
  * @route '/quizzes/{quiz}'
  */
 export const destroy = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -543,7 +543,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\QuizController::destroy
- * @see app/Http/Controllers/QuizController.php:90
+ * @see app/Http/Controllers/QuizController.php:92
  * @route '/quizzes/{quiz}'
  */
 destroy.url = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -576,7 +576,7 @@ destroy.url = (args: { quiz: number | { id: number } } | [quiz: number | { id: n
 
 /**
 * @see \App\Http\Controllers\QuizController::destroy
- * @see app/Http/Controllers/QuizController.php:90
+ * @see app/Http/Controllers/QuizController.php:92
  * @route '/quizzes/{quiz}'
  */
 destroy.delete = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -586,7 +586,7 @@ destroy.delete = (args: { quiz: number | { id: number } } | [quiz: number | { id
 
     /**
 * @see \App\Http\Controllers\QuizController::destroy
- * @see app/Http/Controllers/QuizController.php:90
+ * @see app/Http/Controllers/QuizController.php:92
  * @route '/quizzes/{quiz}'
  */
     const destroyForm = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -601,7 +601,7 @@ destroy.delete = (args: { quiz: number | { id: number } } | [quiz: number | { id
 
             /**
 * @see \App\Http\Controllers\QuizController::destroy
- * @see app/Http/Controllers/QuizController.php:90
+ * @see app/Http/Controllers/QuizController.php:92
  * @route '/quizzes/{quiz}'
  */
         destroyForm.delete = (args: { quiz: number | { id: number } } | [quiz: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -615,6 +615,217 @@ destroy.delete = (args: { quiz: number | { id: number } } | [quiz: number | { id
         })
     
     destroy.form = destroyForm
-const QuizController = { index, create, store, show, edit, update, destroy }
+/**
+* @see \App\Http\Controllers\QuizController::bulkUpload
+ * @see app/Http/Controllers/QuizController.php:104
+ * @route '/quizzes/bulk-upload'
+ */
+export const bulkUpload = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: bulkUpload.url(options),
+    method: 'post',
+})
+
+bulkUpload.definition = {
+    methods: ["post"],
+    url: '/quizzes/bulk-upload',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\QuizController::bulkUpload
+ * @see app/Http/Controllers/QuizController.php:104
+ * @route '/quizzes/bulk-upload'
+ */
+bulkUpload.url = (options?: RouteQueryOptions) => {
+    return bulkUpload.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\QuizController::bulkUpload
+ * @see app/Http/Controllers/QuizController.php:104
+ * @route '/quizzes/bulk-upload'
+ */
+bulkUpload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: bulkUpload.url(options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Http\Controllers\QuizController::bulkUpload
+ * @see app/Http/Controllers/QuizController.php:104
+ * @route '/quizzes/bulk-upload'
+ */
+    const bulkUploadForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: bulkUpload.url(options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\QuizController::bulkUpload
+ * @see app/Http/Controllers/QuizController.php:104
+ * @route '/quizzes/bulk-upload'
+ */
+        bulkUploadForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: bulkUpload.url(options),
+            method: 'post',
+        })
+    
+    bulkUpload.form = bulkUploadForm
+/**
+* @see \App\Http\Controllers\QuizController::getCsvExample
+ * @see app/Http/Controllers/QuizController.php:131
+ * @route '/quizzes/csv-example'
+ */
+export const getCsvExample = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: getCsvExample.url(options),
+    method: 'get',
+})
+
+getCsvExample.definition = {
+    methods: ["get","head"],
+    url: '/quizzes/csv-example',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\QuizController::getCsvExample
+ * @see app/Http/Controllers/QuizController.php:131
+ * @route '/quizzes/csv-example'
+ */
+getCsvExample.url = (options?: RouteQueryOptions) => {
+    return getCsvExample.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\QuizController::getCsvExample
+ * @see app/Http/Controllers/QuizController.php:131
+ * @route '/quizzes/csv-example'
+ */
+getCsvExample.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: getCsvExample.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\QuizController::getCsvExample
+ * @see app/Http/Controllers/QuizController.php:131
+ * @route '/quizzes/csv-example'
+ */
+getCsvExample.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: getCsvExample.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\QuizController::getCsvExample
+ * @see app/Http/Controllers/QuizController.php:131
+ * @route '/quizzes/csv-example'
+ */
+    const getCsvExampleForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: getCsvExample.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\QuizController::getCsvExample
+ * @see app/Http/Controllers/QuizController.php:131
+ * @route '/quizzes/csv-example'
+ */
+        getCsvExampleForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: getCsvExample.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\QuizController::getCsvExample
+ * @see app/Http/Controllers/QuizController.php:131
+ * @route '/quizzes/csv-example'
+ */
+        getCsvExampleForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: getCsvExample.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    getCsvExample.form = getCsvExampleForm
+/**
+* @see \App\Http\Controllers\QuizController::downloadCsvTemplate
+ * @see app/Http/Controllers/QuizController.php:145
+ * @route '/quizzes/csv-template'
+ */
+export const downloadCsvTemplate = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadCsvTemplate.url(options),
+    method: 'get',
+})
+
+downloadCsvTemplate.definition = {
+    methods: ["get","head"],
+    url: '/quizzes/csv-template',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\QuizController::downloadCsvTemplate
+ * @see app/Http/Controllers/QuizController.php:145
+ * @route '/quizzes/csv-template'
+ */
+downloadCsvTemplate.url = (options?: RouteQueryOptions) => {
+    return downloadCsvTemplate.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\QuizController::downloadCsvTemplate
+ * @see app/Http/Controllers/QuizController.php:145
+ * @route '/quizzes/csv-template'
+ */
+downloadCsvTemplate.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadCsvTemplate.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\QuizController::downloadCsvTemplate
+ * @see app/Http/Controllers/QuizController.php:145
+ * @route '/quizzes/csv-template'
+ */
+downloadCsvTemplate.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: downloadCsvTemplate.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\QuizController::downloadCsvTemplate
+ * @see app/Http/Controllers/QuizController.php:145
+ * @route '/quizzes/csv-template'
+ */
+    const downloadCsvTemplateForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: downloadCsvTemplate.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\QuizController::downloadCsvTemplate
+ * @see app/Http/Controllers/QuizController.php:145
+ * @route '/quizzes/csv-template'
+ */
+        downloadCsvTemplateForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: downloadCsvTemplate.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\QuizController::downloadCsvTemplate
+ * @see app/Http/Controllers/QuizController.php:145
+ * @route '/quizzes/csv-template'
+ */
+        downloadCsvTemplateForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: downloadCsvTemplate.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    downloadCsvTemplate.form = downloadCsvTemplateForm
+const QuizController = { index, create, store, show, edit, update, destroy, bulkUpload, getCsvExample, downloadCsvTemplate }
 
 export default QuizController

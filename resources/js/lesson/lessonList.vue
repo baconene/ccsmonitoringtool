@@ -144,14 +144,21 @@ const emit = defineEmits<{
 
 const showAddLessonModal = ref(false);
 
-// Local state
-const localLessons = reactive([...props.lessons]);
+// Local state - ensure all lessons have a documents array
+const localLessons = reactive([...props.lessons.map(lesson => ({
+  ...lesson,
+  documents: lesson.documents || []
+}))]);
 
 // Keep in sync if parent updates
 watch(
   () => props.lessons,
   (newVal) => {
-    localLessons.splice(0, localLessons.length, ...newVal);
+    const normalizedLessons = newVal.map(lesson => ({
+      ...lesson,
+      documents: lesson.documents || []
+    }));
+    localLessons.splice(0, localLessons.length, ...normalizedLessons);
   }
 );
 
@@ -162,8 +169,14 @@ async function refreshLessons() {
     if (!res.ok) throw new Error('Failed to fetch lessons');
     const data = await res.json();
 
-    localLessons.splice(0, localLessons.length, ...data);
-    emit('update:lessons', [...data]);
+    // Ensure all lessons have a documents array
+    const normalizedData = data.map(lesson => ({
+      ...lesson,
+      documents: lesson.documents || []
+    }));
+
+    localLessons.splice(0, localLessons.length, ...normalizedData);
+    emit('update:lessons', [...normalizedData]);
   } catch (err) {
     console.error('Error refreshing lessons:', err);
   } finally {

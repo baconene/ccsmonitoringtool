@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ModuleCompletion extends Model
 {
     protected $fillable = [
-        'user_id',
+        'user_id', // Keep for backward compatibility
+        'student_id', // New: References students table
         'module_id',
         'course_id',
         'completed_at',
@@ -21,11 +22,19 @@ class ModuleCompletion extends Model
     ];
 
     /**
-     * Get the user who completed the module.
+     * Get the user who completed the module (backward compatibility).
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the student who completed the module.
+     */
+    public function student(): BelongsTo
+    {
+        return $this->belongsTo(Student::class);
     }
 
     /**

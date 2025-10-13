@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('courses', function (Blueprint $table) {
-            // Add instructor_id foreign key
+            // Add instructor_id foreign key (references instructors table, not users)
             $table->unsignedBigInteger('instructor_id')->nullable()->after('description');
-            $table->foreign('instructor_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('instructor_id')->references('id')->on('instructors')->onDelete('cascade');
             
             // Add title field (keeping name for backward compatibility)
             $table->string('title')->nullable()->after('name');

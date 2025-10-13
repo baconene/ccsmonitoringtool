@@ -108,7 +108,7 @@ class GradeCalculatorService
         
         // Calculate final module score: (Lesson Score × 20%) + (Activity Score × 80%)
         $lessonContribution = ($lessonScore * self::MODULE_COMPONENT_WEIGHTS['lessons']) / 100;
-        $activityContribution = ($activityResult['weighted_score'] * self::MODULE_COMPONENT_WEIGHTS['activities']) / 100;
+        $activityContribution = ($activityResult['average_score'] * self::MODULE_COMPONENT_WEIGHTS['activities']) / 100;
         $moduleScore = $lessonContribution + $activityContribution;
 
         // Check if module is completed
@@ -125,7 +125,7 @@ class GradeCalculatorService
             'module_letter_grade' => $this->getLetterGrade($moduleScore),
             'lesson_score' => round($lessonScore, 2),
             'lesson_contribution' => round($lessonContribution, 2),
-            'activity_score' => round($activityResult['weighted_score'], 2),
+            'activity_score' => round($activityResult['average_score'], 2),
             'activity_contribution' => round($activityContribution, 2),
             'activity_types' => $activityResult['type_scores'],
             'activities' => $activityResult['activity_grades'],
@@ -169,18 +169,26 @@ class GradeCalculatorService
      */
     private function calculateActivityGrade(int $userId, Activity $activity, int $moduleId): array
     {
-        // Get student activity record using user_id
-        $studentActivity = StudentActivity::where('user_id', $userId)
-            ->where('activity_id', $activity->id)
-            ->where('module_id', $moduleId)
-            ->first();
+        // Get student activity record using student_id
+        $student = \App\Models\User::find($userId)?->student;
+        $studentActivity = null;
+        if ($student) {
+            $studentActivity = StudentActivity::where('student_id', $student->id)
+                ->where('activity_id', $activity->id)
+                ->where('module_id', $moduleId)
+                ->first();
+        }
 
         // Get quiz progress if it's a quiz
         $quizProgress = null;
         if ($activity->activityType->name === 'Quiz') {
-            $quizProgress = StudentQuizProgress::where('user_id', $userId)
-                ->where('activity_id', $activity->id)
-                ->first();
+            // Get the student record first to use the correct student_id
+            $student = \App\Models\User::find($userId)?->student;
+            if ($student) {
+                $quizProgress = StudentQuizProgress::where('student_id', $student->id)
+                    ->where('activity_id', $activity->id)
+                    ->first();
+            }
         }
 
         $score = 0;
@@ -189,21 +197,27 @@ class GradeCalculatorService
         $submittedAt = null;
         $status = 'not_started';
 
-        if ($studentActivity) {
+        // For quiz activities, prioritize StudentQuizProgress as the authoritative source
+        if ($quizProgress && $activity->activityType->name === 'Quiz') {
+            // Use the percentage_score directly from StudentQuizProgress as it's already calculated correctly
+            $percentageScore = $quizProgress->percentage_score ?? 0;
+            $score = $quizProgress->score ?? 0;
+            $maxScore = 100; // Use 100 as max since we have percentage_score
+            $isCompleted = $quizProgress->is_completed;
+            $submittedAt = $quizProgress->completed_at ?? $quizProgress->updated_at;
+            $status = $quizProgress->is_completed ? 'completed' : 'in_progress';
+        } elseif ($studentActivity) {
             $score = $studentActivity->score ?? 0;
             $maxScore = $studentActivity->max_score ?? 100;
             $isCompleted = in_array($studentActivity->status, ['completed', 'submitted', 'graded']);
             $submittedAt = $studentActivity->submitted_at ?? $studentActivity->completed_at;
             $status = $studentActivity->status;
-        } elseif ($quizProgress && $quizProgress->is_completed) {
-            $score = $quizProgress->score ?? 0;
-            $maxScore = $quizProgress->total_questions * ($quizProgress->quiz->points_per_question ?? 1);
-            $isCompleted = $quizProgress->is_completed;
-            $submittedAt = $quizProgress->completed_at;
-            $status = 'completed';
         }
 
-        $percentageScore = $maxScore > 0 ? ($score / $maxScore) * 100 : 0;
+        // For quizzes, use the percentage_score directly if it was set above
+        if (!isset($percentageScore)) {
+            $percentageScore = $maxScore > 0 ? ($score / $maxScore) * 100 : 0;
+        }
 
         return [
             'activity_id' => $activity->id,
@@ -250,41 +264,47 @@ class GradeCalculatorService
         $activities = $module->activities;
         $activityGrades = [];
         $typeScores = [];
-        $totalWeightedScore = 0;
+        $totalScore = 0;
+        $completedCount = 0;
 
         if ($activities->isEmpty()) {
             return [
-                'weighted_score' => 100, // No activities = 100% activity score
+                'average_score' => 100, // No activities = 100% activity score
                 'type_scores' => [],
                 'activity_grades' => [],
             ];
         }
 
-        // Group activities by type for weighted calculation
+        // Group activities by type for reporting but calculate simple average for module score
         $activitiesByType = $activities->groupBy('activityType.name');
         
         foreach ($activitiesByType as $typeName => $typeActivities) {
             $typeScore = $this->calculateActivityTypeScore($userId, $typeActivities, $module->id);
             $typeWeight = $this->getActivityTypeWeight($typeName);
             
-            $weightedScore = ($typeScore['average_score'] * $typeWeight) / 100;
-            
             $typeScores[] = [
                 'type' => $typeName,
                 'activities' => $typeScore['activities'],
                 'type_score' => $typeScore['average_score'],
                 'type_weight' => $typeWeight,
-                'weighted_score' => $weightedScore,
                 'completed_count' => $typeScore['completed_count'],
                 'total_count' => $typeScore['total_count'],
             ];
 
-            $totalWeightedScore += $weightedScore;
             $activityGrades = array_merge($activityGrades, $typeScore['activities']);
         }
 
+        // Calculate simple average of all activities (completed and incomplete)
+        // Incomplete activities count as 0% towards the average
+        foreach ($activityGrades as $activity) {
+            $totalScore += $activity['percentage_score']; // This will be 0 for incomplete activities
+        }
+
+        $totalActivityCount = count($activityGrades);
+        $averageScore = $totalActivityCount > 0 ? $totalScore / $totalActivityCount : 0;
+
         return [
-            'weighted_score' => $totalWeightedScore,
+            'average_score' => $averageScore,
             'type_scores' => $typeScores,
             'activity_grades' => $activityGrades,
         ];

@@ -1,0 +1,4 @@
+role_id,name,email,password,grade_level_id,section,program,department,title,specialization,bio,office_location,phone,office_hours,hire_date,employment_type,status,salary,education_level,certifications,years_experience
+3,John Student,john.student@example.com,password123,1,A,Computer Science,IT,,,,,,,,,,,,
+2,Jane Instructor,jane.instructor@example.com,password123,,,,IT,Professor,Artificial Intelligence,Expert in Machine Learning and AI,Room 301,555-0101,Mon-Fri 2PM-4PM,01/15/2020,Full-time,active,75000,Ph.D.,"Machine Learning,Deep Learning,Neural Networks",5
+1,Admin User,admin@example.com,password123,,,,,,,,,,,,,,,,

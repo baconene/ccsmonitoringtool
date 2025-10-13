@@ -13,7 +13,6 @@ const props = defineProps<Props>();
 const formData = ref({
     title: props.assignment?.title || props.activity.title,
     description: props.assignment?.description || props.activity.description,
-    due_date: props.assignment?.due_date || '',
     document_id: props.assignment?.document_id || null,
 });
 
@@ -69,16 +68,6 @@ const formatDate = (date: string) => {
                         <p class="text-gray-900 dark:text-white">{{ assignment.title }}</p>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Due Date
-                        </label>
-                        <div class="flex items-center gap-2 text-gray-900 dark:text-white">
-                            <Calendar :size="18" />
-                            {{ assignment.due_date ? formatDate(assignment.due_date) : 'No due date set' }}
-                        </div>
-                    </div>
-
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Description
@@ -125,17 +114,6 @@ const formatDate = (date: string) => {
                             <textarea
                                 v-model="formData.description"
                                 rows="4"
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                            />
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Due Date
-                            </label>
-                            <input
-                                v-model="formData.due_date"
-                                type="datetime-local"
                                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                             />
                         </div>

@@ -4,6 +4,12 @@ import { Head, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Activity, Quiz, Question, QuestionOption, StudentQuizProgress } from '@/types';
+import { 
+  QUESTION_TYPES, 
+  isMultipleChoiceType, 
+  isTextAnswerType, 
+  getQuestionTypeLabel 
+} from '@/constants/questionTypes';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 // import { Textarea } from '@/components/ui/textarea';
@@ -28,6 +34,15 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+// Debug logging
+console.log('QuizTaking Props:', {
+  activity: props.activity,
+  quiz: props.quiz,
+  questionsCount: props.quiz?.questions?.length,
+  firstQuestion: props.quiz?.questions?.[0],
+  firstQuestionOptions: props.quiz?.questions?.[0]?.options
+});
 
 // State
 const currentQuestionIndex = ref(0);
@@ -136,8 +151,8 @@ const submitAnswer = async () => {
     question_id: currentQuestion.value.id,
   };
 
-  // Set appropriate field based on question type
-  if (currentQuestion.value.question_type === 'multiple-choice' || currentQuestion.value.question_type === 'true-false') {
+  // Set appropriate field based on question type using utility function
+  if (isMultipleChoiceType(currentQuestion.value.question_type)) {
     data.selected_option_id = answer;
   } else {
     data.answer_text = answer;
@@ -200,16 +215,7 @@ const cancelSubmit = () => {
   showSubmitDialog.value = false;
 };
 
-// Get question type display name
-const getQuestionTypeLabel = (type: string) => {
-  const labels: Record<string, string> = {
-    'multiple-choice': 'Multiple Choice',
-    'true-false': 'True or False',
-    'enumeration': 'Enumeration',
-    'short-answer': 'Short Answer'
-  };
-  return labels[type] || type;
-};
+// Question type display now handled by imported getQuestionTypeLabel
 
 // Auto-save answer when it changes
 watch(currentAnswer, async (newValue, oldValue) => {
@@ -284,7 +290,7 @@ watch(allQuestionsAnswered, (newValue) => {
 
         <CardContent>
           <!-- Multiple Choice -->
-          <div v-if="currentQuestion.question_type === 'multiple-choice'" class="space-y-3">
+          <div v-if="currentQuestion.question_type === QUESTION_TYPES.MULTIPLE_CHOICE" class="space-y-3">
             <div
               v-for="option in currentQuestion.options"
               :key="option.id"
@@ -304,7 +310,7 @@ watch(allQuestionsAnswered, (newValue) => {
           </div>
 
           <!-- True/False -->
-          <div v-else-if="currentQuestion.question_type === 'true-false'" class="space-y-3">
+          <div v-else-if="currentQuestion.question_type === QUESTION_TYPES.TRUE_FALSE" class="space-y-3">
             <div class="grid grid-cols-2 gap-4">
               <Button
                 v-for="option in currentQuestion.options"
@@ -319,7 +325,8 @@ watch(allQuestionsAnswered, (newValue) => {
           </div>
 
           <!-- Enumeration / Short Answer -->
-          <div v-else-if="['enumeration', 'short-answer'].includes(currentQuestion.question_type)" class="space-y-3">
+          <!-- Text-based Questions -->
+          <div v-else-if="isTextAnswerType(currentQuestion.question_type)" class="space-y-3">
             <textarea
               v-model="currentAnswer"
               :placeholder="currentQuestion.question_type === 'enumeration' ? 'Enter your answers (one per line)' : 'Enter your answer'"

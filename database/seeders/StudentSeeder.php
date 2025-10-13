@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Student;
 use App\Models\Role;
+use App\Models\GradeLevel;
 use Carbon\Carbon;
 
 class StudentSeeder extends Seeder
@@ -31,6 +32,16 @@ class StudentSeeder extends Seeder
             echo "⚠️  Warning: No student users found. Please run DatabaseSeeder first.\n";
             return;
         }
+
+        // Get all active grade levels
+        $gradeLevels = GradeLevel::active()->get();
+        
+        if ($gradeLevels->isEmpty()) {
+            echo "⚠️  Warning: No active grade levels found. Please seed grade levels first.\n";
+            return;
+        }
+
+        echo "📚 Found {$gradeLevels->count()} grade levels: " . $gradeLevels->pluck('display_name')->join(', ') . "\n\n";
 
         // Current academic year
         $currentYear = date('Y');
@@ -59,17 +70,34 @@ class StudentSeeder extends Seeder
                 $existingStudent = Student::where('user_id', $user->id)->first();
                 
                 if ($existingStudent) {
-                    echo "✓ Student record already exists for: {$user->email}\n";
+                    // Update existing student with random grade level if not already assigned
+                    if (!$existingStudent->grade_level_id) {
+                        $randomGradeLevel = $gradeLevels->random();
+                        $existingStudent->update([
+                            'grade_level_id' => $randomGradeLevel->id,
+                            'metadata' => array_merge($existingStudent->metadata ?? [], [
+                                'grade_level' => $randomGradeLevel->display_name,
+                                'updated_by_seeder' => true,
+                            ])
+                        ]);
+                        echo "✓ Updated Student: {$existingStudent->student_id} for {$user->name} with grade level: {$randomGradeLevel->display_name}\n";
+                    } else {
+                        echo "✓ Student record already exists with grade level for: {$user->email}\n";
+                    }
                     continue;
                 }
 
                 // Generate enrollment date (random date within the last 6 months)
                 $enrollmentDate = Carbon::now()->subMonths(rand(1, 6))->format('Y-m-d');
 
+                // Get random grade level
+                $randomGradeLevel = $gradeLevels->random();
+
                 // Create student record
                 $student = Student::create([
-                    'student_id' => Student::generateStudentId(),
+                    'student_id_text' => Student::generateStudentIdText(),
                     'user_id' => $user->id,
+                    'grade_level_id' => $randomGradeLevel->id,
                     'enrollment_number' => $this->generateEnrollmentNumber(),
                     'academic_year' => $academicYear,
                     'program' => $programs[array_rand($programs)],
@@ -78,8 +106,8 @@ class StudentSeeder extends Seeder
                     'status' => 'active',
                     'metadata' => [
                         'created_by_seeder' => true,
-                        'grade_level' => $user->grade_level,
-                        'section' => $user->section,
+                        'grade_level' => $randomGradeLevel->display_name,
+                        'section' => $user->section ?? null,
                         'academic_status' => 'regular',
                         'scholarship_type' => $this->getRandomScholarshipType(),
                     ]
@@ -88,6 +116,7 @@ class StudentSeeder extends Seeder
                 echo "✓ Created Student: {$student->student_id} for {$user->name} ({$user->email})\n";
                 echo "  - Program: {$student->program}\n";
                 echo "  - Department: {$student->department}\n";
+                echo "  - Grade Level: {$randomGradeLevel->display_name}\n";
                 echo "  - Enrollment Date: {$student->enrollment_date}\n";
 
             } catch (\Exception $e) {

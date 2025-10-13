@@ -7,6 +7,7 @@ use App\Models\Module;
 use App\Models\Activity;
 use App\Models\ActivityType;
 use App\Models\User;
+use App\Models\Instructor;
 use App\Models\Student;
 use App\Models\StudentActivity;
 use App\Models\ModuleCompletion;
@@ -29,25 +30,51 @@ class CourseSeeder extends Seeder
             ActivityType::firstOrCreate(['name' => $type['name']], $type);
         }
 
+        // Get the first instructor (if exists) or create one
+        $instructor = Instructor::first();
+        
+        if (!$instructor) {
+            // Create a default instructor user if none exists
+            $instructorUser = User::firstOrCreate(
+                ['email' => 'instructor@lms.com'],
+                [
+                    'name' => 'Default Instructor',
+                    'password' => bcrypt('password'),
+                    'role_id' => 2, // Assuming role_id 2 is for instructors
+                ]
+            );
+            
+            $instructor = Instructor::create([
+                'user_id' => $instructorUser->id,
+                'employee_id' => 'INS-001',
+                'department' => 'General',
+                'specialization' => 'General Education',
+                'status' => 'active',
+            ]);
+        }
+
         // Create sample courses
         $courses = [
             [
                 'name' => 'Introduction to Computer Science',
                 'title' => 'Introduction to Computer Science',
                 'description' => 'Fundamental concepts in computer science including programming, data structures, and algorithms.',
-                'instructor_id' => 1, // Assuming user ID 1 is an instructor
+                'instructor_id' => $instructor->id, // Use instructor model ID
+                'created_by' => $instructor->user_id, // Use user_id for created_by
             ],
             [
                 'name' => 'Advanced Mathematics',
                 'title' => 'Advanced Mathematics',
                 'description' => 'Advanced mathematical concepts including calculus, linear algebra, and statistics.',
-                'instructor_id' => 1,
+                'instructor_id' => $instructor->id,
+                'created_by' => $instructor->user_id,
             ],
             [
                 'name' => 'English Literature',
                 'title' => 'English Literature',
                 'description' => 'Comprehensive study of English literature from classical to contemporary works.',
-                'instructor_id' => 1,
+                'instructor_id' => $instructor->id,
+                'created_by' => $instructor->user_id,
             ]
         ];
 
@@ -64,6 +91,10 @@ class CourseSeeder extends Seeder
     {
         $moduleData = $this->getModuleData($course->title);
         
+        // Get the instructor's user_id from the course
+        $instructor = Instructor::find($course->instructor_id);
+        $createdByUserId = $instructor ? $instructor->user_id : $course->created_by;
+        
         foreach ($moduleData as $moduleInfo) {
             $module = Module::create([
                 'course_id' => $course->id,
@@ -71,7 +102,7 @@ class CourseSeeder extends Seeder
                 'description' => $moduleInfo['description'],
                 'sequence' => $moduleInfo['order'],
                 'module_percentage' => $moduleInfo['weight'],
-                'created_by' => $course->instructor_id
+                'created_by' => $createdByUserId // Use user_id from instructor
             ]);
 
             // Create activities for each module
@@ -84,7 +115,7 @@ class CourseSeeder extends Seeder
                     'description' => $activityInfo['description'],
                     'due_date' => $activityInfo['due_date'],
                     'passing_percentage' => 70, // Default passing percentage
-                    'created_by' => $course->instructor_id
+                    'created_by' => $createdByUserId // Use user_id from instructor
                 ]);
 
                 // Link activity to module through pivot table

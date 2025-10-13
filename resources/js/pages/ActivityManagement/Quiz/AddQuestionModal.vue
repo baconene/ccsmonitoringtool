@@ -13,31 +13,34 @@ const emit = defineEmits<{
     submit: [data: any];
 }>();
 
-const questionTypes = [
-    { value: 'multiple-choice', label: 'Multiple Choice' },
-    { value: 'true-false', label: 'True/False' },
-    { value: 'short-answer', label: 'Short Answer' },
-    { value: 'enumeration', label: 'Enumeration' },
-];
+import { QUESTION_TYPE_OPTIONS, QUESTION_TYPES, QuestionType } from '@/constants/questionTypes';
 
-const formData = ref({
+const questionTypes = QUESTION_TYPE_OPTIONS;
+
+const formData = ref<{
+    question_text: string;
+    question_type: QuestionType;
+    points: number;
+    correct_answer: string;
+    options: Array<{ option_text: string; is_correct: boolean }>;
+}>({
     question_text: '',
-    question_type: 'multiple-choice',
+    question_type: QUESTION_TYPES.MULTIPLE_CHOICE,
     points: 1,
     correct_answer: '',
-    options: [] as Array<{ option_text: string; is_correct: boolean }>,
+    options: [],
 });
 
-const showOptions = computed(() => formData.value.question_type === 'multiple-choice');
+const showOptions = computed(() => formData.value.question_type === QUESTION_TYPES.MULTIPLE_CHOICE);
 const showCorrectAnswer = computed(() => 
-    formData.value.question_type === 'true-false' || 
-    formData.value.question_type === 'enumeration'
+    formData.value.question_type === QUESTION_TYPES.TRUE_FALSE || 
+    formData.value.question_type === QUESTION_TYPES.ENUMERATION
 );
 
 const resetForm = () => {
     formData.value = {
         question_text: '',
-        question_type: 'multiple-choice',
+        question_type: 'multiple_choice',
         points: 1,
         correct_answer: '',
         options: [],
@@ -55,13 +58,13 @@ watch(() => formData.value.question_type, (newType) => {
     formData.value.options = [];
     formData.value.correct_answer = '';
     
-    if (newType === 'multiple-choice' && formData.value.options.length === 0) {
+    if (newType === QUESTION_TYPES.MULTIPLE_CHOICE && formData.value.options.length === 0) {
         formData.value.options = [
             { option_text: '', is_correct: false },
             { option_text: '', is_correct: false },
         ];
     }
-    if (newType === 'true-false') {
+    if (newType === QUESTION_TYPES.TRUE_FALSE) {
         formData.value.correct_answer = 'true';
     }
 });
@@ -90,12 +93,18 @@ const handleSubmit = () => {
         return;
     }
 
-    if (formData.value.question_type === 'enumeration' && !formData.value.correct_answer) {
+    if (formData.value.question_type === QUESTION_TYPES.ENUMERATION && !formData.value.correct_answer) {
         alert('Please provide the correct answer for enumeration');
         return;
     }
 
-    emit('submit', { ...formData.value });
+    // Don't send empty options array for true_false and enumeration questions
+    const submitData: any = { ...formData.value };
+    if (submitData.question_type === QUESTION_TYPES.TRUE_FALSE || submitData.question_type === QUESTION_TYPES.ENUMERATION) {
+        delete submitData.options;
+    }
+
+    emit('submit', submitData);
     // Reset form after successful submission
     resetForm();
 };
@@ -245,7 +254,7 @@ const handleSubmit = () => {
                                     Correct Answer <span class="text-red-500">*</span>
                                 </label>
                                 <select
-                                    v-if="formData.question_type === 'true-false'"
+                                    v-if="formData.question_type === QUESTION_TYPES.TRUE_FALSE"
                                     v-model="formData.correct_answer"
                                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                                 >
@@ -253,14 +262,14 @@ const handleSubmit = () => {
                                     <option value="false">False</option>
                                 </select>
                                 <textarea
-                                    v-else-if="formData.question_type === 'enumeration'"
+                                    v-else-if="formData.question_type === QUESTION_TYPES.ENUMERATION"
                                     v-model="formData.correct_answer"
                                     rows="3"
                                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                                     placeholder="Enter the correct answer(s) for enumeration (one per line)"
                                     required
                                 />
-                                <p v-if="formData.question_type === 'enumeration'" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                <p v-if="formData.question_type === QUESTION_TYPES.ENUMERATION" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                     For multiple answers, enter each on a new line
                                 </p>
                             </div>

@@ -39,7 +39,6 @@ class AssignmentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'document_id' => 'nullable|exists:documents,id',
-            'due_date' => 'nullable|date',
         ]);
 
         $assignment = Assignment::create([
@@ -79,7 +78,6 @@ class AssignmentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'document_id' => 'nullable|exists:documents,id',
-            'due_date' => 'nullable|date',
         ]);
 
         $assignment->update($validated);

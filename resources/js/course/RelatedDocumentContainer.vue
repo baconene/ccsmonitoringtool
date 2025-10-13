@@ -31,22 +31,24 @@
 import { ref, watch } from "vue";  
 import RelatedDocumentItem from "./RelatedDocumentItem.vue";
 
-const props = defineProps<{
-  modelValue: { name: string; doc_type: string }[];
-}>();
+const props = withDefaults(defineProps<{
+  modelValue?: { name: string; doc_type: string }[];
+}>(), {
+  modelValue: () => []
+});
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: { name: string; doc_type: string }[]): void;
 }>();
 
 // local state
-const documents = ref([...props.modelValue]);
+const documents = ref([...(props.modelValue || [])]);
 
 // keep in sync if parent updates
 watch(
   () => props.modelValue,
   (newVal) => {
-    documents.value = [...newVal];
+    documents.value = [...(newVal || [])];
   }
 );
 

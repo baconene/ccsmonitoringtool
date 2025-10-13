@@ -86,14 +86,23 @@
         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
           Grade Level
         </label>
-        <input
-          type="text"
-          v-model="formData.grade_level"
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
-          placeholder="e.g., Grade 10, Year 1..."
+        <select
+          v-model="formData.grade_level_id"
+          :disabled="loadingGradeLevels"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
+          <option value="">Select a grade level...</option>
+          <option 
+            v-for="gradeLevel in gradeLevels" 
+            :key="gradeLevel.id" 
+            :value="gradeLevel.id"
+          >
+            {{ gradeLevel.display_name }}
+          </option>
+        </select>
         <p class="text-xs text-gray-500 dark:text-gray-400">
-          Specify the student's grade level or year.
+          <span v-if="loadingGradeLevels">Loading grade levels...</span>
+          <span v-else>Select the student's grade level.</span>
         </p>
         </div>
         
@@ -138,7 +147,8 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import axios from 'axios'
 
 const props = defineProps({
   showModal: {
@@ -154,8 +164,31 @@ const formData = reactive({
   email: '',
   password: '',
   role: 'student',
-  grade_level: '',
+  grade_level_id: null,
   section: ''
+})
+
+// Grade levels data
+const gradeLevels = ref([])
+const loadingGradeLevels = ref(false)
+
+// Fetch grade levels from API
+const fetchGradeLevels = async () => {
+  try {
+    loadingGradeLevels.value = true
+    const response = await axios.get('/api/grade-levels')
+    gradeLevels.value = response.data.grade_levels || []
+  } catch (error) {
+    console.error('Failed to fetch grade levels:', error)
+    gradeLevels.value = []
+  } finally {
+    loadingGradeLevels.value = false
+  }
+}
+
+// Load grade levels on mount
+onMounted(() => {
+  fetchGradeLevels()
 })
 
 const closeModal = () => {
@@ -163,14 +196,21 @@ const closeModal = () => {
 }
 
 const handleSubmit = () => {
-  emit('submit', { ...formData })
+  // Get the selected grade level display name for backward compatibility
+  const selectedGradeLevel = gradeLevels.value.find(gl => gl.id === formData.grade_level_id)
+  const submitData = {
+    ...formData,
+    grade_level: selectedGradeLevel ? selectedGradeLevel.display_name : ''
+  }
+  
+  emit('submit', submitData)
   // Reset form
   Object.assign(formData, {
     name: '',
     email: '',
     password: '',
     role: 'student',
-    grade_level: '',
+    grade_level_id: null,
     section: ''
   })
 }

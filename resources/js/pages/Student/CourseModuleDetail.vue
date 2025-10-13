@@ -47,7 +47,7 @@
                   </div>
                   <div>
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      {{ module.title }}
+                      {{ module.title }}asdasdasd
                     </h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-1">
                       {{ course.title }} • Module {{ module.module_percentage }}% weight
@@ -119,9 +119,21 @@
                     Complete all lessons and activities to mark this module as complete
                   </div>
                 </div>
-                <div v-else class="flex items-center text-green-600 dark:text-green-400">
-                  <CheckCircle2 class="h-5 w-5 mr-2" />
-                  <span class="font-medium">Module Completed</span>
+                <!-- Module completed display with test button -->
+                <div v-else class="space-y-2">
+                  <div class="flex items-center text-green-600 dark:text-green-400 mb-2">
+                    <CheckCircle2 class="h-5 w-5 mr-2" />
+                    <span class="font-medium">Module Completed</span>
+                  </div>
+                  <!-- Test button for completed modules -->
+                  <button
+                    @click="markModuleComplete"
+                    :disabled="markingComplete"
+                    class="w-full flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors"
+                  >
+                    <CheckCircle2 class="h-4 w-4 mr-2" />
+                    {{ markingComplete ? 'Testing...' : 'Test Module Complete' }}
+                  </button>
                 </div>
               </div>
             </div>
@@ -264,18 +276,40 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString();
 };
 
-const markModuleComplete = async () => {
-  if (!canMarkModuleComplete.value) return;
+const markModuleComplete = () => {
+  console.log('markModuleComplete called', { 
+    canComplete: canMarkModuleComplete.value,
+    courseId: props.course.id,
+    moduleId: props.module.id 
+  });
   
+  if (!canMarkModuleComplete.value) {
+    alert('Cannot mark module complete - not all requirements met');
+    return;
+  }
+  
+  alert(`About to mark module complete: Course ${props.course.id}, Module ${props.module.id}`);
   markingComplete.value = true;
   
-  try {
-    router.post(`/student/courses/${props.course.id}/modules/${props.module.id}/complete`);
-  } catch (error) {
-    console.error('Error marking module complete:', error);
-  } finally {
-    markingComplete.value = false;
-  }
+  const url = `/student/courses/${props.course.id}/modules/${props.module.id}/complete`;
+  console.log('Posting to URL:', url);
+  
+  router.post(url, {}, {
+    preserveScroll: true,
+    onSuccess: (page) => {
+      console.log('Module completion success:', page);
+      alert('Module completion success!');
+      markingComplete.value = false;
+    },
+    onError: (errors) => {
+      console.error('Error marking module complete:', errors);
+      alert('Error marking module complete: ' + JSON.stringify(errors));
+      markingComplete.value = false;
+    },
+    onFinish: () => {
+      console.log('Module completion request finished');
+    }
+  });
 };
 
 

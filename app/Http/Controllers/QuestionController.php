@@ -18,7 +18,7 @@ class QuestionController extends Controller
         $validated = $request->validate([
             'quiz_id' => 'required|exists:quizzes,id',
             'question_text' => 'required|string',
-            'question_type' => 'required|string|in:multiple-choice,true-false,enumeration,short-answer',
+            'question_type' => 'required|string|in:multiple_choice,true_false,enumeration,short_answer',
             'points' => 'required|integer|min:1',
             'correct_answer' => 'nullable|string',
             'options' => 'nullable|array',
@@ -34,11 +34,29 @@ class QuestionController extends Controller
             'correct_answer' => $validated['correct_answer'] ?? null,
         ]);
 
-        // Create options if provided
-        if (isset($validated['options'])) {
+        // Create options if provided, or auto-create for true/false questions
+        if (isset($validated['options']) && !empty($validated['options'])) {
             foreach ($validated['options'] as $option) {
                 $question->options()->create($option);
             }
+        } elseif ($validated['question_type'] === 'true_false') {
+            // Auto-create True/False options if not provided
+            $correctAnswer = $validated['correct_answer'] ?? 'true';
+            // Handle empty string as well
+            if (empty($correctAnswer)) {
+                $correctAnswer = 'true';
+            }
+            $isTrue = in_array(strtolower(trim($correctAnswer)), ['true', 't', '1', 'yes', 'y']);
+            
+            $question->options()->create([
+                'option_text' => 'True',
+                'is_correct' => $isTrue
+            ]);
+            
+            $question->options()->create([
+                'option_text' => 'False',
+                'is_correct' => !$isTrue
+            ]);
         }
 
         return redirect()->back()->with('success', 'Question added successfully.');
@@ -51,7 +69,7 @@ class QuestionController extends Controller
     {
         $validated = $request->validate([
             'question_text' => 'required|string',
-            'question_type' => 'required|string|in:multiple-choice,true-false,enumeration,short-answer',
+            'question_type' => 'required|string|in:multiple_choice,true_false,enumeration,short_answer',
             'points' => 'required|integer|min:1',
             'correct_answer' => 'nullable|string',
             'options' => 'nullable|array',

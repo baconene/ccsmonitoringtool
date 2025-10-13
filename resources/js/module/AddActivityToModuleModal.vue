@@ -92,6 +92,9 @@
               <span v-if="activity.question_count">
                 {{ activity.question_count }} question{{ activity.question_count !== 1 ? 's' : '' }}
               </span>
+              <span v-else-if="getActivityType(activity)?.name.toLowerCase().includes('quiz')" class="text-red-500 dark:text-red-400">
+                ⚠️ No questions available
+              </span>
               <span v-if="activity.total_points">
                 {{ activity.total_points }} points
               </span>
@@ -188,7 +191,10 @@ const filteredActivities = computed(() => {
   if (props.moduleType === 'Quizzes') {
     activities = activities.filter(a => {
       const type = getActivityType(a);
-      return type?.name.toLowerCase().includes('quiz');
+      const isQuizType = type?.name.toLowerCase().includes('quiz');
+      // For quiz activities, also check if they have quiz content (questions)
+      const hasQuizContent = isQuizType ? (a.question_count && a.question_count > 0) : true;
+      return isQuizType && hasQuizContent;
     });
   } else if (props.moduleType === 'Assignments') {
     activities = activities.filter(a => {
@@ -204,7 +210,7 @@ const filteredActivities = computed(() => {
     });
   }
 
-  // Filter by search query
+  // Filter by search query FIRST (before type filtering)
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     activities = activities.filter(a => {
@@ -212,6 +218,20 @@ const filteredActivities = computed(() => {
       return a.title.toLowerCase().includes(query) ||
              a.description?.toLowerCase().includes(query) ||
              type?.name.toLowerCase().includes(query);
+    });
+  }
+
+  // For mixed modules, only filter out incomplete quiz activities if NOT searching
+  // This allows users to find and add activities even if they don't have content yet
+  if ((props.moduleType === 'Mixed' || props.moduleType === 'Activities') && !searchQuery.value) {
+    activities = activities.filter(a => {
+      const type = getActivityType(a);
+      const isQuizType = type?.name.toLowerCase().includes('quiz');
+      // If it's a quiz, make sure it has content
+      if (isQuizType) {
+        return a.question_count && a.question_count > 0;
+      }
+      return true; // Non-quiz activities are fine
     });
   }
 

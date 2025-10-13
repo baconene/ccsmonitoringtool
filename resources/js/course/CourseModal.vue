@@ -16,6 +16,16 @@
       <!-- Title -->
       <h2 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">{{ modalTitle }}</h2>
 
+      <!-- Success Message -->
+      <div v-if="successMessage" class="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+        <p class="text-sm text-green-700 dark:text-green-400">{{ successMessage }}</p>
+      </div>
+
+      <!-- General Error -->
+      <div v-if="errors.general" class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+        <p class="text-sm text-red-700 dark:text-red-400">{{ errors.general }}</p>
+      </div>
+
       <!-- Form (Create/Edit) -->
       <form
         v-if="mode === 'create' || mode === 'edit'"
@@ -23,13 +33,32 @@
         class="space-y-4"
       >
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Course Name</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Course Title</label>
           <input
-            v-model="localCourse.name"
+            v-model="localCourse.title"
             type="text"
             required
-            class="w-full mt-1 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+            :class="[
+              'w-full mt-1 p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-colors',
+              errors.title ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+            ]"
+            placeholder="Enter course title"
           />
+          <p v-if="errors.title" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.title[0] }}</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Course Code</label>
+          <input
+            v-model="localCourse.course_code"
+            type="text"
+            :class="[
+              'w-full mt-1 p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-colors',
+              errors.course_code ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+            ]"
+            placeholder="e.g., CS101"
+          />
+          <p v-if="errors.course_code" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.course_code[0] }}</p>
         </div>
 
         <div>
@@ -70,8 +99,20 @@
           <button type="button" @click="$emit('close')" class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
             Cancel
           </button>
-          <button type="submit" class="px-4 py-2 rounded bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors">
-            {{ mode === 'create' ? 'Save' : 'Update' }}
+          <button 
+            type="submit" 
+            :disabled="isSubmitting"
+            :class="[
+              'px-4 py-2 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors flex items-center gap-2',
+              isSubmitting 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600'
+            ]"
+          >
+            <svg v-if="isSubmitting" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {{ isSubmitting ? 'Saving...' : (mode === 'create' ? 'Save' : 'Update') }}
           </button>
         </div>
       </form>
@@ -127,7 +168,9 @@ const props = defineProps<{
   mode: 'create' | 'edit' | 'view' | 'delete';
   course?: { 
     id?: number; 
-    name: string; 
+    title?: string;
+    name?: string; 
+    course_code?: string;
     description?: string; 
     grade_level?: string;
     grade_levels?: CourseGradeLevel[];
@@ -144,10 +187,17 @@ const availableGradeLevels = ref<GradeLevel[]>([]);
 
 // Local form state
 const localCourse = reactive({
+  title: '',
   name: '',
+  course_code: '',
   description: '',
   grade_level_ids: [] as number[],
 });
+
+// Form state
+const isSubmitting = ref(false);
+const errors = ref<Record<string, string>>({});
+const successMessage = ref('');
 
 // Fetch grade levels on mount
 onMounted(async () => {
@@ -164,11 +214,15 @@ watch(
   [() => props.course, () => props.mode],
   ([course, mode]) => {
     if (mode === 'edit' && course) {
-      localCourse.name = course.name || '';
+      localCourse.title = course.title || course.name || '';
+      localCourse.name = course.name || course.title || '';
+      localCourse.course_code = course.course_code || '';
       localCourse.description = course.description || '';
       localCourse.grade_level_ids = course.grade_levels?.map(gl => gl.id) || [];
     } else if (mode === 'create') {
+      localCourse.title = '';
       localCourse.name = '';
+      localCourse.course_code = '';
       localCourse.description = '';
       localCourse.grade_level_ids = [];
     }
@@ -193,11 +247,21 @@ const modalTitle = computed(() => {
 
 // Handle create/update
 async function handleSubmit() {
+  if (isSubmitting.value) return;
+  
+  isSubmitting.value = true;
+  errors.value = {};
+  successMessage.value = '';
+
   try {
     const formData = {
-      name: localCourse.name,
+      title: localCourse.title,
+      name: localCourse.name || localCourse.title, // Backend compatibility
+      course_code: localCourse.course_code,
       description: localCourse.description,
       grade_level_ids: localCourse.grade_level_ids,
+      // instructor_id will be automatically set by backend based on user role
+      // No need to pass it from frontend
     };
 
     if (props.mode === 'create') {
@@ -205,17 +269,36 @@ async function handleSubmit() {
       const response = await axios.post('/courses', formData);
       const newCourseId = response.data.course?.id || response.data.id;
       
-      console.log('Course created with ID:', newCourseId);
-      emit('refresh', newCourseId);
+      successMessage.value = 'Course created successfully!';
+      setTimeout(() => {
+        emit('refresh', newCourseId);
+        emit('close');
+      }, 1500);
       
     } else if (props.mode === 'edit' && props.course?.id) {
       // Use axios for update
       await axios.put(`/courses/${props.course.id}`, formData);
-      emit('refresh');
+      successMessage.value = 'Course updated successfully!';
+      setTimeout(() => {
+        emit('refresh');
+        emit('close');
+      }, 1500);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Course operation failed:', error);
-    // You might want to show an error message to the user here
+    
+    if (error.response?.data?.errors) {
+      // Laravel validation errors
+      errors.value = error.response.data.errors;
+    } else if (error.response?.data?.message) {
+      // General error message
+      errors.value = { general: error.response.data.message };
+    } else {
+      // Generic error
+      errors.value = { general: 'An unexpected error occurred. Please try again.' };
+    }
+  } finally {
+    isSubmitting.value = false;
   }
 }
 

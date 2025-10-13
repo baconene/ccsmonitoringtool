@@ -7,6 +7,7 @@ import { ArrowLeft, Save } from 'lucide-vue-next';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import CosmicBackground from '@/components/CosmicBackground.vue';
 
 interface Props {
     activity: Activity & {
@@ -39,27 +40,30 @@ const handleSubmit = () => {
 
 <template>
     <AppLayout>
-        <div class="py-6 px-4 sm:px-6 lg:px-8">
-            <!-- Header -->
-            <div class="mb-6">
-                <button
-                    @click="handleBack"
-                    class="mb-4 flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                >
-                    <ArrowLeft :size="20" />
-                    Back to Activities
-                </button>
+        <div class="relative min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-pink-50/30 dark:from-gray-900 dark:via-purple-950/20 dark:to-pink-950/20 transition-colors duration-300">
+            <CosmicBackground />
+            
+            <div class="relative z-10 py-6 px-4 sm:px-6 lg:px-8">
+                <!-- Header -->
+                <div class="mb-6 sm:mb-8">
+                    <button
+                        @click="handleBack"
+                        class="mb-4 flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors group"
+                    >
+                        <ArrowLeft :size="20" class="group-hover:-translate-x-1 transition-transform" />
+                        <span>Back to Activities</span>
+                    </button>
 
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                    Edit Activity
-                </h1>
-                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    Update the details of your activity
-                </p>
-            </div>
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+                        Edit Activity
+                    </h1>
+                    <p class="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                        Update the details of your activity
+                    </p>
+                </div>
 
-            <!-- Edit Form -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <!-- Edit Form -->
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-purple-200/50 dark:border-purple-700/50 p-4 sm:p-6 lg:p-8">
                 <form @submit.prevent="handleSubmit" class="space-y-6">
                     <!-- Title -->
                     <div>
@@ -125,11 +129,11 @@ const handleSubmit = () => {
                     </div>
 
                     <!-- Form Actions -->
-                    <div class="flex gap-3 pt-4">
+                    <div class="flex flex-col sm:flex-row gap-3 pt-4">
                         <Button
                             type="submit"
                             :disabled="form.processing"
-                            class="flex items-center gap-2"
+                            class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                         >
                             <Save :size="16" />
                             {{ form.processing ? 'Saving...' : 'Save Changes' }}
@@ -139,11 +143,13 @@ const handleSubmit = () => {
                             variant="outline"
                             @click="handleBack"
                             :disabled="form.processing"
+                            class="border-purple-300 dark:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20"
                         >
                             Cancel
                         </Button>
                     </div>
                 </form>
+                </div>
             </div>
         </div>
     </AppLayout>

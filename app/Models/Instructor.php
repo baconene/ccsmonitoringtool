@@ -36,6 +36,7 @@ class Instructor extends Model
     protected $casts = [
         'hire_date' => 'date',
         'salary' => 'decimal:2',
+        'certifications' => 'array',
         'metadata' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -207,6 +208,12 @@ class Instructor extends Model
     {
         if (!$this->certifications) {
             return false;
+        }
+
+        // Handle both array and string formats
+        if (is_array($this->certifications)) {
+            $certString = json_encode($this->certifications);
+            return str_contains(strtolower($certString), strtolower($subject));
         }
 
         return str_contains(strtolower($this->certifications), strtolower($subject));

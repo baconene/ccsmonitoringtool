@@ -56,7 +56,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\QuestionController::update
- * @see app/Http/Controllers/QuestionController.php:50
+ * @see app/Http/Controllers/QuestionController.php:68
  * @route '/questions/{question}'
  */
 export const update = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -71,7 +71,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\QuestionController::update
- * @see app/Http/Controllers/QuestionController.php:50
+ * @see app/Http/Controllers/QuestionController.php:68
  * @route '/questions/{question}'
  */
 update.url = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -104,7 +104,7 @@ update.url = (args: { question: number | { id: number } } | [question: number | 
 
 /**
 * @see \App\Http\Controllers\QuestionController::update
- * @see app/Http/Controllers/QuestionController.php:50
+ * @see app/Http/Controllers/QuestionController.php:68
  * @route '/questions/{question}'
  */
 update.put = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -114,7 +114,7 @@ update.put = (args: { question: number | { id: number } } | [question: number | 
 
     /**
 * @see \App\Http\Controllers\QuestionController::update
- * @see app/Http/Controllers/QuestionController.php:50
+ * @see app/Http/Controllers/QuestionController.php:68
  * @route '/questions/{question}'
  */
     const updateForm = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -129,7 +129,7 @@ update.put = (args: { question: number | { id: number } } | [question: number | 
 
             /**
 * @see \App\Http\Controllers\QuestionController::update
- * @see app/Http/Controllers/QuestionController.php:50
+ * @see app/Http/Controllers/QuestionController.php:68
  * @route '/questions/{question}'
  */
         updateForm.put = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -145,7 +145,7 @@ update.put = (args: { question: number | { id: number } } | [question: number | 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\QuestionController::destroy
- * @see app/Http/Controllers/QuestionController.php:98
+ * @see app/Http/Controllers/QuestionController.php:116
  * @route '/questions/{question}'
  */
 export const destroy = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -160,7 +160,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\QuestionController::destroy
- * @see app/Http/Controllers/QuestionController.php:98
+ * @see app/Http/Controllers/QuestionController.php:116
  * @route '/questions/{question}'
  */
 destroy.url = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -193,7 +193,7 @@ destroy.url = (args: { question: number | { id: number } } | [question: number |
 
 /**
 * @see \App\Http\Controllers\QuestionController::destroy
- * @see app/Http/Controllers/QuestionController.php:98
+ * @see app/Http/Controllers/QuestionController.php:116
  * @route '/questions/{question}'
  */
 destroy.delete = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -203,7 +203,7 @@ destroy.delete = (args: { question: number | { id: number } } | [question: numbe
 
     /**
 * @see \App\Http\Controllers\QuestionController::destroy
- * @see app/Http/Controllers/QuestionController.php:98
+ * @see app/Http/Controllers/QuestionController.php:116
  * @route '/questions/{question}'
  */
     const destroyForm = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -218,7 +218,7 @@ destroy.delete = (args: { question: number | { id: number } } | [question: numbe
 
             /**
 * @see \App\Http\Controllers\QuestionController::destroy
- * @see app/Http/Controllers/QuestionController.php:98
+ * @see app/Http/Controllers/QuestionController.php:116
  * @route '/questions/{question}'
  */
         destroyForm.delete = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -19,12 +19,30 @@ class StudentQuizAnswer extends Model
     ];
 
     protected $casts = [
-        'is_correct' => 'boolean',
         'points_earned' => 'float',
         'answered_at' => 'datetime',
     ];
 
     protected $with = ['question'];
+
+    /**
+     * Boot method to handle model events
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Automatically populate answer_text from selected option
+        static::saving(function ($answer) {
+            // If selected_option_id is set and answer_text is empty, populate it
+            if ($answer->selected_option_id && empty($answer->answer_text)) {
+                $option = QuestionOption::find($answer->selected_option_id);
+                if ($option) {
+                    $answer->answer_text = $option->option_text;
+                }
+            }
+        });
+    }
 
     /**
      * Get the student associated with this answer
@@ -59,6 +77,35 @@ class StudentQuizAnswer extends Model
     }
 
     /**
+     * Get the display text for the student's answer based on question type
+     */
+    public function getDisplayAnswerAttribute(): string
+    {
+        $question = $this->question;
+        
+        // For multiple choice and true-false questions, use selected option text
+        if (($question->question_type === 'multiple_choice' || $question->question_type === 'true_false')) {
+            if ($this->selected_option_id && $this->selectedOption) {
+                return $this->selectedOption->option_text;
+            }
+        }
+        
+        // For enumeration and short-answer questions, use answer_text
+        if (($question->question_type === 'enumeration' || $question->question_type === 'short_answer')) {
+            if (!empty($this->answer_text)) {
+                return $this->answer_text;
+            }
+        }
+        
+        // For any other case with answer_text
+        if (!empty($this->answer_text)) {
+            return $this->answer_text;
+        }
+        
+        return 'Not answered';
+    }
+
+    /**
      * Check if the answer is correct and update
      */
     public function checkAnswer(): void
@@ -66,13 +113,13 @@ class StudentQuizAnswer extends Model
         $question = $this->question;
         
         // Handle multiple-choice and true-false questions
-        if (($question->question_type === 'multiple-choice' || $question->question_type === 'true-false') && $this->selected_option_id) {
+        if (($question->question_type === 'multiple_choice' || $question->question_type === 'true_false') && $this->selected_option_id) {
             $selectedOption = $this->selectedOption;
             $this->is_correct = $selectedOption && $selectedOption->is_correct;
             $this->points_earned = $this->is_correct ? $question->points : 0;
         } 
         // Handle enumeration and short-answer questions
-        elseif (($question->question_type === 'enumeration' || $question->question_type === 'short-answer') && !empty($this->answer_text)) {
+        elseif (($question->question_type === 'enumeration' || $question->question_type === 'short_answer') && !empty($this->answer_text)) {
             // For enumeration and short answer, manual grading is needed
             // However, we acknowledge the answer was provided
             // Set is_correct to false by default (pending manual grading) and points to 0

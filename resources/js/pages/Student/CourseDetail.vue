@@ -6,7 +6,7 @@ import { Module, Activity, Quiz, StudentQuizProgress } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, CheckCircle2, Clock, Trophy, PlayCircle, FileText, ClipboardList, AlertCircle, XCircle } from 'lucide-vue-next';
+import { BookOpen, CheckCircle2, Clock, Trophy, PlayCircle, FileText, ClipboardList, AlertCircle, XCircle, HelpCircle, Star, Tag, Book } from 'lucide-vue-next';
 import { useNotification } from '@/composables/useNotification';
 import Notification from '@/components/Notification.vue';
 
@@ -35,14 +35,17 @@ interface Course {
 // Props
 interface Props {
   course: Course & {
+    lessons?: Lesson[];
     modules: (Module & {
       lessons: Lesson[];
-      activities: (Activity & {
+        activities: (Activity & {
         time_limit?: number;
         question_count?: number;
         total_points?: number;
         due_date?: string;
         is_past_due?: boolean;
+        activity_type?: string;
+        is_completed?: boolean;
         quiz?: Quiz & {
           question_count: number;
           total_points: number;
@@ -61,12 +64,16 @@ interface Props {
 
 const props = defineProps<Props>();
 
+// Debug: Check all activities
+// Debug removed - activity segregation is working correctly
+
 // Notification
 const { notification, showNotification } = useNotification();
 
 // State
 const completingLesson = ref<number | null>(null);
 const completingModule = ref<number | null>(null);
+const completingActivity = ref<number | null>(null);
 
 // Computed properties
 const totalActivities = computed(() => {
@@ -78,7 +85,7 @@ const totalActivities = computed(() => {
 const completedActivities = computed(() => {
   return props.course.modules.reduce((total: number, module: any) => {
     const completed = module.activities.filter((activity: any) => 
-      activity.quiz_progress?.is_completed
+      activity.quiz_progress?.is_completed || activity.is_completed
     ).length;
     return total + completed;
   }, 0);
@@ -92,7 +99,7 @@ const totalLessons = computed(() => {
 
 const completedLessons = computed(() => {
   return props.course.modules.reduce((total: number, module: any) => {
-    const completed = module.lessons?.filter((lesson: any) => lesson.is_completed).length || 0;
+    const completed = module.lessons?.filter((lesson: any) => isLessonCompleted(lesson)).length || 0;
     return total + completed;
   }, 0);
 });
@@ -104,12 +111,12 @@ const canCompleteModule = (moduleId: number) => {
   
   // Check if all activities are completed
   const allActivitiesCompleted = module.activities.every((activity: any) => 
-    activity.quiz_progress?.is_completed === true
+    isActivityCompleted(activity)
   );
   
-  // Check if all lessons are completed
+  // Check if all lessons are completed using the same logic as isLessonCompleted
   const allLessonsCompleted = module.lessons?.every((lesson: any) => 
-    lesson.is_completed === true
+    isLessonCompleted(lesson)
   ) ?? true; // If no lessons, consider them completed
   
   return allActivitiesCompleted && allLessonsCompleted;
@@ -121,10 +128,10 @@ const getModuleCompletionStatus = (moduleId: number) => {
   if (!module) return { canComplete: false, message: 'Module not found' };
   
   const incompleteActivities = module.activities.filter((activity: any) => 
-    !activity.quiz_progress?.is_completed
+    !isActivityCompleted(activity)
   );
   const incompleteLessons = module.lessons?.filter((lesson: any) => 
-    !lesson.is_completed
+    !isLessonCompleted(lesson)
   ) || [];
   
   if (incompleteActivities.length === 0 && incompleteLessons.length === 0) {
@@ -143,6 +150,42 @@ const getModuleCompletionStatus = (moduleId: number) => {
     canComplete: false, 
     message: `Complete remaining: ${messages.join(', ')}` 
   };
+};
+
+// Helper function to check if lesson is completed with flexible data types
+const isLessonCompleted = (lesson: Lesson): boolean => {
+  if (!lesson) return false;
+  
+  // Handle boolean, string, or number values
+  if (typeof lesson.is_completed === 'boolean') {
+    return lesson.is_completed;
+  }
+  if (typeof lesson.is_completed === 'string') {
+    return lesson.is_completed === 'true' || lesson.is_completed === '1';
+  }
+  if (typeof lesson.is_completed === 'number') {
+    return lesson.is_completed === 1;
+  }
+  
+  // If is_completed is undefined, check in the course-level lessons array
+  if (lesson.is_completed === undefined) {
+    const courseLesson = props.course.lessons?.find((l: any) => l.id === lesson.id);
+    if (courseLesson) {
+      if (typeof courseLesson.is_completed === 'boolean') {
+        return courseLesson.is_completed;
+      }
+      if (typeof courseLesson.is_completed === 'string') {
+        return courseLesson.is_completed === 'true' || courseLesson.is_completed === '1';
+      }
+      if (typeof courseLesson.is_completed === 'number') {
+        return courseLesson.is_completed === 1;
+      }
+      return !!courseLesson.completed_at;
+    }
+  }
+  
+  // Also check if completed_at exists as fallback
+  return !!lesson.completed_at;
 };
 
 // Mark lesson as complete
@@ -257,6 +300,84 @@ const formatDuration = (minutes: number) => {
   const remainingMinutes = minutes % 60;
   return `${hours}h ${remainingMinutes}m`;
 };
+
+// Activity helper functions
+const isActivityCompleted = (activity: any) => {
+  return activity.quiz_progress?.is_completed || activity.is_completed;
+};
+
+const getActivitiesByType = (activities: any[], type: string) => {
+  return activities.filter(activity => activity.activity_type === type);
+};
+
+const getCompletedActivitiesByType = (activities: any[], type: string) => {
+  return activities.filter(activity => 
+    activity.activity_type === type && isActivityCompleted(activity)
+  );
+};
+
+const getOtherActivities = (activities: any[]) => {
+  return activities.filter(activity => 
+    !['Quiz', 'Assignment'].includes(activity.activity_type)
+  );
+};
+
+const getCompletedOtherActivities = (activities: any[]) => {
+  return activities.filter(activity => 
+    !['Quiz', 'Assignment'].includes(activity.activity_type) && isActivityCompleted(activity)
+  );
+};
+
+const getActivityStatusText = (activity: any) => {
+  // For quiz-based activities, show quiz progress score
+  if (activity.quiz_progress?.percentage_score !== undefined) {
+    const score = Number(activity.quiz_progress.percentage_score) || 0;
+    const passed = score >= 70;
+    return `${score.toFixed(0)}% (${activity.quiz_progress.score}/${activity.total_points || 0} pts)`;
+  }
+  
+  // For non-quiz activities (like Assignments), show student activity score
+  if (activity.student_activity?.percentage_score !== undefined) {
+    const score = Number(activity.student_activity.percentage_score) || 0;
+    // For activities with 0 points, don't show point breakdown
+    if (activity.total_points === 0) {
+      return `${score.toFixed(0)}% Complete`;
+    }
+    return `${score.toFixed(0)}% (${activity.student_activity.score}/${activity.total_points || 0} pts)`;
+  }
+  
+  return 'Completed';
+};
+
+// Mark activity as complete
+const markActivityComplete = async (activity: any, module: any) => {
+  if (completingActivity.value) return;
+  
+  completingActivity.value = activity.id;
+  
+  try {
+    await router.post(`/student/activities/${activity.id}/mark-complete`, {
+      module_id: module.id
+    }, {
+      preserveScroll: true,
+      onSuccess: () => {
+        // Update the activity locally to reflect the completion
+        activity.is_completed = true;
+        completingActivity.value = null;
+        showNotification('success', 'Activity marked as complete successfully!');
+      },
+      onError: (errors) => {
+        console.error('Failed to mark activity as complete:', errors);
+        showNotification('error', 'Failed to mark activity as complete. Please try again.');
+        completingActivity.value = null;
+      }
+    });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    showNotification('error', 'An unexpected error occurred. Please try again.');
+    completingActivity.value = null;
+  }
+};
 </script>
 
 <template>
@@ -352,26 +473,26 @@ const formatDuration = (minutes: number) => {
                       <BookOpen class="w-3 h-3 mr-1" />
                       <span class="font-medium mr-1">Lessons:</span>
                       <span class="flex items-center" :class="[
-                        (module.lessons?.every((l: any) => l.is_completed) ?? true) 
+                        (module.lessons?.every((l: any) => isLessonCompleted(l)) ?? true) 
                           ? 'text-green-600 dark:text-green-400' 
                           : 'text-amber-600 dark:text-amber-400'
                       ]">
-                        <CheckCircle2 v-if="(module.lessons?.every((l: any) => l.is_completed) ?? true)" class="w-3 h-3 mr-1" />
+                        <CheckCircle2 v-if="(module.lessons?.every((l: any) => isLessonCompleted(l)) ?? true)" class="w-3 h-3 mr-1" />
                         <AlertCircle v-else class="w-3 h-3 mr-1" />
-                        {{ module.lessons?.filter((l: any) => l.is_completed).length || 0 }} / {{ module.lessons?.length || 0 }}
+                        {{ module.lessons?.filter((l: any) => isLessonCompleted(l)).length || 0 }} / {{ module.lessons?.length || 0 }}
                       </span>
                     </span>
                     <span class="flex items-center">
                       <FileText class="w-3 h-3 mr-1" />
                       <span class="font-medium mr-1">Activities:</span>
                       <span class="flex items-center" :class="[
-                        module.activities.every((a: any) => a.quiz_progress?.is_completed) 
+                        module.activities.every((a: any) => a.quiz_progress?.is_completed || a.is_completed) 
                           ? 'text-green-600 dark:text-green-400' 
                           : 'text-amber-600 dark:text-amber-400'
                       ]">
-                        <CheckCircle2 v-if="module.activities.every((a: any) => a.quiz_progress?.is_completed)" class="w-3 h-3 mr-1" />
+                        <CheckCircle2 v-if="module.activities.every((a: any) => a.quiz_progress?.is_completed || a.is_completed)" class="w-3 h-3 mr-1" />
                         <AlertCircle v-else class="w-3 h-3 mr-1" />
-                        {{ module.activities.filter((a: any) => a.quiz_progress?.is_completed).length }} / {{ module.activities.length }}
+                        {{ module.activities.filter((a: any) => a.quiz_progress?.is_completed || a.is_completed).length }} / {{ module.activities.length }}
                       </span>
                     </span>
                   </div>
@@ -453,7 +574,7 @@ const formatDuration = (minutes: number) => {
                   <!-- Mark Complete Button -->
                   <div class="ml-4">
                     <button
-                      v-if="!lesson.is_completed"
+                      v-if="!isLessonCompleted(lesson)"
                       @click="markLessonComplete(lesson.id)"
                       :disabled="completingLesson === lesson.id"
                       class="px-3 py-1.5 text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -469,65 +590,253 @@ const formatDuration = (minutes: number) => {
               </div>
             </div>
 
-            <!-- Activities (Quizzes) -->
+            <!-- Activities by Type -->
             <div v-if="module.activities && module.activities.length > 0">
-              <h3 class="text-md font-semibold text-gray-900 dark:text-white mb-3">Quizzes</h3>
-              <div class="space-y-4">
-                <div
-                  v-for="activity in module.activities"
-                  :key="activity.id"
-                  :class="[
-                    'border rounded-lg p-5 transition-all duration-200',
-                    (activity as any).quiz_progress?.is_completed 
-                      ? 'border-green-200 dark:border-green-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20'
-                      : 'border-amber-200 dark:border-amber-700 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 ring-2 ring-amber-200 dark:ring-amber-700/50'
-                  ]"
-                >
-                  <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                      <div class="flex items-center mb-2">
-                        <FileText class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
-                        <h4 class="text-base font-semibold text-gray-900 dark:text-white">{{ activity.title }}</h4>
-                      </div>
-                      <div 
-                        class="text-sm text-gray-600 dark:text-gray-400 mb-3 prose prose-sm max-w-none dark:prose-invert"
-                        v-html="activity.description"
-                      ></div>
-                      
-                      <div class="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        <span>{{ activity.question_count }} questions</span>
-                        <span>{{ activity.total_points }} points</span>
-                        <span v-if="activity.time_limit">{{ activity.time_limit }} minutes</span>
+              <!-- Quizzes Section -->
+              <div v-if="getActivitiesByType(module.activities, 'Quiz').length > 0" class="mb-6">
+                <div class="flex items-center mb-4">
+                  <Trophy class="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
+                  <h3 class="text-md font-semibold text-gray-900 dark:text-white">
+                    Quizzes ({{ getCompletedActivitiesByType(module.activities, 'Quiz').length }}/{{ getActivitiesByType(module.activities, 'Quiz').length }})
+                  </h3>
+                </div>
+                <div class="space-y-4">
+                  <div
+                    v-for="activity in getActivitiesByType(module.activities, 'Quiz')"
+                    :key="activity.id"
+                    :class="[
+                      'border rounded-lg p-5 transition-all duration-200',
+                      isActivityCompleted(activity)
+                        ? 'border-green-200 dark:border-green-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20'
+                        : 'border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20'
+                    ]"
+                  >
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <div class="flex items-center mb-2">
+                          <Trophy class="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
+                          <h4 class="text-base font-semibold text-gray-900 dark:text-white">{{ activity.title }}</h4>
+                        </div>
+                        <div 
+                          class="text-sm text-gray-600 dark:text-gray-400 mb-3 prose prose-sm max-w-none dark:prose-invert"
+                          v-html="activity.description"
+                        ></div>
+                        
+                        <div class="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          <span>{{ activity.question_count || 0 }} questions</span>
+                          <span>{{ activity.total_points || 0 }} points</span>
+                          <span v-if="activity.time_limit">{{ activity.time_limit }} minutes</span>
+                        </div>
+
+                        <!-- Quiz Status Badge -->
+                        <div v-if="isActivityCompleted(activity)" class="inline-flex items-center">
+                          <CheckCircle2 class="w-4 h-4 mr-1 text-green-600 dark:text-green-400" />
+                          <span class="text-sm font-medium text-green-700 dark:text-green-300">
+                            {{ getActivityStatusText(activity) }}
+                          </span>
+                        </div>
+                        <div v-else-if="activity.quiz_progress && !activity.quiz_progress.is_completed" class="inline-flex items-center">
+                          <Clock class="w-4 h-4 mr-1 text-blue-600 dark:text-blue-400" />
+                          <span class="text-sm font-medium text-blue-700 dark:text-blue-300">
+                            In Progress ({{ activity.quiz_progress.completed_questions }}/{{ activity.quiz_progress.total_questions }})
+                          </span>
+                        </div>
+                        <div v-else class="inline-flex items-center">
+                          <PlayCircle class="w-4 h-4 mr-1 text-gray-600 dark:text-gray-400" />
+                          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Not Started</span>
+                        </div>
                       </div>
 
-                      <!-- Quiz Status Badge -->
-                      <div class="inline-flex items-center">
-                        <component 
-                          :is="getQuizStatusBadge(activity).component"
-                          :class="getQuizStatusBadge(activity).class"
-                          class="w-4 h-4 mr-1"
-                        />
-                        <span :class="getQuizStatusBadge(activity).textClass" class="text-sm font-medium">
-                          {{ getQuizStatusBadge(activity).text }}
-                        </span>
+                      <!-- Action Button -->
+                      <div class="ml-4">
+                        <!-- Start/Continue/View Quiz Button for quizzes with questions -->
+                        <button
+                          v-if="activity.question_count && activity.question_count > 0"
+                          @click="handleQuizClick(activity)"
+                          :class="[
+                            'px-4 py-2 rounded-lg font-medium text-sm transition-colors',
+                            getQuizButtonVariant(activity) === 'default' 
+                              ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                              : getQuizButtonVariant(activity) === 'outline'
+                              ? 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-900/20'
+                              : 'bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'
+                          ]"
+                        >
+                          {{ getQuizButtonText(activity) }}
+                        </button>
+                        
+                        <!-- Mark as Complete Button for quizzes with 0 questions -->
+                        <button
+                          v-else-if="!isActivityCompleted(activity)"
+                          @click="markActivityComplete(activity, module)"
+                          :disabled="completingActivity === activity.id"
+                          class="px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg transition-colors"
+                        >
+                          {{ completingActivity === activity.id ? 'Marking...' : 'Mark as Complete' }}
+                        </button>
+                        
+                        <!-- View Activity Button for completed activities -->
+                        <Link
+                          v-else
+                          :href="`/student/activities/${activity.id}`"
+                          class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors inline-block text-center"
+                        >
+                          View Activity
+                        </Link>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
 
-                    <!-- Action Button -->
-                    <div class="ml-4">
-                      <button
-                        @click="handleQuizClick(activity)"
-                        :class="[
-                          'px-4 py-2 rounded-lg font-medium text-sm transition-colors',
-                          getQuizButtonVariant(activity) === 'default' 
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                            : getQuizButtonVariant(activity) === 'outline'
-                            ? 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-400 dark:hover:bg-blue-900/20'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'
-                        ]"
-                      >
-                        {{ getQuizButtonText(activity) }}
-                      </button>
+              <!-- Assignments Section -->
+              <div v-if="getActivitiesByType(module.activities, 'Assignment').length > 0" class="mb-6">
+                <div class="flex items-center mb-4">
+                  <FileText class="h-5 w-5 text-orange-600 dark:text-orange-400 mr-2" />
+                  <h3 class="text-md font-semibold text-gray-900 dark:text-white">
+                    Assignments ({{ getCompletedActivitiesByType(module.activities, 'Assignment').length }}/{{ getActivitiesByType(module.activities, 'Assignment').length }})
+                  </h3>
+                </div>
+                <div class="space-y-4">
+                  <div
+                    v-for="activity in getActivitiesByType(module.activities, 'Assignment')"
+                    :key="activity.id"
+                    :class="[
+                      'border rounded-lg p-5 transition-all duration-200',
+                      isActivityCompleted(activity)
+                        ? 'border-green-200 dark:border-green-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20'
+                        : 'border-orange-200 dark:border-orange-700 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20'
+                    ]"
+                  >
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <div class="flex items-center mb-2">
+                          <FileText class="w-5 h-5 text-orange-600 dark:text-orange-400 mr-2" />
+                          <h4 class="text-base font-semibold text-gray-900 dark:text-white">{{ activity.title }}</h4>
+                        </div>
+                        <div 
+                          class="text-sm text-gray-600 dark:text-gray-400 mb-3 prose prose-sm max-w-none dark:prose-invert"
+                          v-html="activity.description"
+                        ></div>
+                        
+                        <div class="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          <span>{{ activity.question_count || 0 }} questions</span>
+                          <span>{{ activity.total_points || 0 }} points</span>
+                          <span v-if="activity.time_limit">{{ activity.time_limit }} minutes</span>
+                        </div>
+
+                        <!-- Assignment Status -->
+                        <div v-if="isActivityCompleted(activity)" class="inline-flex items-center">
+                          <CheckCircle2 class="w-4 h-4 mr-1 text-green-600 dark:text-green-400" />
+                          <span class="text-sm font-medium text-green-700 dark:text-green-300">Completed</span>
+                        </div>
+                        <div v-else class="inline-flex items-center">
+                          <AlertCircle class="w-4 h-4 mr-1 text-orange-600 dark:text-orange-400" />
+                          <span class="text-sm font-medium text-orange-700 dark:text-orange-300">Not Started</span>
+                        </div>
+                      </div>
+
+                      <!-- Action Button -->
+                      <div class="ml-4">
+                        <!-- Mark as Complete Button for assignments with 0 questions -->
+                        <button
+                          v-if="!isActivityCompleted(activity) && (!activity.question_count || activity.question_count === 0)"
+                          @click="markActivityComplete(activity, module)"
+                          :disabled="completingActivity === activity.id"
+                          class="px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg transition-colors"
+                        >
+                          {{ completingActivity === activity.id ? 'Marking...' : 'Mark as Complete' }}
+                        </button>
+                        
+                        <!-- Completed Badge - No action button for completed assignments -->
+                        <div v-else-if="isActivityCompleted(activity)" class="px-4 py-2 text-sm font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/50 rounded-lg">
+                          <CheckCircle2 class="w-4 h-4 inline mr-1" />
+                          Completed
+                        </div>
+                        
+                        <!-- View Activity Button for assignments with questions -->
+                        <Link
+                          v-else-if="activity.question_count && activity.question_count > 0"
+                          :href="`/student/activities/${activity.id}`"
+                          class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors inline-block text-center"
+                        >
+                          View Activity
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Other Activities Section -->
+              <div v-if="getOtherActivities(module.activities).length > 0">
+                <div class="flex items-center mb-4">
+                  <BookOpen class="h-5 w-5 text-green-600 dark:text-green-400 mr-2" />
+                  <h3 class="text-md font-semibold text-gray-900 dark:text-white">
+                    Other Activities ({{ getCompletedOtherActivities(module.activities).length }}/{{ getOtherActivities(module.activities).length }})
+                  </h3>
+                </div>
+                <div class="space-y-4">
+                  <div
+                    v-for="activity in getOtherActivities(module.activities)"
+                    :key="activity.id"
+                    :class="[
+                      'border rounded-lg p-5 transition-all duration-200',
+                      isActivityCompleted(activity)
+                        ? 'border-green-200 dark:border-green-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20'
+                        : 'border-green-200 dark:border-green-700 bg-gradient-to-r from-green-50 to-lime-50 dark:from-green-900/20 dark:to-lime-900/20'
+                    ]"
+                  >
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <div class="flex items-center mb-2">
+                          <BookOpen class="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
+                          <h4 class="text-base font-semibold text-gray-900 dark:text-white">{{ activity.title }}</h4>
+                        </div>
+                        <div 
+                          class="text-sm text-gray-600 dark:text-gray-400 mb-3 prose prose-sm max-w-none dark:prose-invert"
+                          v-html="activity.description"
+                        ></div>
+                        
+                        <div class="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          <span class="flex items-center">
+                            <ClipboardList class="h-3 w-3 mr-1" />
+                            {{ activity.activity_type }}
+                          </span>
+                        </div>
+
+                        <!-- Activity Status -->
+                        <div v-if="isActivityCompleted(activity)" class="inline-flex items-center">
+                          <CheckCircle2 class="w-4 h-4 mr-1 text-green-600 dark:text-green-400" />
+                          <span class="text-sm font-medium text-green-700 dark:text-green-300">Completed</span>
+                        </div>
+                        <div v-else class="inline-flex items-center">
+                          <AlertCircle class="w-4 h-4 mr-1 text-green-600 dark:text-green-400" />
+                          <span class="text-sm font-medium text-green-700 dark:text-green-300">Not Started</span>
+                        </div>
+                      </div>
+
+                      <!-- Action Button -->
+                      <div class="ml-4">
+                        <!-- Mark as Complete Button for other activities -->
+                        <button
+                          v-if="!isActivityCompleted(activity)"
+                          @click="markActivityComplete(activity, module)"
+                          :disabled="completingActivity === activity.id"
+                          class="px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg transition-colors"
+                        >
+                          {{ completingActivity === activity.id ? 'Marking...' : 'Mark as Complete' }}
+                        </button>
+                        
+                        <!-- View Activity Button -->
+                        <Link
+                          v-else
+                          :href="`/student/activities/${activity.id}`"
+                          class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors inline-block text-center"
+                        >
+                          View Activity
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>

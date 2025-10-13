@@ -31,6 +31,7 @@ export interface NewUserData {
   password: string;
   role: string;
   grade_level?: string;
+  grade_level_id?: number | null;
   section?: string;
 }
 
@@ -40,6 +41,7 @@ export interface UserUpdateData {
   password?: string;
   role: string;
   grade_level?: string;
+  grade_level_id?: number | null;
   section?: string;
 }
 //
@@ -110,10 +112,10 @@ export type Question = {
     id: number;
     quiz_id: number; // Associated Quiz ID
     question_text: string;
-    options: Array<QuestionOption>;//can be nul
-    question_type: string; // e.g., "multiple-choice", "true-false","enumeration", "short-answer"
+    options: Array<QuestionOption>;//can be null
+    question_type: string; // e.g., "multiple_choice", "true_false", "enumeration", "short_answer" (database format)
     points: number; 
-    correct_answer?: string; //  "true-fale" ={true,false},multiple-choice like a,b,c,d
+    correct_answer?: string; // For text-based questions
     created_at: string;
     updated_at: string;
 }
@@ -134,7 +136,6 @@ export type Assignment = {
     title: string;
     description: string;
     document: number; //the document id stored in the document table 
-    due_date: string;
     created_at: string;
     updated_at: string;
 }
@@ -208,6 +209,8 @@ export type StudentQuizAnswer = {
   question_id: number; // Associated Question ID
   question: Question; // Full Question object for validation
   selected_option_id?: number; // For multiple choice questions
+  selected_option?: QuestionOption; // The selected option object (from Laravel relationship)
+  selectedOption?: QuestionOption; // Camelcase alias for compatibility
   answer_text?: string; // For text-based answers
   is_correct: boolean; // Determined by comparing with question.correct_answer
   points_earned: number; // Points earned for this answer

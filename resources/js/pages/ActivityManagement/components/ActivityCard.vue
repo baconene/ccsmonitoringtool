@@ -124,13 +124,12 @@ const handleCloseModal = () => {
 
 <template>
     <div
-        :class="getCardColorClass(getActivityTypeName())"
-        class="border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+        class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-200/50 dark:border-purple-700/50 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden"
     >
         <!-- Card Header with Activity Type Color -->
-        <div :class="getTitleColorClass(getActivityTypeName())" class="px-4 py-3 rounded-t-lg">
+        <div :class="getTitleColorClass(getActivityTypeName())" class="px-4 py-3 bg-gradient-to-r">
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-white truncate">
+                <h3 class="text-base sm:text-lg font-semibold text-white truncate">
                     {{ activity.title }}
                 </h3>
                 <span
@@ -143,49 +142,49 @@ const handleCloseModal = () => {
         </div>
 
         <!-- Card Body -->
-        <div class="p-4 space-y-3">
+        <div class="p-4 sm:p-5 space-y-3">
             <!-- Description -->
             <p
                 v-if="activity.description"
-                class="text-sm text-gray-700 dark:text-gray-300 line-clamp-2"
+                class="text-xs sm:text-sm text-gray-700 dark:text-gray-300 line-clamp-2"
             >
                 {{ activity.description }}
             </p>
 
             <!-- Activity Stats -->
-            <div class="flex flex-wrap gap-3 text-xs text-gray-600 dark:text-gray-400">
-                <div v-if="activity.question_count" class="flex items-center gap-1">
-                    <BookOpen :size="16" />
+            <div class="flex flex-wrap gap-2 sm:gap-3 text-xs text-gray-600 dark:text-gray-400">
+                <div v-if="activity.question_count" class="flex items-center gap-1 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded-full">
+                    <BookOpen :size="14" />
                     <span>{{ activity.question_count }} Questions</span>
                 </div>
-                <div v-if="activity.total_points" class="flex items-center gap-1">
+                <div v-if="activity.total_points" class="flex items-center gap-1 px-2 py-1 bg-pink-100 dark:bg-pink-900/30 rounded-full">
                     <span class="font-semibold">{{ activity.total_points }} Points</span>
                 </div>
-                <div v-if="activity.has_due_date" class="flex items-center gap-1">
-                    <Clock :size="16" />
+                <div v-if="activity.has_due_date" class="flex items-center gap-1 px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 rounded-full">
+                    <Clock :size="14" />
                     <span>Has Due Date</span>
                 </div>
             </div>
 
             <!-- Created Date -->
             <div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                <Calendar :size="16" />
+                <Calendar :size="14" />
                 <span>Created {{ formatDate(activity.created_at) }}</span>
             </div>
 
             <!-- Module Usage Summary -->
             <div
                 v-if="activity.used_in_modules && activity.used_in_modules.length > 0"
-                class="pt-3 border-t border-gray-300 dark:border-gray-600"
+                class="pt-3 border-t border-purple-200/50 dark:border-purple-700/50"
             >
-                <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Used in Modules:
                 </p>
                 <div class="flex flex-wrap gap-1">
                     <span
                         v-for="module in activity.used_in_modules"
                         :key="module.id"
-                        class="px-2 py-1 text-xs bg-white dark:bg-gray-700 rounded-full text-gray-700 dark:text-gray-300"
+                        class="px-2 py-1 text-xs bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 rounded-full text-purple-700 dark:text-purple-300"
                     >
                         {{ module.title }}
                     </span>
@@ -193,7 +192,7 @@ const handleCloseModal = () => {
             </div>
             <div
                 v-else
-                class="pt-3 border-t border-gray-300 dark:border-gray-600"
+                class="pt-3 border-t border-purple-200/50 dark:border-purple-700/50"
             >
                 <p class="text-xs text-gray-500 dark:text-gray-400 italic">
                     Not used in any module yet
@@ -202,25 +201,27 @@ const handleCloseModal = () => {
         </div>
 
         <!-- Card Footer with Actions -->
-        <div class="px-4 py-3 bg-white/50 dark:bg-gray-800/50 rounded-b-lg flex justify-end gap-2">
+        <div class="px-4 py-3 bg-gradient-to-r from-purple-50/50 to-pink-50/50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-b-xl flex flex-col sm:flex-row justify-end gap-2">
             <Link
                 :href="`/activities/${activity.id}`"
-                class="px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/50 rounded-md transition-colors"
+                class="px-3 py-2 text-xs sm:text-sm font-medium text-purple-700 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-lg transition-all hover:scale-105 text-center"
             >
                 View Details
             </Link>
-            <Link
-                :href="`/activities/${activity.id}/edit`"
-                class="p-1.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors"
-            >
-                <Pencil :size="16" />
-            </Link>
-            <button
-                @click="handleDeleteClick"
-                class="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-md transition-colors"
-            >
-                <Trash2 :size="16" />
-            </button>
+            <div class="flex gap-2 justify-end">
+                <Link
+                    :href="`/activities/${activity.id}/edit`"
+                    class="p-2 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-900/50 rounded-lg transition-all hover:scale-110"
+                >
+                    <Pencil :size="16" />
+                </Link>
+                <button
+                    @click="handleDeleteClick"
+                    class="p-2 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-all hover:scale-110"
+                >
+                    <Trash2 :size="16" />
+                </button>
+            </div>
         </div>
     </div>
 

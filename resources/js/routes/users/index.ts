@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\UserController::index
- * @see app/Http/Controllers/UserController.php:16
+ * @see app/Http/Controllers/UserController.php:20
  * @route '/api/users'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::index
- * @see app/Http/Controllers/UserController.php:16
+ * @see app/Http/Controllers/UserController.php:20
  * @route '/api/users'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\UserController::index
- * @see app/Http/Controllers/UserController.php:16
+ * @see app/Http/Controllers/UserController.php:20
  * @route '/api/users'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\UserController::index
- * @see app/Http/Controllers/UserController.php:16
+ * @see app/Http/Controllers/UserController.php:20
  * @route '/api/users'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\UserController::index
- * @see app/Http/Controllers/UserController.php:16
+ * @see app/Http/Controllers/UserController.php:20
  * @route '/api/users'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\UserController::index
- * @see app/Http/Controllers/UserController.php:16
+ * @see app/Http/Controllers/UserController.php:20
  * @route '/api/users'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\UserController::index
- * @see app/Http/Controllers/UserController.php:16
+ * @see app/Http/Controllers/UserController.php:20
  * @route '/api/users'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\UserController::store
- * @see app/Http/Controllers/UserController.php:22
+ * @see app/Http/Controllers/UserController.php:34
  * @route '/api/users'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::store
- * @see app/Http/Controllers/UserController.php:22
+ * @see app/Http/Controllers/UserController.php:34
  * @route '/api/users'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\UserController::store
- * @see app/Http/Controllers/UserController.php:22
+ * @see app/Http/Controllers/UserController.php:34
  * @route '/api/users'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\UserController::store
- * @see app/Http/Controllers/UserController.php:22
+ * @see app/Http/Controllers/UserController.php:34
  * @route '/api/users'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\UserController::store
- * @see app/Http/Controllers/UserController.php:22
+ * @see app/Http/Controllers/UserController.php:34
  * @route '/api/users'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -231,7 +231,7 @@ show.head = (args: { user: string | number } | [user: string | number ] | string
     show.form = showForm
 /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:47
+ * @see app/Http/Controllers/UserController.php:79
  * @route '/api/users/{user}'
  */
 export const update = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -246,7 +246,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:47
+ * @see app/Http/Controllers/UserController.php:79
  * @route '/api/users/{user}'
  */
 update.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -279,7 +279,7 @@ update.url = (args: { user: number | { id: number } } | [user: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:47
+ * @see app/Http/Controllers/UserController.php:79
  * @route '/api/users/{user}'
  */
 update.put = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -288,7 +288,7 @@ update.put = (args: { user: number | { id: number } } | [user: number | { id: nu
 })
 /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:47
+ * @see app/Http/Controllers/UserController.php:79
  * @route '/api/users/{user}'
  */
 update.patch = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -298,7 +298,7 @@ update.patch = (args: { user: number | { id: number } } | [user: number | { id: 
 
     /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:47
+ * @see app/Http/Controllers/UserController.php:79
  * @route '/api/users/{user}'
  */
     const updateForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -313,7 +313,7 @@ update.patch = (args: { user: number | { id: number } } | [user: number | { id: 
 
             /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:47
+ * @see app/Http/Controllers/UserController.php:79
  * @route '/api/users/{user}'
  */
         updateForm.put = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -327,7 +327,7 @@ update.patch = (args: { user: number | { id: number } } | [user: number | { id: 
         })
             /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:47
+ * @see app/Http/Controllers/UserController.php:79
  * @route '/api/users/{user}'
  */
         updateForm.patch = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -343,7 +343,7 @@ update.patch = (args: { user: number | { id: number } } | [user: number | { id: 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\UserController::destroy
- * @see app/Http/Controllers/UserController.php:80
+ * @see app/Http/Controllers/UserController.php:130
  * @route '/api/users/{user}'
  */
 export const destroy = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -358,7 +358,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::destroy
- * @see app/Http/Controllers/UserController.php:80
+ * @see app/Http/Controllers/UserController.php:130
  * @route '/api/users/{user}'
  */
 destroy.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -391,7 +391,7 @@ destroy.url = (args: { user: number | { id: number } } | [user: number | { id: n
 
 /**
 * @see \App\Http\Controllers\UserController::destroy
- * @see app/Http/Controllers/UserController.php:80
+ * @see app/Http/Controllers/UserController.php:130
  * @route '/api/users/{user}'
  */
 destroy.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -401,7 +401,7 @@ destroy.delete = (args: { user: number | { id: number } } | [user: number | { id
 
     /**
 * @see \App\Http\Controllers\UserController::destroy
- * @see app/Http/Controllers/UserController.php:80
+ * @see app/Http/Controllers/UserController.php:130
  * @route '/api/users/{user}'
  */
     const destroyForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -416,7 +416,7 @@ destroy.delete = (args: { user: number | { id: number } } | [user: number | { id
 
             /**
 * @see \App\Http\Controllers\UserController::destroy
- * @see app/Http/Controllers/UserController.php:80
+ * @see app/Http/Controllers/UserController.php:130
  * @route '/api/users/{user}'
  */
         destroyForm.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -430,12 +430,68 @@ destroy.delete = (args: { user: number | { id: number } } | [user: number | { id
         })
     
     destroy.form = destroyForm
+/**
+* @see \App\Http\Controllers\UserController::bulkUpload
+ * @see app/Http/Controllers/UserController.php:243
+ * @route '/api/users/bulk-upload'
+ */
+export const bulkUpload = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: bulkUpload.url(options),
+    method: 'post',
+})
+
+bulkUpload.definition = {
+    methods: ["post"],
+    url: '/api/users/bulk-upload',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\UserController::bulkUpload
+ * @see app/Http/Controllers/UserController.php:243
+ * @route '/api/users/bulk-upload'
+ */
+bulkUpload.url = (options?: RouteQueryOptions) => {
+    return bulkUpload.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::bulkUpload
+ * @see app/Http/Controllers/UserController.php:243
+ * @route '/api/users/bulk-upload'
+ */
+bulkUpload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: bulkUpload.url(options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Http\Controllers\UserController::bulkUpload
+ * @see app/Http/Controllers/UserController.php:243
+ * @route '/api/users/bulk-upload'
+ */
+    const bulkUploadForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: bulkUpload.url(options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\UserController::bulkUpload
+ * @see app/Http/Controllers/UserController.php:243
+ * @route '/api/users/bulk-upload'
+ */
+        bulkUploadForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: bulkUpload.url(options),
+            method: 'post',
+        })
+    
+    bulkUpload.form = bulkUploadForm
 const users = {
     index: Object.assign(index, index),
 store: Object.assign(store, store),
 show: Object.assign(show, show),
 update: Object.assign(update, update),
 destroy: Object.assign(destroy, destroy),
+bulkUpload: Object.assign(bulkUpload, bulkUpload),
 }
 
 export default users

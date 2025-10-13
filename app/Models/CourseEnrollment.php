@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CourseEnrollment extends Model
 {
+
     protected $fillable = [
-        'user_id',
+        'user_id', // Keep for backward compatibility during transition
+        'student_id', // New: References students table
         'course_id',
+        'instructor_id', // New: Track who enrolled the student
         'enrolled_at',
         'progress',
         'is_completed',
@@ -24,11 +27,27 @@ class CourseEnrollment extends Model
     ];
 
     /**
-     * Get the user for this enrollment.
+     * Get the user for this enrollment (backward compatibility).
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the student for this enrollment.
+     */
+    public function student(): BelongsTo
+    {
+        return $this->belongsTo(Student::class);
+    }
+
+    /**
+     * Get the instructor who enrolled the student.
+     */
+    public function instructor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'instructor_id');
     }
 
     /**
@@ -40,37 +59,40 @@ class CourseEnrollment extends Model
     }
 
     /**
-     * Calculate and update progress based on completed module weights.
+     * Update progress based on completed modules
      */
     public function updateProgress(): void
     {
-        // Get all modules for this course with their weights
         $modules = $this->course->modules()->get();
         
         if ($modules->isEmpty()) {
+            $this->progress = 0.0;
+            $this->save();
             return;
         }
-        
-        // Calculate total weight of all modules
-        $totalWeight = $modules->sum('module_percentage') ?: 100;
-        
-        // Get completed modules for this user
+
+        // Get completed modules
         $completedModules = ModuleCompletion::where('user_id', $this->user_id)
-            ->where('course_id', $this->course_id)
+            ->whereIn('module_id', $modules->pluck('id'))
+            ->where('is_completed', true)
             ->pluck('module_id')
             ->toArray();
+
+        // Check if modules have percentages set
+        $totalWeight = $modules->sum('module_percentage');
         
-        // Calculate sum of completed module weights
-        $completedWeight = $modules->whereIn('id', $completedModules)
-            ->sum('module_percentage');
+        if ($totalWeight > 0) {
+            // Use weighted calculation if percentages are set
+            $completedWeight = $modules->whereIn('id', $completedModules)->sum('module_percentage');
+            $progress = ($completedWeight / $totalWeight) * 100;
+        } else {
+            // Use equal weight for all modules if no percentages set
+            $totalModules = $modules->count();
+            $completedCount = count($completedModules);
+            $progress = $totalModules > 0 ? ($completedCount / $totalModules) * 100 : 0;
+        }
         
-        // Calculate progress percentage
-        $progress = $totalWeight > 0 ? ($completedWeight / $totalWeight) * 100 : 0;
-        
-        $this->update([
-            'progress' => round($progress, 2),
-            'is_completed' => $progress >= 100,
-            'completed_at' => $progress >= 100 ? now() : null,
-        ]);
+        $this->progress = (float) $progress;
+        $this->save();
     }
 }

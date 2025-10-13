@@ -8,86 +8,259 @@
         </h2>
       </div>
 
-      <div v-if="activities.length > 0" class="space-y-4">
-        <div 
-          v-for="activity in activities" 
-          :key="activity.id"
-          class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
-        >
-          <div class="flex items-start justify-between">
-            <div class="flex items-start flex-1">
-              <div class="flex-shrink-0 mr-4 mt-1">
-                <div 
-                  :class="activity.is_completed 
-                    ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'bg-gray-100 text-gray-400 dark:bg-gray-600 dark:text-gray-500'"
-                  class="w-8 h-8 rounded-full flex items-center justify-center"
-                >
-                  <CheckCircle2 v-if="activity.is_completed" class="h-4 w-4" />
-                  <ClipboardList v-else class="h-4 w-4" />
+      <div v-if="activities.length > 0" class="space-y-6">
+        <!-- Quizzes Section -->
+        <div v-if="quizzes.length > 0" class="space-y-3">
+          <div class="flex items-center mb-4">
+            <HelpCircle class="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+              Quizzes ({{ completedQuizzes }}/{{ quizzes.length }})
+            </h3>
+          </div>
+          <div 
+            v-for="activity in quizzes" 
+            :key="activity.id"
+            class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
+          >
+            <div class="flex items-start justify-between">
+              <div class="flex items-start flex-1">
+                <div class="flex-shrink-0 mr-4 mt-1">
+                  <div 
+                    :class="activity.is_completed 
+                      ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
+                      : 'bg-gray-100 text-gray-400 dark:bg-gray-600 dark:text-gray-500'"
+                    class="w-8 h-8 rounded-full flex items-center justify-center"
+                  >
+                    <CheckCircle2 v-if="activity.is_completed" class="h-4 w-4" />
+                    <HelpCircle v-else class="h-4 w-4" />
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    {{ activity.title }}
+                  </h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    {{ activity.description }}
+                  </p>
+                  
+                  <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    <span class="flex items-center">
+                      <Tag class="h-3 w-3 mr-1" />
+                      {{ activity.activity_type }}
+                    </span>
+                    <span v-if="activity.question_count > 0" class="flex items-center">
+                      <HelpCircle class="h-3 w-3 mr-1" />
+                      {{ activity.question_count }} questions
+                    </span>
+                    <span v-if="activity.total_points > 0" class="flex items-center">
+                      <Star class="h-3 w-3 mr-1" />
+                      {{ activity.total_points }} points
+                    </span>
+                  </div>
+
+                  <!-- Progress Information -->
+                  <div v-if="activity.quiz_progress" class="mb-3">
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                      Progress: {{ activity.quiz_progress.completed_questions }}/{{ activity.quiz_progress.total_questions }} questions
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mb-2">
+                      <div 
+                        class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        :style="{ width: `${(activity.quiz_progress.completed_questions / activity.quiz_progress.total_questions) * 100}%` }"
+                      ></div>
+                    </div>
+                    <div v-if="activity.is_completed" class="text-sm">
+                      <span class="text-green-600 dark:text-green-400 font-medium">
+                        Score: {{ activity.quiz_progress.percentage_score }}%
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="flex-1">
-                <h3 class="font-medium text-gray-900 dark:text-gray-100 mb-2">
-                  {{ activity.title }}
-                </h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  {{ activity.description }}
-                </p>
-                
-                <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-3">
-                  <span class="flex items-center">
-                    <Tag class="h-3 w-3 mr-1" />
-                    {{ activity.activity_type }}
-                  </span>
-                  <span v-if="activity.question_count > 0" class="flex items-center">
-                    <HelpCircle class="h-3 w-3 mr-1" />
-                    {{ activity.question_count }} questions
-                  </span>
-                  <span v-if="activity.total_points > 0" class="flex items-center">
-                    <Star class="h-3 w-3 mr-1" />
-                    {{ activity.total_points }} points
-                  </span>
-                </div>
 
-                <!-- Progress Information -->
-                <div v-if="activity.quiz_progress" class="mb-3">
-                  <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                    Progress: {{ activity.quiz_progress.completed_questions }}/{{ activity.quiz_progress.total_questions }} questions
+              <!-- Action Buttons -->
+              <div class="flex-shrink-0 ml-4">
+                <div class="flex flex-col gap-2">
+                  <!-- Quiz with questions - Start/Continue/View Results -->
+                  <Link
+                    v-if="activity.activity_type === 'Quiz' && activity.question_count > 0"
+                    :href="getActivityLink(activity)"
+                    :class="getActivityButtonClass(activity)"
+                    class="px-4 py-2 text-sm font-medium rounded-md transition-colors text-center"
+                  >
+                    {{ getActivityButtonText(activity) }}
+                  </Link>
+                  
+                  <!-- Mark as Complete button for non-quiz activities OR quiz/assignment with 0 questions -->
+                  <button
+                    v-else-if="!activity.is_completed && (
+                      !['Quiz', 'Assignment'].includes(activity.activity_type) || 
+                      (['Quiz', 'Assignment'].includes(activity.activity_type) && activity.question_count === 0)
+                    )"
+                    @click="markActivityComplete(activity)"
+                    :disabled="isMarkingComplete"
+                    class="px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-md transition-colors"
+                  >
+                    {{ isMarkingComplete ? 'Marking...' : 'Mark as Complete' }}
+                  </button>
+                  
+                  <!-- View Activity button for completed activities or activities that can't be marked complete -->
+                  <Link
+                    v-else
+                    :href="`/student/activities/${activity.id}`"
+                    class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-center"
+                  >
+                    {{ activity.is_completed ? 'View Activity' : 'View Activity' }}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assignments Section -->
+        <div v-if="assignments.length > 0" class="space-y-3">
+          <div class="flex items-center mb-4">
+            <FileText class="h-5 w-5 text-orange-600 dark:text-orange-400 mr-2" />
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+              Assignments ({{ completedAssignments }}/{{ assignments.length }})
+            </h3>
+          </div>
+          <div 
+            v-for="activity in assignments" 
+            :key="activity.id"
+            class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800"
+          >
+            <div class="flex items-start justify-between">
+              <div class="flex items-start flex-1">
+                <div class="flex-shrink-0 mr-4 mt-1">
+                  <div 
+                    :class="activity.is_completed 
+                      ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
+                      : 'bg-gray-100 text-gray-400 dark:bg-gray-600 dark:text-gray-500'"
+                    class="w-8 h-8 rounded-full flex items-center justify-center"
+                  >
+                    <CheckCircle2 v-if="activity.is_completed" class="h-4 w-4" />
+                    <FileText v-else class="h-4 w-4" />
                   </div>
-                  <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mb-2">
-                    <div 
-                      class="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                      :style="{ width: `${(activity.quiz_progress.completed_questions / activity.quiz_progress.total_questions) * 100}%` }"
-                    ></div>
-                  </div>
-                  <div v-if="activity.is_completed" class="text-sm">
-                    <span class="text-green-600 dark:text-green-400 font-medium">
-                      Score: {{ activity.quiz_progress.percentage_score }}%
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    {{ activity.title }}
+                  </h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    {{ activity.description }}
+                  </p>
+                  
+                  <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    <span class="flex items-center">
+                      <Tag class="h-3 w-3 mr-1" />
+                      {{ activity.activity_type }}
+                    </span>
+                    <span v-if="activity.question_count > 0" class="flex items-center">
+                      <HelpCircle class="h-3 w-3 mr-1" />
+                      {{ activity.question_count }} questions
+                    </span>
+                    <span v-if="activity.total_points > 0" class="flex items-center">
+                      <Star class="h-3 w-3 mr-1" />
+                      {{ activity.total_points }} points
                     </span>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div class="flex-shrink-0 ml-4">
-              <div class="flex flex-col gap-2">
-                <Link
-                  v-if="activity.activity_type === 'Quiz'"
-                  :href="getActivityLink(activity)"
-                  :class="getActivityButtonClass(activity)"
-                  class="px-4 py-2 text-sm font-medium rounded-md transition-colors text-center"
-                >
-                  {{ getActivityButtonText(activity) }}
-                </Link>
-                <Link
-                  v-else
-                  :href="`/student/activities/${activity.id}`"
-                  class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-center"
-                >
-                  View Activity
-                </Link>
+              <!-- Action Buttons -->
+              <div class="flex-shrink-0 ml-4">
+                <div class="flex flex-col gap-2">
+                  <!-- Mark as Complete button for assignments with 0 questions -->
+                  <button
+                    v-if="!activity.is_completed && activity.question_count === 0"
+                    @click="markActivityComplete(activity)"
+                    :disabled="isMarkingComplete"
+                    class="px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-md transition-colors"
+                  >
+                    {{ isMarkingComplete ? 'Marking...' : 'Mark as Complete' }}
+                  </button>
+                  
+                  <!-- View Activity button -->
+                  <Link
+                    v-else
+                    :href="`/student/activities/${activity.id}`"
+                    class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-center"
+                  >
+                    {{ activity.is_completed ? 'View Activity' : 'View Activity' }}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Other Activities Section -->
+        <div v-if="otherActivities.length > 0" class="space-y-3">
+          <div class="flex items-center mb-4">
+            <Book class="h-5 w-5 text-green-600 dark:text-green-400 mr-2" />
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+              Other Activities ({{ completedOtherActivities }}/{{ otherActivities.length }})
+            </h3>
+          </div>
+          <div 
+            v-for="activity in otherActivities" 
+            :key="activity.id"
+            class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800"
+          >
+            <div class="flex items-start justify-between">
+              <div class="flex items-start flex-1">
+                <div class="flex-shrink-0 mr-4 mt-1">
+                  <div 
+                    :class="activity.is_completed 
+                      ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
+                      : 'bg-gray-100 text-gray-400 dark:bg-gray-600 dark:text-gray-500'"
+                    class="w-8 h-8 rounded-full flex items-center justify-center"
+                  >
+                    <CheckCircle2 v-if="activity.is_completed" class="h-4 w-4" />
+                    <Book v-else class="h-4 w-4" />
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    {{ activity.title }}
+                  </h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    {{ activity.description }}
+                  </p>
+                  
+                  <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    <span class="flex items-center">
+                      <Tag class="h-3 w-3 mr-1" />
+                      {{ activity.activity_type }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex-shrink-0 ml-4">
+                <div class="flex flex-col gap-2">
+                  <!-- Mark as Complete button for other activities -->
+                  <button
+                    v-if="!activity.is_completed"
+                    @click="markActivityComplete(activity)"
+                    :disabled="isMarkingComplete"
+                    class="px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-md transition-colors"
+                  >
+                    {{ isMarkingComplete ? 'Marking...' : 'Mark as Complete' }}
+                  </button>
+                  
+                  <!-- View Activity button -->
+                  <Link
+                    v-else
+                    :href="`/student/activities/${activity.id}`"
+                    class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-center"
+                  >
+                    View Activity
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -102,14 +275,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import { Link, router } from '@inertiajs/vue3';
 import { 
   ClipboardList, 
   CheckCircle2, 
   Tag, 
   HelpCircle, 
-  Star
+  Star,
+  FileText,
+  Book
 } from 'lucide-vue-next';
 
 interface Activity {
@@ -137,6 +312,32 @@ const props = defineProps<{
 
 const completedActivities = computed(() => {
   return props.activities.filter(activity => activity.is_completed).length;
+});
+
+// Segregate activities by type
+const quizzes = computed(() => {
+  return props.activities.filter(activity => activity.activity_type === 'Quiz');
+});
+
+const assignments = computed(() => {
+  return props.activities.filter(activity => activity.activity_type === 'Assignment');
+});
+
+const otherActivities = computed(() => {
+  return props.activities.filter(activity => !['Quiz', 'Assignment'].includes(activity.activity_type));
+});
+
+// Count completed activities by type
+const completedQuizzes = computed(() => {
+  return quizzes.value.filter(activity => activity.is_completed).length;
+});
+
+const completedAssignments = computed(() => {
+  return assignments.value.filter(activity => activity.is_completed).length;
+});
+
+const completedOtherActivities = computed(() => {
+  return otherActivities.value.filter(activity => activity.is_completed).length;
 });
 
 const getActivityLink = (activity: Activity) => {
@@ -167,6 +368,36 @@ const getActivityButtonText = (activity: Activity) => {
     return 'Continue Quiz';
   } else {
     return 'Start Quiz';
+  }
+};
+
+// Mark activity as complete functionality
+const isMarkingComplete = ref(false);
+
+const markActivityComplete = async (activity: Activity) => {
+  if (isMarkingComplete.value) return;
+  
+  isMarkingComplete.value = true;
+  
+  try {
+    await router.post(`/activities/${activity.id}/mark-complete`, {}, {
+      onSuccess: () => {
+        // Update the activity locally to reflect the completion
+        activity.is_completed = true;
+        // Add a success notification if needed
+        console.log('Activity marked as complete successfully');
+      },
+      onError: (errors) => {
+        console.error('Failed to mark activity as complete:', errors);
+        // Handle error (show notification, etc.)
+      },
+      onFinish: () => {
+        isMarkingComplete.value = false;
+      }
+    });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    isMarkingComplete.value = false;
   }
 };
 </script>

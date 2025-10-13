@@ -15,6 +15,20 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($user) {
+            // Delete user profile records
+            $user->student()->delete();
+            $user->instructor()->delete();
+            
+            // Detach many-to-many relationships
+            $user->courses()->detach();
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -25,8 +39,6 @@ class User extends Authenticatable
         'email',
         'password',
         'role_id',
-        'grade_level',
-        'section',
     ];
 
     /**
@@ -124,7 +136,7 @@ class User extends Authenticatable
         }
 
         return Student::create([
-            'student_id' => Student::generateStudentId(),
+            'student_id_text' => Student::generateStudentIdText(),
             'user_id' => $this->id,
             'enrollment_number' => $this->generateEnrollmentNumber(),
             'academic_year' => date('Y') . '-' . (date('Y') + 1),
@@ -264,7 +276,8 @@ class User extends Authenticatable
     }
 
     /**
-     * Get course enrollments for this user.
+     * Get course enrollments for this user (deprecated - use Student model instead).
+     * @deprecated Use Student model courseEnrollments relationship instead
      */
     public function courseEnrollments()
     {
@@ -272,7 +285,8 @@ class User extends Authenticatable
     }
 
     /**
-     * Get enrolled courses for this user.
+     * Get enrolled courses for this user (deprecated - use Student model instead).
+     * @deprecated Use Student model enrolledCourses relationship instead
      */
     public function enrolledCourses()
     {
@@ -282,7 +296,8 @@ class User extends Authenticatable
     }
 
     /**
-     * Get lesson completions for this user.
+     * Get lesson completions for this user (deprecated - use Student model instead).
+     * @deprecated Use Student model lessonCompletions relationship instead
      */
     public function lessonCompletions()
     {
@@ -290,20 +305,33 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user has completed a specific lesson.
+     * Check if user has completed a specific lesson (deprecated - use Student model instead).
+     * @deprecated Use Student model hasCompletedLesson method instead
      */
     public function hasCompletedLesson(int $lessonId): bool
     {
+        // If user is a student, delegate to student model
+        if ($this->student) {
+            return $this->student->hasCompletedLesson($lessonId);
+        }
+        
         return $this->lessonCompletions()
             ->where('lesson_id', $lessonId)
             ->exists();
     }
 
     /**
-     * Mark a lesson as completed.
+     * Mark a lesson as completed (deprecated - use Student model instead).
+     * @deprecated Use Student model completeLesson method instead
      */
     public function completeLesson(Lesson $lesson, array $completionData = []): LessonCompletion
     {
+        // If user is a student, delegate to student model
+        if ($this->student) {
+            return $this->student->completeLesson($lesson, $completionData);
+        }
+        
+        // Fallback for non-student users
         $completion = $this->lessonCompletions()->updateOrCreate(
             [
                 'lesson_id' => $lesson->id,
@@ -328,7 +356,8 @@ class User extends Authenticatable
     }
 
     /**
-     * Get module completions for this user.
+     * Get module completions for this user (deprecated - use Student model instead).
+     * @deprecated Use Student model moduleCompletions relationship instead
      */
     public function moduleCompletions()
     {

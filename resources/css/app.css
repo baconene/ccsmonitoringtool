@@ -19,6 +19,113 @@
   overflow: hidden;
 }
 
+/* WYSIWYG Content Styles - Mobile Responsive with Dark Mode */
+.lesson-content {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  background: transparent;
+  color: inherit;
+}
+
+.lesson-content p {
+  margin-bottom: 0.75rem;
+  line-height: 1.625;
+  color: rgb(55 65 81); /* gray-700 */
+}
+
+.dark .lesson-content p {
+  color: rgb(209 213 219); /* gray-300 */
+}
+
+.lesson-content h1, .lesson-content h2, .lesson-content h3, .lesson-content h4, .lesson-content h5, .lesson-content h6 {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+  color: rgb(17 24 39); /* gray-900 */
+}
+
+.dark .lesson-content h1, .dark .lesson-content h2, .dark .lesson-content h3, .dark .lesson-content h4, .dark .lesson-content h5, .dark .lesson-content h6 {
+  color: rgb(243 244 246); /* gray-100 */
+}
+
+.lesson-content h1:first-child, .lesson-content h2:first-child, .lesson-content h3:first-child, .lesson-content h4:first-child, .lesson-content h5:first-child, .lesson-content h6:first-child {
+  margin-top: 0;
+}
+
+.lesson-content ul, .lesson-content ol {
+  margin-bottom: 0.75rem;
+  padding-left: 1rem;
+}
+
+.lesson-content li {
+  margin-bottom: 0.25rem;
+  color: rgb(55 65 81); /* gray-700 */
+}
+
+.dark .lesson-content li {
+  color: rgb(209 213 219); /* gray-300 */
+}
+
+.lesson-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  margin: 1rem 0;
+}
+
+.lesson-content blockquote {
+  border-left: 4px solid rgb(191 219 254);
+  padding-left: 1rem;
+  font-style: italic;
+  margin: 1rem 0;
+  color: rgb(75 85 99); /* gray-600 */
+}
+
+.dark .lesson-content blockquote {
+  border-left-color: rgb(30 64 175);
+  color: rgb(156 163 175); /* gray-400 */
+}
+
+.lesson-content strong {
+  font-weight: 600;
+  color: rgb(17 24 39); /* gray-900 */
+}
+
+.dark .lesson-content strong {
+  color: rgb(243 244 246); /* gray-100 */
+}
+
+.lesson-content em {
+  font-style: italic;
+}
+
+.lesson-content a {
+  color: rgb(37 99 235); /* blue-600 */
+  text-decoration: underline;
+}
+
+.dark .lesson-content a {
+  color: rgb(96 165 250); /* blue-400 */
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 640px) {
+  .lesson-content {
+    font-size: 0.875rem;
+    line-height: 1.625;
+  }
+  
+  .lesson-content p {
+    margin-bottom: 0.5rem;
+  }
+  
+  .lesson-content h1, .lesson-content h2, .lesson-content h3, .lesson-content h4, .lesson-content h5, .lesson-content h6 {
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 

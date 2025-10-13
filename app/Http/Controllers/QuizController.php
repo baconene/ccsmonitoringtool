@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Quiz;
 use App\Models\Activity;
+use App\Services\QuizCsvUploadService;
+use App\Http\Requests\QuizBulkUploadRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -94,5 +96,65 @@ class QuizController extends Controller
 
         return redirect()->route('activities.show', $activityId)
             ->with('success', 'Quiz deleted successfully.');
+    }
+
+    /**
+     * Bulk upload quiz questions from CSV file
+     */
+    public function bulkUpload(QuizBulkUploadRequest $request)
+    {
+        $validated = $request->validated();
+
+        try {
+            $uploadService = app(\App\Services\QuizCsvUploadService::class);
+            
+            $result = $uploadService->processQuizCsv(
+                $request->file('csv_file'),
+                $validated['activity_id'],
+                $validated['quiz_title'],
+                $validated['quiz_description'] ?? null
+            );
+
+            return redirect()->route('activities.show', $validated['activity_id'])
+                ->with('success', $result['message']);
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['csv_file' => $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Get CSV format example for bulk upload
+     */
+    public function getCsvExample()
+    {
+        $uploadService = app(\App\Services\QuizCsvUploadService::class);
+        $example = $uploadService->getCsvFormatExample();
+
+        return response()->json([
+            'success' => true,
+            'data' => $example
+        ]);
+    }
+
+    /**
+     * Download CSV template for bulk upload
+     */
+    public function downloadCsvTemplate()
+    {
+        $uploadService = app(\App\Services\QuizCsvUploadService::class);
+        $example = $uploadService->getCsvFormatExample();
+
+        $headers = $example['headers'];
+        $exampleRow = $example['example_row'];
+
+        $csvContent = implode(',', $headers) . "\n";
+        $csvContent .= implode(',', $exampleRow) . "\n";
+
+        return response($csvContent)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="quiz_template.csv"');
     }
 }

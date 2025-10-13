@@ -11,6 +11,29 @@ class Activity extends Model
 {
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($activity) {
+            // Delete quiz and its related data
+            if ($activity->quiz) {
+                $activity->quiz->delete();
+            }
+
+            // Delete assignment
+            if ($activity->assignment) {
+                $activity->assignment->delete();
+            }
+
+            // Delete student activities
+            $activity->studentActivities()->delete();
+
+            // Detach from modules
+            $activity->modules()->detach();
+        });
+    }
+
     protected $fillable = [
         'title',
         'description',

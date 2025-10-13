@@ -6,14 +6,32 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Student extends Model
 {
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($student) {
+            // Delete all related records when student is deleted
+            $student->courseEnrollments()->delete();
+            $student->studentActivities()->delete();
+            $student->quizProgress()->delete();
+            $student->lessonCompletions()->delete();
+            $student->moduleCompletions()->delete();
+        });
+    }
+
     protected $fillable = [
-        'student_id',
+        'student_id_text',
         'user_id',
+        'grade_level_id',
+        'section',
         'enrollment_number',
         'academic_year',
         'program',
@@ -39,14 +57,14 @@ class Student extends Model
     }
 
     /**
-     * Get the courses that this student is enrolled in.
+     * Get the grade level that the student belongs to.
      */
-    public function courses(): BelongsToMany
+    public function gradeLevel(): BelongsTo
     {
-        return $this->belongsToMany(Course::class, 'course_student', 'student_id', 'course_id')
-            ->withPivot(['enrolled_at', 'status', 'grade', 'notes'])
-            ->withTimestamps();
+        return $this->belongsTo(GradeLevel::class);
     }
+
+
 
     /**
      * Accessor to get student's name from user relationship.
@@ -65,20 +83,36 @@ class Student extends Model
     }
 
     /**
-     * Generate a unique student ID.
+     * Accessor for backward compatibility - maps student_id to student_id_text.
      */
-    public static function generateStudentId(): string
+    public function getStudentIdAttribute(): ?string
+    {
+        return $this->student_id_text;
+    }
+
+    /**
+     * Mutator for backward compatibility - maps student_id to student_id_text.
+     */
+    public function setStudentIdAttribute($value): void
+    {
+        $this->attributes['student_id_text'] = $value;
+    }
+
+    /**
+     * Generate a unique student ID text.
+     */
+    public static function generateStudentIdText(): string
     {
         $year = date('Y');
         $prefix = 'STU' . $year;
         
         // Get the last student ID for this year
-        $lastStudent = self::where('student_id', 'LIKE', $prefix . '%')
-            ->orderBy('student_id', 'desc')
+        $lastStudent = self::where('student_id_text', 'LIKE', $prefix . '%')
+            ->orderBy('student_id_text', 'desc')
             ->first();
 
         if ($lastStudent) {
-            $lastNumber = (int) substr($lastStudent->student_id, -4);
+            $lastNumber = (int) substr($lastStudent->student_id_text, -4);
             $newNumber = $lastNumber + 1;
         } else {
             $newNumber = 1;
@@ -88,11 +122,11 @@ class Student extends Model
     }
 
     /**
-     * Get the full name with student ID.
+     * Get the full name with student ID text.
      */
     public function getFullDisplayNameAttribute(): string
     {
-        return "{$this->student_id} - {$this->name}";
+        return "{$this->student_id_text} - {$this->name}";
     }
 
     /**
@@ -136,11 +170,102 @@ class Student extends Model
     }
 
     /**
-     * Get all student activities for this student.
+     * Get course enrollments for this student.
      */
-    public function studentActivities()
+    public function courseEnrollments(): HasMany
     {
-        return $this->hasMany(StudentActivity::class);
+        return $this->hasMany(CourseEnrollment::class, 'student_id', 'id');
+    }
+
+    /**
+     * Get enrolled courses for this student via many-to-many relationship.
+     */
+    public function courses(): BelongsToMany
+    {
+        return $this->belongsToMany(Course::class, 'course_enrollments')
+                    ->withPivot(['progress', 'is_completed', 'enrolled_at', 'completed_at', 'status'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get enrolled courses for this student via the enrollment table (deprecated).
+     * @deprecated Use courses relationship instead
+     */
+    public function enrolledCourses(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Course::class,
+            CourseEnrollment::class,
+            'student_id', // Foreign key on course_enrollments table
+            'id', // Foreign key on courses table
+            'id', // Local key on students table
+            'course_id' // Local key on course_enrollments table
+        );
+    }
+
+    /**
+     * Get lesson completions for this student.
+     */
+    public function lessonCompletions(): HasMany
+    {
+        return $this->hasMany(LessonCompletion::class, 'student_id', 'id');
+    }
+
+    /**
+     * Check if student has completed a specific lesson.
+     */
+    public function hasCompletedLesson(int $lessonId): bool
+    {
+        return $this->lessonCompletions()
+            ->where('lesson_id', $lessonId)
+            ->exists();
+    }
+
+    /**
+     * Mark a lesson as completed.
+     */
+    public function completeLesson(Lesson $lesson, array $completionData = []): LessonCompletion
+    {
+        // Create completion record directly for this student
+        $completion = $this->lessonCompletions()->updateOrCreate(
+            [
+                'lesson_id' => $lesson->id,
+            ],
+            [
+                'course_id' => $lesson->course_id,
+                'completed_at' => now(),
+                'completion_data' => $completionData,
+                'user_id' => $this->user_id, // Keep user_id for backward compatibility
+            ]
+        );
+
+        // Update course progress through student's enrollment
+        $enrollment = $this->courseEnrollments()
+            ->where('course_id', $lesson->course_id)
+            ->first();
+        
+        if ($enrollment) {
+            $enrollment->updateProgress();
+        }
+
+        return $completion;
+    }
+
+    /**
+     * Get module completions for this student.
+     */
+    public function moduleCompletions(): HasMany
+    {
+        return $this->hasMany(ModuleCompletion::class, 'student_id', 'id');
+    }
+
+    /**
+     * Get all student activities for this student.
+     * Now properly connected via student_id.
+     */
+    public function studentActivities(): HasMany
+    {
+        return $this->hasMany(StudentActivity::class, 'student_id', 'id');
     }
 
     /**
@@ -155,10 +280,39 @@ class Student extends Model
     }
 
     /**
-     * Get student quiz progress records through user relationship.
+     * Get student quiz progress records.
      */
-    public function quizProgress()
+    public function quizProgress(): HasMany
     {
-        return $this->hasMany(StudentQuizProgress::class, 'student_id', 'user_id');
+        return $this->hasMany(StudentQuizProgress::class, 'student_id', 'id');
+    }
+
+    /**
+     * Get completed activities count.
+     */
+    public function getCompletedActivitiesCountAttribute(): int
+    {
+        return $this->studentActivities()->completed()->count();
+    }
+
+    /**
+     * Get total activities count.
+     */
+    public function getTotalActivitiesCountAttribute(): int
+    {
+        return $this->studentActivities()->count();
+    }
+
+    /**
+     * Get completion percentage across all activities.
+     */
+    public function getOverallCompletionPercentageAttribute(): float
+    {
+        $total = $this->total_activities_count;
+        if ($total === 0) {
+            return 0.0;
+        }
+        
+        return ($this->completed_activities_count / $total) * 100;
     }
 }
