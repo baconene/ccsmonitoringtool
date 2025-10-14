@@ -246,6 +246,11 @@ $courses = CourseEnrollment::query()
                 $course->gradeLevels()->attach($validated['grade_level_ids']);
             }
 
+            // Create schedule for the course if dates are provided
+            if (!empty($validated['end_date'])) {
+                $this->createOrUpdateCourseSchedule($course, $validated);
+            }
+
             // Load relationships for response
             $course->load('gradeLevels', 'creator', 'modules');
 
@@ -308,6 +313,11 @@ $courses = CourseEnrollment::query()
                 $course->gradeLevels()->sync($validated['grade_level_ids']);
             }
 
+            // Update schedule if dates are provided
+            if (!empty($validated['end_date'])) {
+                $this->createOrUpdateCourseSchedule($course, $validated);
+            }
+
             // Load relationships for response
             $course->load('gradeLevels', 'creator', 'modules');
 
@@ -351,6 +361,14 @@ $courses = CourseEnrollment::query()
                 $validated['student_id'], 
                 $validated
             );
+
+            // Automatically add student to course schedule if it exists
+            Log::info('About to add student to course schedule', [
+                'course_id' => $courseId,
+                'student_id' => $validated['student_id']
+            ]);
+            
+            $this->addStudentToCourseSchedule($courseId, $validated['student_id']);
 
             return response()->json([
                 'success' => true,
@@ -560,6 +578,294 @@ $courses = CourseEnrollment::query()
                 'success' => false,
                 'message' => 'Failed to get courses: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Create or update schedule for a course.
+     * Schedule from_datetime = end_date - 1 hour
+     * Schedule to_datetime = end_date
+     */
+    private function createOrUpdateCourseSchedule(Course $course, array $data)
+    {
+        try {
+            // Get or create schedule type for course due dates using enum
+            $scheduleTypeEnum = \App\Enums\ScheduleTypeEnum::COURSE_DUE_DATE;
+            
+            $scheduleType = \App\Models\ScheduleType::firstOrCreate(
+                ['name' => $scheduleTypeEnum->value],
+                [
+                    'name' => $scheduleTypeEnum->value,
+                    'description' => $scheduleTypeEnum->description(),
+                    'color' => $scheduleTypeEnum->color(),
+                    'icon' => $scheduleTypeEnum->icon(),
+                    'is_active' => true,
+                ]
+            );
+
+            // Parse end_date and calculate from_datetime (1 hour before)
+            $endDate = new \DateTime($data['end_date']);
+            $fromDate = clone $endDate;
+            $fromDate->modify('-1 hour');
+
+            // Prepare schedule data
+            $scheduleData = [
+                'schedule_type_id' => $scheduleType->id,
+                'title' => $course->title . ' - Due Date',
+                'description' => 'Course due date for ' . $course->title,
+                'from_datetime' => $fromDate->format('Y-m-d H:i:s'),
+                'to_datetime' => $endDate->format('Y-m-d H:i:s'),
+                'status' => 'scheduled',
+                'created_by' => auth()->id(),
+                'schedulable_type' => Course::class,
+                'schedulable_id' => $course->id,
+            ];
+
+            // Check if schedule already exists for this course
+            $existingSchedule = \App\Models\Schedule::where('schedulable_type', Course::class)
+                ->where('schedulable_id', $course->id)
+                ->first();
+
+            if ($existingSchedule) {
+                // Update existing schedule
+                $existingSchedule->update($scheduleData);
+                $schedule = $existingSchedule;
+            } else {
+                // Create new schedule
+                $schedule = \App\Models\Schedule::create($scheduleData);
+            }
+
+            // Check if schedule_course pivot exists
+            $scheduleCourse = \App\Models\ScheduleCourse::where('course_id', $course->id)->first();
+
+            if ($scheduleCourse) {
+                // Update existing pivot
+                $scheduleCourse->update([
+                    'schedule_id' => $schedule->id,
+                ]);
+            } else {
+                // Create new pivot
+                \App\Models\ScheduleCourse::create([
+                    'schedule_id' => $schedule->id,
+                    'course_id' => $course->id,
+                    'session_number' => 1,
+                ]);
+            }
+
+            // Add participants to the schedule
+            $this->addCourseParticipantsToSchedule($schedule, $course);
+
+            Log::info('Course schedule created/updated', [
+                'course_id' => $course->id,
+                'schedule_id' => $schedule->id,
+                'from' => $fromDate->format('Y-m-d H:i:s'),
+                'to' => $endDate->format('Y-m-d H:i:s')
+            ]);
+
+            return $schedule;
+
+        } catch (\Exception $e) {
+            Log::error('Failed to create/update course schedule', [
+                'course_id' => $course->id,
+                'error' => $e->getMessage()
+            ]);
+            // Don't throw exception to avoid breaking course creation/update
+            return null;
+        }
+    }
+
+    /**
+     * Add course participants (instructor and enrolled students) to schedule.
+     */
+    private function addCourseParticipantsToSchedule(\App\Models\Schedule $schedule, Course $course)
+    {
+        try {
+            $participants = [];
+
+            // Add instructor as organizer if exists
+            if ($course->instructor && $course->instructor->user) {
+                $participants[] = [
+                    'schedule_id' => $schedule->id,
+                    'user_id' => $course->instructor->user->id,
+                    'role_in_schedule' => 'instructor',
+                    'participation_status' => 'accepted',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            // Add enrolled students from course_student pivot table
+            $enrolledStudents = \DB::table('course_student')
+                ->join('students', 'course_student.student_id', '=', 'students.id')
+                ->where('course_student.course_id', $course->id)
+                ->where('course_student.status', 'enrolled')
+                ->select('students.user_id')
+                ->get();
+
+            foreach ($enrolledStudents as $student) {
+                if ($student->user_id) {
+                    $participants[] = [
+                        'schedule_id' => $schedule->id,
+                        'user_id' => $student->user_id,
+                        'role_in_schedule' => 'student',
+                        'participation_status' => 'invited',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+
+            // Bulk insert or update participants
+            if (!empty($participants)) {
+                // Delete existing participants for this schedule
+                \App\Models\ScheduleParticipant::where('schedule_id', $schedule->id)->delete();
+                
+                // Insert new participants
+                \App\Models\ScheduleParticipant::insert($participants);
+
+                Log::info('Added participants to course schedule', [
+                    'schedule_id' => $schedule->id,
+                    'course_id' => $course->id,
+                    'participants_count' => count($participants)
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Failed to add participants to course schedule', [
+                'schedule_id' => $schedule->id,
+                'course_id' => $course->id,
+                'error' => $e->getMessage()
+            ]);
+            // Don't throw exception to avoid breaking schedule creation
+        }
+    }
+
+    /**
+     * Add student to course schedule as participant when they enroll.
+     */
+    private function addStudentToCourseSchedule($courseId, $studentId)
+    {
+        try {
+            Log::info('addStudentToCourseSchedule called', [
+                'course_id' => $courseId,
+                'student_id' => $studentId
+            ]);
+            
+            // Get student's user_id
+            $student = \App\Models\Student::find($studentId);
+            if (!$student || !$student->user_id) {
+                Log::warning('Student not found or has no user_id', [
+                    'student_id' => $studentId,
+                    'student_found' => $student ? 'yes' : 'no',
+                    'user_id' => $student ? $student->user_id : null
+                ]);
+                return;
+            }
+
+            Log::info('Student found, searching for schedules', [
+                'student_id' => $studentId,
+                'user_id' => $student->user_id,
+                'course_id' => $courseId
+            ]);
+
+            // Find course schedule(s) - use full namespace string to match database
+            $schedules = \App\Models\Schedule::where('schedulable_type', 'App\\Models\\Course')
+                ->where('schedulable_id', $courseId)
+                ->whereNull('deleted_at')
+                ->get();
+
+            Log::info('Schedules found', [
+                'count' => $schedules->count(),
+                'schedule_ids' => $schedules->pluck('id')->toArray()
+            ]);
+
+            if ($schedules->isEmpty()) {
+                Log::info('No schedules found for course', ['course_id' => $courseId]);
+                return; // No schedule exists yet
+            }
+
+            $addedCount = 0;
+            foreach ($schedules as $schedule) {
+                // Check if student is already a participant
+                $existingParticipant = \App\Models\ScheduleParticipant::where('schedule_id', $schedule->id)
+                    ->where('user_id', $student->user_id)
+                    ->first();
+
+                if (!$existingParticipant) {
+                    // Add student as participant
+                    \App\Models\ScheduleParticipant::create([
+                        'schedule_id' => $schedule->id,
+                        'user_id' => $student->user_id,
+                        'role_in_schedule' => 'student',
+                        'participation_status' => 'invited',
+                    ]);
+                    $addedCount++;
+                }
+            }
+
+            if ($addedCount > 0) {
+                Log::info('Added student to course schedule(s)', [
+                    'course_id' => $courseId,
+                    'student_id' => $studentId,
+                    'user_id' => $student->user_id,
+                    'schedules_count' => $addedCount
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Failed to add student to course schedule', [
+                'course_id' => $courseId,
+                'student_id' => $studentId,
+                'error' => $e->getMessage()
+            ]);
+            // Don't throw exception to avoid breaking enrollment
+        }
+    }
+
+    /**
+     * Remove student from course schedule when they drop/withdraw.
+     */
+    private function removeStudentFromCourseSchedule($courseId, $studentId)
+    {
+        try {
+            // Get student's user_id
+            $student = \App\Models\Student::find($studentId);
+            if (!$student || !$student->user_id) {
+                return;
+            }
+
+            // Find course schedule(s)
+            $schedules = \App\Models\Schedule::where('schedulable_type', Course::class)
+                ->where('schedulable_id', $courseId)
+                ->get();
+
+            $removedCount = 0;
+            foreach ($schedules as $schedule) {
+                $deleted = \App\Models\ScheduleParticipant::where('schedule_id', $schedule->id)
+                    ->where('user_id', $student->user_id)
+                    ->delete();
+                
+                if ($deleted) {
+                    $removedCount++;
+                }
+            }
+
+            if ($removedCount > 0) {
+                Log::info('Removed student from course schedule(s)', [
+                    'course_id' => $courseId,
+                    'student_id' => $studentId,
+                    'user_id' => $student->user_id,
+                    'schedules_count' => $removedCount
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Failed to remove student from course schedule', [
+                'course_id' => $courseId,
+                'student_id' => $studentId,
+                'error' => $e->getMessage()
+            ]);
+            // Don't throw exception
         }
     }
 }

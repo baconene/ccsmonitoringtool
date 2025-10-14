@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\ModuleController::upload
- * @see app/Http/Controllers/ModuleController.php:149
+ * @see app/Http/Controllers/ModuleController.php:189
  * @route '/modules/{module}/documents'
  */
 export const upload = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ upload.definition = {
 
 /**
 * @see \App\Http\Controllers\ModuleController::upload
- * @see app/Http/Controllers/ModuleController.php:149
+ * @see app/Http/Controllers/ModuleController.php:189
  * @route '/modules/{module}/documents'
  */
 upload.url = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ upload.url = (args: { module: number | { id: number } } | [module: number | { id
 
 /**
 * @see \App\Http\Controllers\ModuleController::upload
- * @see app/Http/Controllers/ModuleController.php:149
+ * @see app/Http/Controllers/ModuleController.php:189
  * @route '/modules/{module}/documents'
  */
 upload.post = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -59,7 +59,7 @@ upload.post = (args: { module: number | { id: number } } | [module: number | { i
 
     /**
 * @see \App\Http\Controllers\ModuleController::upload
- * @see app/Http/Controllers/ModuleController.php:149
+ * @see app/Http/Controllers/ModuleController.php:189
  * @route '/modules/{module}/documents'
  */
     const uploadForm = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ upload.post = (args: { module: number | { id: number } } | [module: number | { i
 
             /**
 * @see \App\Http\Controllers\ModuleController::upload
- * @see app/Http/Controllers/ModuleController.php:149
+ * @see app/Http/Controllers/ModuleController.php:189
  * @route '/modules/{module}/documents'
  */
         uploadForm.post = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

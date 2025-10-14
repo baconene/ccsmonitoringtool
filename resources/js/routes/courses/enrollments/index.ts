@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\CourseStudentController::updateStatus
- * @see app/Http/Controllers/CourseStudentController.php:351
+ * @see app/Http/Controllers/CourseStudentController.php:354
  * @route '/courses/{course}/enrollments/{studentUser}/status'
  */
 export const updateStatus = (args: { course: number | { id: number }, studentUser: number | { id: number } } | [course: number | { id: number }, studentUser: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -16,7 +16,7 @@ updateStatus.definition = {
 
 /**
 * @see \App\Http\Controllers\CourseStudentController::updateStatus
- * @see app/Http/Controllers/CourseStudentController.php:351
+ * @see app/Http/Controllers/CourseStudentController.php:354
  * @route '/courses/{course}/enrollments/{studentUser}/status'
  */
 updateStatus.url = (args: { course: number | { id: number }, studentUser: number | { id: number } } | [course: number | { id: number }, studentUser: number | { id: number } ], options?: RouteQueryOptions) => {
@@ -46,7 +46,7 @@ updateStatus.url = (args: { course: number | { id: number }, studentUser: number
 
 /**
 * @see \App\Http\Controllers\CourseStudentController::updateStatus
- * @see app/Http/Controllers/CourseStudentController.php:351
+ * @see app/Http/Controllers/CourseStudentController.php:354
  * @route '/courses/{course}/enrollments/{studentUser}/status'
  */
 updateStatus.put = (args: { course: number | { id: number }, studentUser: number | { id: number } } | [course: number | { id: number }, studentUser: number | { id: number } ], options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -56,7 +56,7 @@ updateStatus.put = (args: { course: number | { id: number }, studentUser: number
 
     /**
 * @see \App\Http\Controllers\CourseStudentController::updateStatus
- * @see app/Http/Controllers/CourseStudentController.php:351
+ * @see app/Http/Controllers/CourseStudentController.php:354
  * @route '/courses/{course}/enrollments/{studentUser}/status'
  */
     const updateStatusForm = (args: { course: number | { id: number }, studentUser: number | { id: number } } | [course: number | { id: number }, studentUser: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -71,7 +71,7 @@ updateStatus.put = (args: { course: number | { id: number }, studentUser: number
 
             /**
 * @see \App\Http\Controllers\CourseStudentController::updateStatus
- * @see app/Http/Controllers/CourseStudentController.php:351
+ * @see app/Http/Controllers/CourseStudentController.php:354
  * @route '/courses/{course}/enrollments/{studentUser}/status'
  */
         updateStatusForm.put = (args: { course: number | { id: number }, studentUser: number | { id: number } } | [course: number | { id: number }, studentUser: number | { id: number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

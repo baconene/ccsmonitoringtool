@@ -3,7 +3,7 @@ import activities from './activities'
 import documents from './documents'
 /**
 * @see \App\Http\Controllers\ModuleController::store
- * @see app/Http/Controllers/ModuleController.php:37
+ * @see app/Http/Controllers/ModuleController.php:77
  * @route '/courses/{course}/modules'
  */
 export const store = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -18,7 +18,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\ModuleController::store
- * @see app/Http/Controllers/ModuleController.php:37
+ * @see app/Http/Controllers/ModuleController.php:77
  * @route '/courses/{course}/modules'
  */
 store.url = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -51,7 +51,7 @@ store.url = (args: { course: number | { id: number } } | [course: number | { id:
 
 /**
 * @see \App\Http\Controllers\ModuleController::store
- * @see app/Http/Controllers/ModuleController.php:37
+ * @see app/Http/Controllers/ModuleController.php:77
  * @route '/courses/{course}/modules'
  */
 store.post = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -61,7 +61,7 @@ store.post = (args: { course: number | { id: number } } | [course: number | { id
 
     /**
 * @see \App\Http\Controllers\ModuleController::store
- * @see app/Http/Controllers/ModuleController.php:37
+ * @see app/Http/Controllers/ModuleController.php:77
  * @route '/courses/{course}/modules'
  */
     const storeForm = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -71,7 +71,7 @@ store.post = (args: { course: number | { id: number } } | [course: number | { id
 
             /**
 * @see \App\Http\Controllers\ModuleController::store
- * @see app/Http/Controllers/ModuleController.php:37
+ * @see app/Http/Controllers/ModuleController.php:77
  * @route '/courses/{course}/modules'
  */
         storeForm.post = (args: { course: number | { id: number } } | [course: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -82,7 +82,7 @@ store.post = (args: { course: number | { id: number } } | [course: number | { id
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\ModuleController::update
- * @see app/Http/Controllers/ModuleController.php:80
+ * @see app/Http/Controllers/ModuleController.php:120
  * @route '/modules/{module}'
  */
 export const update = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -97,7 +97,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\ModuleController::update
- * @see app/Http/Controllers/ModuleController.php:80
+ * @see app/Http/Controllers/ModuleController.php:120
  * @route '/modules/{module}'
  */
 update.url = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -130,7 +130,7 @@ update.url = (args: { module: number | { id: number } } | [module: number | { id
 
 /**
 * @see \App\Http\Controllers\ModuleController::update
- * @see app/Http/Controllers/ModuleController.php:80
+ * @see app/Http/Controllers/ModuleController.php:120
  * @route '/modules/{module}'
  */
 update.put = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -140,7 +140,7 @@ update.put = (args: { module: number | { id: number } } | [module: number | { id
 
     /**
 * @see \App\Http\Controllers\ModuleController::update
- * @see app/Http/Controllers/ModuleController.php:80
+ * @see app/Http/Controllers/ModuleController.php:120
  * @route '/modules/{module}'
  */
     const updateForm = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -155,7 +155,7 @@ update.put = (args: { module: number | { id: number } } | [module: number | { id
 
             /**
 * @see \App\Http\Controllers\ModuleController::update
- * @see app/Http/Controllers/ModuleController.php:80
+ * @see app/Http/Controllers/ModuleController.php:120
  * @route '/modules/{module}'
  */
         updateForm.put = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -171,7 +171,7 @@ update.put = (args: { module: number | { id: number } } | [module: number | { id
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\ModuleController::destroy
- * @see app/Http/Controllers/ModuleController.php:100
+ * @see app/Http/Controllers/ModuleController.php:140
  * @route '/modules/{module}'
  */
 export const destroy = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -186,7 +186,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\ModuleController::destroy
- * @see app/Http/Controllers/ModuleController.php:100
+ * @see app/Http/Controllers/ModuleController.php:140
  * @route '/modules/{module}'
  */
 destroy.url = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -219,7 +219,7 @@ destroy.url = (args: { module: number | { id: number } } | [module: number | { i
 
 /**
 * @see \App\Http\Controllers\ModuleController::destroy
- * @see app/Http/Controllers/ModuleController.php:100
+ * @see app/Http/Controllers/ModuleController.php:140
  * @route '/modules/{module}'
  */
 destroy.delete = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -229,7 +229,7 @@ destroy.delete = (args: { module: number | { id: number } } | [module: number | 
 
     /**
 * @see \App\Http\Controllers\ModuleController::destroy
- * @see app/Http/Controllers/ModuleController.php:100
+ * @see app/Http/Controllers/ModuleController.php:140
  * @route '/modules/{module}'
  */
     const destroyForm = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -244,7 +244,7 @@ destroy.delete = (args: { module: number | { id: number } } | [module: number | 
 
             /**
 * @see \App\Http\Controllers\ModuleController::destroy
- * @see app/Http/Controllers/ModuleController.php:100
+ * @see app/Http/Controllers/ModuleController.php:140
  * @route '/modules/{module}'
  */
         destroyForm.delete = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

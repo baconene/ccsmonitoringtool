@@ -70,6 +70,35 @@
           />
         </div>
 
+        <!-- Date Range -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
+            <input
+              v-model="localCourse.start_date"
+              type="date"
+              :class="[
+                'w-full mt-1 p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-colors',
+                errors.start_date ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+              ]"
+            />
+            <p v-if="errors.start_date" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.start_date[0] }}</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
+            <input
+              v-model="localCourse.end_date"
+              type="date"
+              :class="[
+                'w-full mt-1 p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-colors',
+                errors.end_date ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+              ]"
+            />
+            <p v-if="errors.end_date" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors.end_date[0] }}</p>
+          </div>
+        </div>
+
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Eligible Grade Levels</label>
           <div class="space-y-2 max-h-48 overflow-y-auto p-3 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700">
@@ -174,6 +203,8 @@ const props = defineProps<{
     description?: string; 
     grade_level?: string;
     grade_levels?: CourseGradeLevel[];
+    start_date?: string;
+    end_date?: string;
   } | null;
 }>();
 
@@ -191,6 +222,8 @@ const localCourse = reactive({
   name: '',
   course_code: '',
   description: '',
+  start_date: '',
+  end_date: '',
   grade_level_ids: [] as number[],
 });
 
@@ -218,12 +251,16 @@ watch(
       localCourse.name = course.name || course.title || '';
       localCourse.course_code = course.course_code || '';
       localCourse.description = course.description || '';
+      localCourse.start_date = course.start_date || '';
+      localCourse.end_date = course.end_date || '';
       localCourse.grade_level_ids = course.grade_levels?.map(gl => gl.id) || [];
     } else if (mode === 'create') {
       localCourse.title = '';
       localCourse.name = '';
       localCourse.course_code = '';
       localCourse.description = '';
+      localCourse.start_date = '';
+      localCourse.end_date = '';
       localCourse.grade_level_ids = [];
     }
   },
@@ -259,6 +296,8 @@ async function handleSubmit() {
       name: localCourse.name || localCourse.title, // Backend compatibility
       course_code: localCourse.course_code,
       description: localCourse.description,
+      start_date: localCourse.start_date,
+      end_date: localCourse.end_date,
       grade_level_ids: localCourse.grade_level_ids,
       // instructor_id will be automatically set by backend based on user role
       // No need to pass it from frontend

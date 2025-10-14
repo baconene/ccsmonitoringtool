@@ -21,7 +21,11 @@
     </div>
 
     <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4">
-      <LessonList :module-id="moduleId" :lessons="lessons" />
+      <LessonList 
+        :module-id="moduleId" 
+        :lessons="lessons" 
+        @update:lessons="handleLessonsUpdate"
+      />
     </div>
   </div>
 </template>
@@ -45,7 +49,13 @@ defineProps<{
   }>;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'add'): void;
+  (e: 'update:lessons', lessons: any[]): void;
 }>();
+
+// Forward lessons update to parent
+function handleLessonsUpdate(updatedLessons: any[]) {
+  emit('update:lessons', updatedLessons);
+}
 </script>

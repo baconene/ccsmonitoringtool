@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\ModuleController::add
- * @see app/Http/Controllers/ModuleController.php:111
+ * @see app/Http/Controllers/ModuleController.php:151
  * @route '/modules/{module}/activities'
  */
 export const add = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ add.definition = {
 
 /**
 * @see \App\Http\Controllers\ModuleController::add
- * @see app/Http/Controllers/ModuleController.php:111
+ * @see app/Http/Controllers/ModuleController.php:151
  * @route '/modules/{module}/activities'
  */
 add.url = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ add.url = (args: { module: number | { id: number } } | [module: number | { id: n
 
 /**
 * @see \App\Http\Controllers\ModuleController::add
- * @see app/Http/Controllers/ModuleController.php:111
+ * @see app/Http/Controllers/ModuleController.php:151
  * @route '/modules/{module}/activities'
  */
 add.post = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -59,7 +59,7 @@ add.post = (args: { module: number | { id: number } } | [module: number | { id: 
 
     /**
 * @see \App\Http\Controllers\ModuleController::add
- * @see app/Http/Controllers/ModuleController.php:111
+ * @see app/Http/Controllers/ModuleController.php:151
  * @route '/modules/{module}/activities'
  */
     const addForm = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ add.post = (args: { module: number | { id: number } } | [module: number | { id: 
 
             /**
 * @see \App\Http\Controllers\ModuleController::add
- * @see app/Http/Controllers/ModuleController.php:111
+ * @see app/Http/Controllers/ModuleController.php:151
  * @route '/modules/{module}/activities'
  */
         addForm.post = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -80,7 +80,7 @@ add.post = (args: { module: number | { id: number } } | [module: number | { id: 
     add.form = addForm
 /**
 * @see \App\Http\Controllers\ModuleController::remove
- * @see app/Http/Controllers/ModuleController.php:139
+ * @see app/Http/Controllers/ModuleController.php:179
  * @route '/modules/{module}/activities/{activity}'
  */
 export const remove = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -95,7 +95,7 @@ remove.definition = {
 
 /**
 * @see \App\Http\Controllers\ModuleController::remove
- * @see app/Http/Controllers/ModuleController.php:139
+ * @see app/Http/Controllers/ModuleController.php:179
  * @route '/modules/{module}/activities/{activity}'
  */
 remove.url = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions) => {
@@ -123,7 +123,7 @@ remove.url = (args: { module: number | { id: number }, activity: string | number
 
 /**
 * @see \App\Http\Controllers\ModuleController::remove
- * @see app/Http/Controllers/ModuleController.php:139
+ * @see app/Http/Controllers/ModuleController.php:179
  * @route '/modules/{module}/activities/{activity}'
  */
 remove.delete = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -133,7 +133,7 @@ remove.delete = (args: { module: number | { id: number }, activity: string | num
 
     /**
 * @see \App\Http\Controllers\ModuleController::remove
- * @see app/Http/Controllers/ModuleController.php:139
+ * @see app/Http/Controllers/ModuleController.php:179
  * @route '/modules/{module}/activities/{activity}'
  */
     const removeForm = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -148,7 +148,7 @@ remove.delete = (args: { module: number | { id: number }, activity: string | num
 
             /**
 * @see \App\Http\Controllers\ModuleController::remove
- * @see app/Http/Controllers/ModuleController.php:139
+ * @see app/Http/Controllers/ModuleController.php:179
  * @route '/modules/{module}/activities/{activity}'
  */
         removeForm.delete = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

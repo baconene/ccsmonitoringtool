@@ -84,6 +84,60 @@ Route::get('schedule', function () {
     return Inertia::render('SchedulingManagement/UserSchedule');
 })->middleware(['auth', 'verified'])->name('schedule.index');
 
+// Temporary route to fix existing schedules (remove after running once)
+Route::get('/fix-schedules', function () {
+    $fixed = 0;
+    $schedules = \App\Models\Schedule::with('schedulable')->get();
+    
+    foreach ($schedules as $schedule) {
+        if ($schedule->schedulable_type === 'App\\Models\\Course' && $schedule->schedulable) {
+            $course = $schedule->schedulable;
+            $participants = [];
+            
+            // Add instructor
+            if ($course->instructor && $course->instructor->user) {
+                $participants[] = [
+                    'schedule_id' => $schedule->id,
+                    'user_id' => $course->instructor->user->id,
+                    'role_in_schedule' => 'instructor',
+                    'participation_status' => 'accepted',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+            
+            // Add enrolled students using course_student pivot table
+            // Query directly from course_student table instead of using the relationship
+            $enrolledStudents = \DB::table('course_student')
+                ->join('students', 'course_student.student_id', '=', 'students.id')
+                ->join('users', 'students.user_id', '=', 'users.id')
+                ->where('course_student.course_id', $course->id)
+                ->where('course_student.status', 'enrolled')
+                ->select('users.id as user_id', 'users.name')
+                ->get();
+            
+            foreach ($enrolledStudents as $student) {
+                $participants[] = [
+                    'schedule_id' => $schedule->id,
+                    'user_id' => $student->user_id,
+                    'role_in_schedule' => 'student',
+                    'participation_status' => 'invited',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+            
+            if (!empty($participants)) {
+                \App\Models\ScheduleParticipant::where('schedule_id', $schedule->id)->delete();
+                \App\Models\ScheduleParticipant::insert($participants);
+                $fixed++;
+            }
+        }
+    }
+    
+    return "Fixed $fixed schedules with participants. Added " . count($participants ?? []) . " participants to last schedule.";
+})->middleware(['auth', 'role:admin']);
+
 // Role management page (admin only)
 Route::middleware(['auth', 'role:admin'])->group(function () {
     // Role Management UI
@@ -353,6 +407,14 @@ Route::get('/modules/{module}/lessons', [ModuleController::class, 'index']);
 Route::post('/modules/{module}/activities', [ModuleController::class, 'addActivities'])->name('modules.activities.add');
 Route::delete('/modules/{module}/activities/{activity}', [ModuleController::class, 'removeActivity'])->name('modules.activities.remove');
 Route::post('/modules/{module}/documents', [ModuleController::class, 'uploadDocuments'])->name('modules.documents.upload');
+
+// DOCUMENT ROUTES
+Route::middleware(['auth'])->group(function () {
+    Route::post('/api/documents/upload', [App\Http\Controllers\DocumentController::class, 'upload'])->name('documents.upload');
+    Route::get('/documents/{document}/view', [App\Http\Controllers\DocumentController::class, 'view'])->name('documents.view');
+    Route::get('/documents/{document}/download', [App\Http\Controllers\DocumentController::class, 'download'])->name('documents.download');
+    Route::delete('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'destroy'])->name('documents.destroy');
+});
 
 // STUDENT COURSE ROUTES
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {

@@ -167,6 +167,14 @@ class Course extends Model
     }
 
     /**
+     * Get schedules for this course (polymorphic relationship).
+     */
+    public function schedules()
+    {
+        return $this->morphMany(Schedule::class, 'schedulable');
+    }
+
+    /**
      * Get completion percentage for a specific user based on module weights.
      */
     public function getCompletionPercentageForUser(User $user): float

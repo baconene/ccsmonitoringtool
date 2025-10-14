@@ -74,6 +74,7 @@
         :module-id="module.id"
         :lessons="module.lessons || []"
         @add="emit('add-lesson', module)"
+        @update:lessons="handleLessonsUpdate"
         class="mb-6"
       />
 
@@ -88,7 +89,10 @@
 
       <!-- Documents Section (Available for all module types) -->
       <ModuleDocumentsSection
-        @upload="emit('upload-document', module)"
+        :documents="module.documents || []"
+        :module-id="module.id"
+        @uploaded="handleDocumentUploaded"
+        @deleted="handleDocumentDeleted"
       />
     </template>
 
@@ -137,6 +141,7 @@ const emit = defineEmits<{
   (e: "add-activity", module: Module | null): void;
   (e: "upload-document", module: Module | null): void;
   (e: "remove-activity", data: { module: Module; activityId: number }): void;
+  (e: "update:lessons", lessons: any[]): void;
 }>();
 
 // Use composable for module type logic
@@ -147,5 +152,20 @@ const handleRemoveActivity = (activityId: number) => {
   if (props.module) {
     emit('remove-activity', { module: props.module, activityId });
   }
+};
+
+// Handle lessons update (when documents are uploaded/deleted)
+const handleLessonsUpdate = (updatedLessons: any[]) => {
+  emit('update:lessons', updatedLessons);
+};
+
+// Handle document uploaded
+const handleDocumentUploaded = () => {
+  console.log('Document uploaded successfully');
+};
+
+// Handle document deleted
+const handleDocumentDeleted = () => {
+  console.log('Document deleted successfully');
 };
 </script>

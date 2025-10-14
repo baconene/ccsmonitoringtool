@@ -89,7 +89,8 @@ class StudentCourseController extends Controller
                 'activities.activityType',
                 'activities.quiz' => function($query) {
                     $query->with('questions');
-                }
+                },
+                'documents.document.uploader' // Load module documents with the document file and uploader
             ])
             ->get()
             ->map(function ($module) use ($user, $student, $course) {
@@ -167,6 +168,32 @@ class StudentCourseController extends Controller
                     ];
                 });
 
+                // Map module documents
+                $documents = $module->documents->filter(function ($moduleDoc) {
+                    return $moduleDoc->document !== null; // Filter out null documents
+                })->map(function ($moduleDoc) {
+                    $doc = $moduleDoc->document;
+                    return [
+                        'id' => $doc->id,
+                        'name' => $doc->name,
+                        'original_name' => $doc->original_name,
+                        'file_path' => $doc->file_path,
+                        'file_size' => $doc->file_size,
+                        'file_size_human' => $doc->file_size_human,
+                        'mime_type' => $doc->mime_type,
+                        'extension' => $doc->extension,
+                        'document_type' => $doc->document_type,
+                        'file_url' => $doc->file_url,
+                        'uploaded_by' => $doc->uploader ? $doc->uploader->name : 'Unknown',
+                        'created_at' => $doc->created_at->format('Y-m-d H:i:s'),
+                        'visibility' => $moduleDoc->visibility,
+                        'is_required' => $moduleDoc->is_required,
+                        // Add properties needed for document viewer
+                        'can_preview' => in_array($doc->extension, ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'txt', 'doc', 'docx']),
+                        'preview_url' => $doc->file_url, // Use file_url for preview
+                    ];
+                })->values(); // Re-index array after filter
+
                 return [
                     'id' => $module->id,
                     'title' => $module->description,
@@ -174,6 +201,7 @@ class StudentCourseController extends Controller
                     'module_type' => $module->module_type,
                     'lessons' => $module->lessons,
                     'activities' => $activities,
+                    'documents' => $documents,
                     'is_completed' => $moduleCompletion ? true : false,
                     'completed_at' => $moduleCompletion ? $moduleCompletion->completed_at : null,
                 ];
@@ -494,10 +522,10 @@ class StudentCourseController extends Controller
         // Get the specific module with all relationships
         $module = $course->modules()
             ->with([
-                'lessons.documents',
+                'lessons.documents.document.uploader', // Load lesson documents with actual document and uploader
                 'activities.activityType',
                 'activities.quiz.questions',
-                'documents'
+                'documents.document.uploader' // Load module documents with actual document and uploader
             ])
             ->where('id', $moduleId)
             ->first();
@@ -528,14 +556,28 @@ class StudentCourseController extends Controller
                 'content_type' => $lesson->content_type ?? 'text',
                 'is_completed' => $completion ? true : false,
                 'completed_at' => $completion ? $completion->completed_at : null,
-                'documents' => $lesson->documents->map(function ($doc) {
+                'documents' => $lesson->documents->filter(function ($lessonDoc) {
+                    return $lessonDoc->document !== null; // Filter out null documents
+                })->map(function ($lessonDoc) {
+                    $doc = $lessonDoc->document;
                     return [
                         'id' => $doc->id,
                         'name' => $doc->name,
+                        'original_name' => $doc->original_name,
                         'file_path' => $doc->file_path,
-                        'doc_type' => $doc->doc_type,
+                        'file_size' => $doc->file_size,
+                        'file_size_human' => $doc->file_size_human,
+                        'mime_type' => $doc->mime_type,
+                        'extension' => $doc->extension,
+                        'document_type' => $doc->document_type,
+                        'file_url' => $doc->file_url,
+                        'uploaded_by' => $doc->uploader ? $doc->uploader->name : 'Unknown',
+                        'created_at' => $doc->created_at->format('Y-m-d H:i:s'),
+                        // Add properties needed for document viewer
+                        'can_preview' => in_array($doc->extension, ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'txt', 'doc', 'docx']),
+                        'preview_url' => $doc->file_url,
                     ];
-                }),
+                })->values(), // Re-index array after filter
             ];
         });
 

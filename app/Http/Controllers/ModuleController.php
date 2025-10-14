@@ -13,8 +13,48 @@ class ModuleController extends Controller
      */
     public function index(\App\Models\Module $module)
     {
-        // eager load documents so frontend gets them
-        $lessons = $module->lessons()->with('documents')->get();
+        // eager load documents with full details and uploader info
+        $lessons = $module->lessons()->with(['documents.document.uploader'])->get();
+
+        // Map lessons to include formatted document data
+        $lessons = $lessons->map(function ($lesson) {
+            $documents = $lesson->documents
+                ->filter(function ($lessonDoc) {
+                    // Filter out documents that have been deleted
+                    return $lessonDoc->document !== null;
+                })
+                ->map(function ($lessonDoc) {
+                    $doc = $lessonDoc->document;
+                    return [
+                        'id' => $doc->id,
+                        'name' => $doc->name,
+                        'original_name' => $doc->original_name,
+                        'file_path' => $doc->file_path,
+                        'file_size' => $doc->file_size,
+                        'file_size_human' => $doc->file_size_human,
+                        'mime_type' => $doc->mime_type,
+                        'extension' => $doc->extension,
+                        'document_type' => $doc->document_type,
+                        'doc_type' => $doc->document_type, // Legacy field
+                        'uploaded_by' => $doc->uploader ? $doc->uploader->name : 'Unknown',
+                        'visibility' => $lessonDoc->visibility,
+                        'is_required' => $lessonDoc->is_required,
+                    ];
+                })
+                ->values(); // Reset array keys after filtering
+
+            return [
+                'id' => $lesson->id,
+                'title' => $lesson->title,
+                'description' => $lesson->description,
+                'order' => $lesson->order,
+                'duration' => $lesson->duration,
+                'content_type' => $lesson->content_type,
+                'created_at' => $lesson->created_at,
+                'updated_at' => $lesson->updated_at,
+                'documents' => $documents,
+            ];
+        });
 
         //Add Quiz/Activity if there is
        // $quizzes = $module->quizzes()->with('questions')->get();
@@ -159,11 +199,15 @@ public function update(Request $request, \App\Models\Module $module)
         foreach ($request->file('documents') as $file) {
             $path = $file->store('module-documents', 'public');
             
-            // Create document record (you may need to adjust this based on your Document model)
+            // Create document record
             $document = \App\Models\Document::create([
                 'name' => $file->getClientOriginalName(),
+                'original_name' => $file->getClientOriginalName(),
                 'file_path' => $path,
-                'doc_type' => $file->getClientOriginalExtension(),
+                'file_size' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+                'extension' => $file->getClientOriginalExtension(),
+                'document_type' => 'module',
                 'uploaded_by' => auth()->id(),
             ]);
 

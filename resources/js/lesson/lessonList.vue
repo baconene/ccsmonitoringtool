@@ -57,9 +57,21 @@
                 <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                 </svg>
-                <h4 class="font-medium text-gray-900 dark:text-gray-100">Related Documents</h4>
+                <h4 class="font-medium text-gray-900 dark:text-gray-100">Lesson Documents</h4>
               </div>
-              <RelatedDocumentContainer v-model="lesson.documents" />
+              
+              <!-- Use RelatedDocumentContainer Component -->
+              <RelatedDocumentContainer
+                :model-value="lesson.documents"
+                model-type="lesson"
+                :foreign-key-id="lesson.id"
+                :max-file-size="20"
+                accepted-types=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif"
+                visibility="students"
+                :is-required="false"
+                @document-uploaded="handleDocumentUploaded(lesson.id)"
+                @document-deleted="handleDocumentDeleted"
+              />
             </div>
           </div>
         </div>
@@ -128,13 +140,22 @@ import ModuleDetails from '@/course/ModuleDetails.vue';
 import RelatedDocumentContainer from '@/course/RelatedDocumentContainer.vue';
 import AddLessonModal from './AddLessonModal.vue';
 
+interface LessonDocument {
+  id: number;
+  name: string;
+  file_path: string;
+  doc_type: string;
+  file_size_human?: string;
+  extension?: string;
+}
+
 const props = defineProps<{
   moduleId: number;
   lessons: Array<{
     id: number;
     title: string;
     description: string;
-    documents: Array<{ id: number; name: string; file_path: string; doc_type: string }>;
+    documents: Array<LessonDocument>;
   }>;
 }>();
 
@@ -162,6 +183,16 @@ watch(
   }
 );
 
+// Handle document uploaded
+function handleDocumentUploaded(lessonId: number) {
+  refreshLessons();
+}
+
+// Handle document deleted
+function handleDocumentDeleted(documentId: number) {
+  refreshLessons();
+}
+
 // 🔥 Refresh lessons from backend
 async function refreshLessons() {
   try {
@@ -170,7 +201,7 @@ async function refreshLessons() {
     const data = await res.json();
 
     // Ensure all lessons have a documents array
-    const normalizedData = data.map(lesson => ({
+    const normalizedData = data.map((lesson: any) => ({
       ...lesson,
       documents: lesson.documents || []
     }));

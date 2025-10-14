@@ -14,6 +14,11 @@ class ScheduleType extends Model
         'description',
         'color',
         'icon',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     /**

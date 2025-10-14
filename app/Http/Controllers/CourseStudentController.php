@@ -141,6 +141,9 @@ class CourseStudentController extends Controller
 
                     if ($result['success']) {
                         $successCount++;
+                        
+                        // Add student to course schedules as participant
+                        $this->addStudentToCourseSchedule($course->id, $student->id);
                     }
 
                 } catch (\Exception $e) {
@@ -375,6 +378,11 @@ class CourseStudentController extends Controller
                 ]
             );
 
+            // Remove student from course schedules if they dropped or withdrew
+            if (in_array($validated['status'], ['dropped', 'withdrawn'])) {
+                $this->removeStudentFromCourseSchedule($course->id, $student->id);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Enrollment status updated successfully'
@@ -391,6 +399,139 @@ class CourseStudentController extends Controller
                 'success' => false,
                 'message' => 'Failed to update enrollment status: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Remove student from course schedule when they drop/withdraw.
+     */
+    private function removeStudentFromCourseSchedule($courseId, $studentId)
+    {
+        try {
+            $student = Student::find($studentId);
+            if (!$student) {
+                Log::warning('Student not found when removing from schedule', [
+                    'student_id' => $studentId
+                ]);
+                return;
+            }
+
+            // Get all schedules for this course - use full namespace string to match database
+            $schedules = \App\Models\Schedule::where('schedulable_type', 'App\\Models\\Course')
+                ->where('schedulable_id', $courseId)
+                ->whereNull('deleted_at')
+                ->get();
+
+            $removedCount = 0;
+            foreach ($schedules as $schedule) {
+                $deleted = \App\Models\ScheduleParticipant::where('schedule_id', $schedule->id)
+                    ->where('user_id', $student->user_id)
+                    ->delete();
+                
+                if ($deleted) {
+                    $removedCount++;
+                }
+            }
+
+            if ($removedCount > 0) {
+                Log::info('Student removed from course schedules', [
+                    'student_id' => $studentId,
+                    'course_id' => $courseId,
+                    'schedules_removed_from' => $removedCount
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Failed to remove student from course schedules', [
+                'student_id' => $studentId,
+                'course_id' => $courseId,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Add student to course schedule as participant when they enroll.
+     * This method is called after successful enrollment to ensure students
+     * see their course schedules.
+     */
+    private function addStudentToCourseSchedule($courseId, $studentId)
+    {
+        try {
+            Log::info('addStudentToCourseSchedule called from CourseStudentController', [
+                'course_id' => $courseId,
+                'student_id' => $studentId
+            ]);
+            
+            // Get student's user_id
+            $student = \App\Models\Student::find($studentId);
+            if (!$student || !$student->user_id) {
+                Log::warning('Student not found or has no user_id', [
+                    'student_id' => $studentId,
+                    'student_found' => $student ? 'yes' : 'no',
+                    'user_id' => $student ? $student->user_id : null
+                ]);
+                return;
+            }
+
+            Log::info('Student found, searching for schedules', [
+                'student_id' => $studentId,
+                'user_id' => $student->user_id,
+                'course_id' => $courseId
+            ]);
+
+            // Find course schedule(s) - use full namespace string to match database
+            $schedules = \App\Models\Schedule::where('schedulable_type', 'App\\Models\\Course')
+                ->where('schedulable_id', $courseId)
+                ->whereNull('deleted_at')
+                ->get();
+
+            Log::info('Schedules found', [
+                'count' => $schedules->count(),
+                'schedule_ids' => $schedules->pluck('id')->toArray()
+            ]);
+
+            if ($schedules->isEmpty()) {
+                Log::info('No schedules found for course', ['course_id' => $courseId]);
+                return; // No schedule exists yet
+            }
+
+            $addedCount = 0;
+            foreach ($schedules as $schedule) {
+                // Check if student is already a participant
+                $existingParticipant = \App\Models\ScheduleParticipant::where('schedule_id', $schedule->id)
+                    ->where('user_id', $student->user_id)
+                    ->first();
+
+                if (!$existingParticipant) {
+                    // Add student as participant
+                    \App\Models\ScheduleParticipant::create([
+                        'schedule_id' => $schedule->id,
+                        'user_id' => $student->user_id,
+                        'role_in_schedule' => 'student',
+                        'participation_status' => 'invited',
+                    ]);
+                    $addedCount++;
+                }
+            }
+
+            if ($addedCount > 0) {
+                Log::info('Added student to course schedule(s)', [
+                    'course_id' => $courseId,
+                    'student_id' => $studentId,
+                    'user_id' => $student->user_id,
+                    'schedules_count' => $addedCount
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Failed to add student to course schedule', [
+                'course_id' => $courseId,
+                'student_id' => $studentId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            // Don't throw exception to avoid breaking enrollment
         }
     }
 }

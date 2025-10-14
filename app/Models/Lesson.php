@@ -20,16 +20,16 @@ class Lesson extends Model
             // Delete lesson completions
             $lesson->completions()->delete();
 
-            // Detach documents
-            $lesson->documents()->detach();
+            // Delete lesson documents (HasMany relationship - delete pivot records)
+            $lesson->documents()->delete();
 
-            // Detach modules
+            // Detach modules (many-to-many)
             $lesson->modules()->detach();
 
             // Delete lesson activities pivot records
             $lesson->lessonActivities()->delete();
 
-            // Detach activities
+            // Detach activities (many-to-many)
             $lesson->activities()->detach();
         });
     }
@@ -64,9 +64,16 @@ class Lesson extends Model
         return $this->belongsToMany(Module::class, 'lesson_module');
     }
 
-    public function documents(): BelongsToMany
+    // Lesson documents relationship - returns LessonDocument pivot records
+    public function documents()
     {
-        return $this->belongsToMany(Document::class, 'lesson_document');
+        return $this->hasMany(LessonDocument::class);
+    }
+
+    // Get all document files through LessonDocument
+    public function documentFiles()
+    {
+        return $this->hasManyThrough(Document::class, LessonDocument::class, 'lesson_id', 'id', 'id', 'document_id');
     }
 
     public function completions(): HasMany

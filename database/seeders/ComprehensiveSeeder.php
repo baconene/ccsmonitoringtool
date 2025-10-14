@@ -230,6 +230,8 @@ class ComprehensiveSeeder extends Seeder
                 'instructor_name' => 'Dr. Instructor 1',
                 'duration' => 120,
                 'grade_level_id' => 15, // Grade 10 (Sophomore)
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->addMonths(4)->toDateString(), // 4 months from now
             ],
             [
                 'id' => 2,
@@ -241,6 +243,8 @@ class ComprehensiveSeeder extends Seeder
                 'instructor_name' => 'Dr. Instructor 2',
                 'duration' => 90,
                 'grade_level_id' => 14, // Grade 9 (Freshman)
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->addMonths(3)->toDateString(), // 3 months from now
             ],
             [
                 'id' => 3,
@@ -252,11 +256,16 @@ class ComprehensiveSeeder extends Seeder
                 'instructor_name' => 'Dr. Instructor 3',
                 'duration' => 150,
                 'grade_level_id' => 16, // Grade 11 (Junior)
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->addMonths(5)->toDateString(), // 5 months from now
             ],
         ];
 
-        foreach ($courses as $course) {
-            Course::create($course + ['created_at' => now(), 'updated_at' => now()]);
+        foreach ($courses as $courseData) {
+            $course = Course::create($courseData + ['created_at' => now(), 'updated_at' => now()]);
+            
+            // Create schedule for the course using the helper method
+            $this->createCourseSchedule($course);
         }
     }
 
@@ -762,6 +771,67 @@ class ComprehensiveSeeder extends Seeder
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+                
+                // Also create course_student pivot entry
+                \DB::table('course_student')->insert([
+                    'course_id' => $courseId,
+                    'student_id' => $studentId,
+                    'enrolled_at' => now(),
+                    'status' => 'enrolled',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+        
+        // After all enrollments, sync schedule participants
+        $this->syncScheduleParticipants();
+    }
+    
+    /**
+     * Sync schedule participants for all enrolled students.
+     * This adds students to course schedules they're enrolled in.
+     */
+    private function syncScheduleParticipants(): void
+    {
+        $this->command->info('Syncing schedule participants...');
+        
+        // Get all courses with schedules
+        $courses = \App\Models\Course::whereHas('schedules')->with('schedules')->get();
+        
+        foreach ($courses as $course) {
+            // Get enrolled students for this course
+            $enrolledStudents = \DB::table('course_student')
+                ->join('students', 'course_student.student_id', '=', 'students.id')
+                ->where('course_student.course_id', $course->id)
+                ->where('course_student.status', 'enrolled')
+                ->select('students.user_id', 'students.id as student_id')
+                ->get();
+            
+            // Add each student to all course schedules
+            foreach ($course->schedules as $schedule) {
+                $addedCount = 0;
+                
+                foreach ($enrolledStudents as $student) {
+                    // Check if already a participant
+                    $exists = \App\Models\ScheduleParticipant::where('schedule_id', $schedule->id)
+                        ->where('user_id', $student->user_id)
+                        ->exists();
+                    
+                    if (!$exists) {
+                        \App\Models\ScheduleParticipant::create([
+                            'schedule_id' => $schedule->id,
+                            'user_id' => $student->user_id,
+                            'role_in_schedule' => 'student',
+                            'participation_status' => 'invited',
+                        ]);
+                        $addedCount++;
+                    }
+                }
+                
+                if ($addedCount > 0) {
+                    $this->command->info("  ✅ Added {$addedCount} students to schedule: {$schedule->title}");
+                }
             }
         }
     }
@@ -923,6 +993,74 @@ class ComprehensiveSeeder extends Seeder
             'score' => $totalScore,
             'percentage_score' => $percentageScore,
         ]);
+    }
+
+    /**
+     * Create schedule for a course with participants.
+     * This mimics what CourseController does automatically.
+     */
+    private function createCourseSchedule($course): void
+    {
+        if (!$course->end_date) {
+            return; // No end date, no schedule
+        }
+
+        // Get the COURSE_DUE_DATE schedule type using name
+        $scheduleType = \App\Models\ScheduleType::where('name', 'course_due_date')->first();
+        if (!$scheduleType) {
+            $this->command->warn("⚠️  Schedule type 'course_due_date' not found. Skipping schedule creation.");
+            return;
+        }
+
+        // Calculate schedule times
+        $endDate = new \DateTime($course->end_date);
+        $fromDate = clone $endDate;
+        $fromDate->modify('-1 hour');
+
+        // Create schedule
+        $schedule = \App\Models\Schedule::create([
+            'schedule_type_id' => $scheduleType->id,
+            'title' => $course->title . ' - Due Date',
+            'description' => 'Course due date for ' . $course->title,
+            'from_datetime' => $fromDate->format('Y-m-d H:i:s'),
+            'to_datetime' => $endDate->format('Y-m-d H:i:s'),
+            'is_all_day' => false,
+            'is_recurring' => false,
+            'status' => 'scheduled',
+            'created_by' => $course->created_by,
+            'schedulable_type' => 'App\\Models\\Course',
+            'schedulable_id' => $course->id,
+        ]);
+
+        // Add instructor as participant
+        $instructor = $course->instructor;
+        if ($instructor && $instructor->user_id) {
+            \App\Models\ScheduleParticipant::create([
+                'schedule_id' => $schedule->id,
+                'user_id' => $instructor->user_id,
+                'role_in_schedule' => 'instructor',
+                'participation_status' => 'accepted',
+            ]);
+        }
+
+        // Add all enrolled students as participants
+        $enrolledStudents = \DB::table('course_student')
+            ->join('students', 'course_student.student_id', '=', 'students.id')
+            ->where('course_student.course_id', $course->id)
+            ->where('course_student.status', 'enrolled')
+            ->select('students.user_id')
+            ->get();
+
+        foreach ($enrolledStudents as $student) {
+            \App\Models\ScheduleParticipant::create([
+                'schedule_id' => $schedule->id,
+                'user_id' => $student->user_id,
+                'role_in_schedule' => 'student',
+                'participation_status' => 'invited',
+            ]);
+        }
+
+        $this->command->info("  ✅ Created schedule for course: {$course->title}");
     }
 }
 

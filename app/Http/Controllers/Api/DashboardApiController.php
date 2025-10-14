@@ -78,8 +78,8 @@ class DashboardApiController extends Controller
             $query->where('instructor_id', $instructor->id);
         })->count();
         
-        // Get upcoming schedules count for instructor's courses
-        $upcomingSchedules = Schedule::where('created_by', $user->id)
+        // Get upcoming schedules count where instructor is a participant
+        $upcomingSchedules = Schedule::forUser($user->id)
             ->where('from_datetime', '>=', Carbon::now())
             ->count();
         
@@ -113,12 +113,10 @@ class DashboardApiController extends Controller
             // Simplified incomplete activities count - placeholder for now
             $incompleteActivities = 0; // TODO: Implement proper activity tracking
             
-            // Get upcoming schedules count for student
-            $scheduledCourses = Schedule::whereHas('participants', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
-            ->where('from_datetime', '>=', Carbon::now())
-            ->count();
+            // Get upcoming schedules count for student using forUser scope
+            $scheduledCourses = Schedule::forUser($user->id)
+                ->where('from_datetime', '>=', Carbon::now())
+                ->count();
             
             // Placeholder for grade average
             $gradeAverage = 0; // Placeholder

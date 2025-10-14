@@ -227,6 +227,12 @@ function handleRemoveActivity(data: { module: any; activityId: number }) {
     }
   });
 }
+
+// Handle lessons update (when documents are uploaded/deleted in lessons)
+function handleLessonsUpdate(updatedLessons: any[]) {
+  console.log('Lessons updated, reloading courses data...', updatedLessons);
+  reloadCourses();
+}
 </script>
 
 <template>
@@ -350,6 +356,7 @@ function handleRemoveActivity(data: { module: any; activityId: number }) {
                   @add-activity="showAddActivityModal = true"
                   @upload-document="showUploadDocumentModal = true"
                   @remove-activity="handleRemoveActivity"
+                  @update:lessons="handleLessonsUpdate"
                 />
               </div>
             </div>

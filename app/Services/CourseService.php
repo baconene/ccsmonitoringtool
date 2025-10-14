@@ -221,7 +221,14 @@ class CourseService
     {
         $user = auth()->user();
         
-        $query = Course::with(['creator', 'instructor.user', 'modules.activities.activityType', 'modules.lessons', 'gradeLevels'])
+        $query = Course::with([
+            'creator', 
+            'instructor.user', 
+            'modules.activities.activityType', 
+            'modules.lessons.documents.document.uploader', // Load lesson documents with full details
+            'modules.documents.document.uploader', 
+            'gradeLevels'
+        ])
             ->withCount(['students']);
         
         // For instructors: show courses they created OR courses they're assigned to teach
@@ -277,7 +284,49 @@ class CourseService
             $query->where('created_by', $filters['created_by']);
         }
 
-        return $query->orderBy('created_at', 'desc')->paginate($perPage);
+        $courses = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        
+        // Transform lesson documents to match expected format
+        $courses->getCollection()->transform(function ($course) {
+            if ($course->modules) {
+                $course->modules->each(function ($module) {
+                    if ($module->lessons) {
+                        $module->lessons->each(function ($lesson) {
+                            // Transform lesson documents from pivot structure to flat structure
+                            if ($lesson->documents) {
+                                $lesson->documents = $lesson->documents
+                                    ->filter(function ($lessonDoc) {
+                                        return $lessonDoc->document !== null;
+                                    })
+                                    ->map(function ($lessonDoc) {
+                                        $doc = $lessonDoc->document;
+                                        return [
+                                            'id' => $doc->id,
+                                            'name' => $doc->name,
+                                            'original_name' => $doc->original_name,
+                                            'file_path' => $doc->file_path,
+                                            'file_size' => $doc->file_size,
+                                            'file_size_human' => $doc->file_size_human,
+                                            'mime_type' => $doc->mime_type,
+                                            'extension' => $doc->extension,
+                                            'document_type' => $doc->document_type,
+                                            'doc_type' => $doc->document_type,
+                                            'uploaded_by' => $doc->uploader ? $doc->uploader->name : 'Unknown',
+                                            'visibility' => $lessonDoc->visibility,
+                                            'is_required' => $lessonDoc->is_required,
+                                        ];
+                                    })
+                                    ->values()
+                                    ->all();
+                            }
+                        });
+                    }
+                });
+            }
+            return $course;
+        });
+        
+        return $courses;
     }
 
     /**

@@ -244,6 +244,33 @@ export type Module = {
         }>;
     }>; // Optional array of lessons within the module
     activities?: Array<Activity>; // Optional array of full Activity objects
+    documents?: Array<{
+        id: number;
+        document_id: number;
+        module_id: number;
+        visibility: string;
+        is_required: boolean;
+        order?: number;
+        document?: {
+            id: number;
+            name: string;
+            original_name: string;
+            file_path: string;
+            file_size: number;
+            file_size_human: string;
+            mime_type: string;
+            extension: string;
+            document_type: string;
+            uploaded_by: number;
+            uploader?: {
+                id: number;
+                name: string;
+                email: string;
+            };
+            created_at: string;
+            updated_at: string;
+        };
+    }>; // Optional array of module documents
 }
 
 export type ModuleLesson = {

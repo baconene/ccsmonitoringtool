@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             GradeLevelSeeder::class,        // 2. Grade Levels (Year 1-5, Grade 1-12)
             ActivityTypeSeeder::class,      // 3. Activity Types (Quiz, Assignment, etc.)
             QuestionTypeSeeder::class,      // 4. Question Types (Multiple Choice, True/False, etc.)
+            ScheduleTypeSeeder::class,      // 5. Schedule Types (Course, Activity, Exam, etc.)
         ]);
         
         $this->command->info('✅ Foundation data seeded successfully!');

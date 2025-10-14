@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
- * @see routes/web.php:362
+ * @see routes/web.php:424
  * @route '/student/courses/{course}/lessons/{lessonId}/complete-test'
  */
 export const test = (args: { course: number | { id: number }, lessonId: string | number } | [course: number | { id: number }, lessonId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -14,7 +14,7 @@ test.definition = {
 } satisfies RouteDefinition<["post"]>
 
 /**
- * @see routes/web.php:362
+ * @see routes/web.php:424
  * @route '/student/courses/{course}/lessons/{lessonId}/complete-test'
  */
 test.url = (args: { course: number | { id: number }, lessonId: string | number } | [course: number | { id: number }, lessonId: string | number ], options?: RouteQueryOptions) => {
@@ -41,7 +41,7 @@ test.url = (args: { course: number | { id: number }, lessonId: string | number }
 }
 
 /**
- * @see routes/web.php:362
+ * @see routes/web.php:424
  * @route '/student/courses/{course}/lessons/{lessonId}/complete-test'
  */
 test.post = (args: { course: number | { id: number }, lessonId: string | number } | [course: number | { id: number }, lessonId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -50,7 +50,7 @@ test.post = (args: { course: number | { id: number }, lessonId: string | number 
 })
 
     /**
- * @see routes/web.php:362
+ * @see routes/web.php:424
  * @route '/student/courses/{course}/lessons/{lessonId}/complete-test'
  */
     const testForm = (args: { course: number | { id: number }, lessonId: string | number } | [course: number | { id: number }, lessonId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -59,7 +59,7 @@ test.post = (args: { course: number | { id: number }, lessonId: string | number 
     })
 
             /**
- * @see routes/web.php:362
+ * @see routes/web.php:424
  * @route '/student/courses/{course}/lessons/{lessonId}/complete-test'
  */
         testForm.post = (args: { course: number | { id: number }, lessonId: string | number } | [course: number | { id: number }, lessonId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

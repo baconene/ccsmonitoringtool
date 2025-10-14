@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { BookOpen, CheckCircle2, Clock, Trophy, PlayCircle, FileText, ClipboardList, AlertCircle, XCircle, HelpCircle, Star, Tag, Book } from 'lucide-vue-next';
 import { useNotification } from '@/composables/useNotification';
 import Notification from '@/components/Notification.vue';
+import DocumentViewer from '@/components/DocumentViewer.vue';
 
 // Additional type interfaces
 interface Lesson {
@@ -19,6 +20,23 @@ interface Lesson {
   content_type?: string;
   is_completed?: boolean;
   completed_at?: string | null;
+}
+
+interface ModuleDocument {
+  id: number;
+  name: string;
+  original_name: string;
+  file_path: string;
+  file_size: number;
+  file_size_human: string;
+  mime_type: string;
+  extension: string;
+  document_type: string;
+  file_url: string;
+  uploaded_by: string;
+  created_at: string;
+  visibility: string;
+  is_required: boolean;
 }
 
 interface Course {
@@ -52,6 +70,7 @@ interface Props {
         };
         quiz_progress?: StudentQuizProgress | null;
       })[];
+      documents?: ModuleDocument[];
       is_completed?: boolean;
       completed_at?: string | null;
     })[];
@@ -74,6 +93,8 @@ const { notification, showNotification } = useNotification();
 const completingLesson = ref<number | null>(null);
 const completingModule = ref<number | null>(null);
 const completingActivity = ref<number | null>(null);
+const viewingDocument = ref<ModuleDocument | null>(null);
+const isDocumentViewerOpen = ref(false);
 
 // Computed properties
 const totalActivities = computed(() => {
@@ -377,6 +398,17 @@ const markActivityComplete = async (activity: any, module: any) => {
     showNotification('error', 'An unexpected error occurred. Please try again.');
     completingActivity.value = null;
   }
+};
+
+// Document viewer functions
+const openDocumentViewer = (doc: ModuleDocument) => {
+  viewingDocument.value = doc;
+  isDocumentViewerOpen.value = true;
+};
+
+const closeDocumentViewer = () => {
+  isDocumentViewerOpen.value = false;
+  viewingDocument.value = null;
 };
 </script>
 
@@ -842,6 +874,53 @@ const markActivityComplete = async (activity: any, module: any) => {
                 </div>
               </div>
             </div>
+
+            <!-- Module Documents Section -->
+            <div v-if="module.documents && module.documents.length > 0" class="mt-6">
+              <div class="flex items-center mb-4">
+                <FileText class="h-5 w-5 text-purple-600 dark:text-purple-400 mr-2" />
+                <h3 class="text-md font-semibold text-gray-900 dark:text-white">
+                  Module Documents ({{ module.documents.length }})
+                </h3>
+              </div>
+              <div class="space-y-2">
+                <div
+                  v-for="doc in module.documents"
+                  :key="doc.id"
+                  class="border border-purple-200 dark:border-purple-700 rounded-lg p-4 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div class="flex items-center mb-1">
+                        <FileText class="w-4 h-4 text-purple-600 dark:text-purple-400 mr-2" />
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ doc.name }}</h4>
+                      </div>
+                      <div class="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400">
+                        <span>{{ doc.file_size_human }}</span>
+                        <span class="uppercase">{{ doc.extension }}</span>
+                        <span>Uploaded by {{ doc.uploaded_by }}</span>
+                        <span v-if="doc.is_required" class="text-red-600 dark:text-red-400 font-medium">Required</span>
+                      </div>
+                    </div>
+                    <div class="ml-4 flex gap-2">
+                      <button 
+                        @click="openDocumentViewer(doc)"
+                        class="px-3 py-1.5 text-xs font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 transition-colors"
+                      >
+                        View
+                      </button>
+                      <a
+                        :href="`/documents/${doc.id}/download`"
+                        target="_blank"
+                        class="px-3 py-1.5 text-xs font-medium rounded-md text-purple-600 dark:text-purple-400 border border-purple-600 dark:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+                      >
+                        Download
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -860,5 +939,12 @@ const markActivityComplete = async (activity: any, module: any) => {
 
     <!-- Notifications -->
     <Notification :notification="notification" />
+    
+    <!-- Document Viewer -->
+    <DocumentViewer
+      :isOpen="isDocumentViewerOpen"
+      :document="viewingDocument"
+      @close="closeDocumentViewer"
+    />
   </AppLayout>
 </template>

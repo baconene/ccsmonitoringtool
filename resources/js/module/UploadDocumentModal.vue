@@ -232,13 +232,20 @@ function uploadDocuments() {
 
   const formData = new FormData();
   selectedFiles.value.forEach((file, index) => {
-    formData.append(`documents[${index}]`, file);
+    formData.append(`files[${index}]`, file);
   });
   if (description.value) {
     formData.append('description', description.value);
   }
+  
+  // Add required fields for DocumentController
+  formData.append('model_type', 'module');
+  formData.append('foreign_key_id', String(props.moduleId));
+  formData.append('foreign_key_name', 'module_id');
+  formData.append('visibility', 'students');
+  formData.append('is_required', '0');
 
-  router.post(`/modules/${props.moduleId}/documents`, formData, {
+  router.post(`/api/documents/upload`, formData, {
     onSuccess: () => {
       emit('uploaded');
       closeModal();

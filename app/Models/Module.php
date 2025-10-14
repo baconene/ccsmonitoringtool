@@ -22,11 +22,21 @@ class Module extends Model
                 $activity->delete();
             });
 
-            // Detach lessons
+            // Delete module lesson activities for all lessons in this module
+            \DB::table('module_lesson_activities')
+                ->whereIn('module_lesson_id', function ($query) use ($module) {
+                    $query->select('lessons.id')
+                        ->from('lessons')
+                        ->join('lesson_module', 'lessons.id', '=', 'lesson_module.lesson_id')
+                        ->where('lesson_module.module_id', $module->id);
+                })
+                ->delete();
+
+            // Detach lessons (many-to-many)
             $module->lessons()->detach();
 
-            // Detach documents
-            $module->documents()->detach();
+            // Delete module documents (HasMany relationship - delete pivot records)
+            $module->documents()->delete();
 
             // Delete module completions
             $module->completions()->delete();
@@ -95,7 +105,13 @@ class Module extends Model
     // Module documents relationship
     public function documents()
     {
-        return $this->belongsToMany(Document::class, 'module_document');
+        return $this->hasMany(ModuleDocument::class);
+    }
+
+    // Get all document files through ModuleDocument
+    public function documentFiles()
+    {
+        return $this->hasManyThrough(Document::class, ModuleDocument::class, 'module_id', 'id', 'id', 'document_id');
     }
 
     // Student activities for this module
