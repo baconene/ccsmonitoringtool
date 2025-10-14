@@ -8,6 +8,10 @@ Homestead.yaml
 /storage/*.key
 /storage/pail
 
+# Ignore all files in these directories
+resources/js/actions/
+resources/js/routes/
+
 # Node & build
 /node_modules
 /public/build
