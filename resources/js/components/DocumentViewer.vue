@@ -205,21 +205,16 @@ const viewerUrl = computed(() => {
     return documentUrl.value;
   }
   
-  // Office documents - try Microsoft Office Online Viewer
-  // Note: This requires the file to be publicly accessible via direct URL
-  // If symlink is not working, this will fail gracefully and show download option
+  // Office documents - Microsoft Office Online Viewer requires PUBLIC access
+  // Since /documents/{id}/view requires auth, Office viewer can't access it
+  // For now, disable Office viewer and show download option instead
   if (isOfficeDocument.value) {
-    // Use the Laravel route instead of storage path for better compatibility
-    const fullUrl = window.location.origin + documentUrl.value;
-    const encodedUrl = encodeURIComponent(fullUrl);
-    const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`;
+    console.log('📊 Office document detected - Office viewer disabled (requires public URL)');
+    console.log('   Document will show download option instead');
+    console.log('   To enable viewer: Fix /storage/ path in Nginx or remove auth from /documents/{id}/view');
     
-    console.log('📊 Office document detected');
-    console.log('   Full URL:', fullUrl);
-    console.log('   Encoded URL:', encodedUrl);
-    console.log('   Office Viewer URL:', officeViewerUrl);
-    
-    return officeViewerUrl;
+    // Return null to show "Preview Not Available" with download button
+    return null;
   }
   
   console.log('📄 Using default viewer for:', props.document?.extension);
