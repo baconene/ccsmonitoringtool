@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('api')->middleware(['api'])->group(function () {
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     
     // Get upcoming schedules for a user
     Route::get('/users/{userId}/schedules/upcoming', [ScheduleController::class, 'getUserUpcomingSchedules'])

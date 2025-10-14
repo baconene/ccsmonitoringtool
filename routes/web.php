@@ -81,7 +81,56 @@ Route::get('student-dashboard', function () {
 
 // Schedule page (authenticated users)
 Route::get('schedule', function () {
-    return Inertia::render('SchedulingManagement/UserSchedule');
+    $user = auth()->user();
+    
+    // Fetch initial schedule data
+    $schedules = \App\Models\Schedule::with([
+        'scheduleType',
+        'creator:id,name,email',
+        'participants.user:id,name,email',
+        'schedulable',
+    ])
+    ->forUser($user->id)
+    ->upcoming()
+    ->withTrashed() // Include cancelled schedules
+    ->get()
+    ->map(function ($schedule) use ($user) {
+        // Find current user's role in this schedule
+        $userParticipant = $schedule->participants->firstWhere('user_id', $user->id);
+        
+        return [
+            'id' => $schedule->id,
+            'title' => $schedule->title,
+            'description' => $schedule->description,
+            'location' => $schedule->location,
+            'from_datetime' => $schedule->from_datetime,
+            'to_datetime' => $schedule->to_datetime,
+            'status' => $schedule->status,
+            'type' => [
+                'id' => $schedule->scheduleType->id,
+                'name' => $schedule->scheduleType->name,
+                'color' => $schedule->scheduleType->color,
+                'description' => $schedule->scheduleType->description,
+            ],
+            'participants' => $schedule->participants->map(function ($participant) {
+                return [
+                    'id' => $participant->user->id,
+                    'name' => $participant->user->name,
+                    'role' => $participant->role_in_schedule,
+                    'status' => $participant->participation_status,
+                ];
+            }),
+            'duration_minutes' => $schedule->duration_minutes,
+            'created_by' => $schedule->created_by,
+            'schedulable_type' => $schedule->schedulable_type,
+            'schedulable_id' => $schedule->schedulable_id,
+            'deleted_at' => $schedule->deleted_at,
+        ];
+    });
+    
+    return Inertia::render('SchedulingManagement/UserSchedule', [
+        'initialSchedules' => $schedules,
+    ]);
 })->middleware(['auth', 'verified'])->name('schedule.index');
 
 // Temporary route to fix existing schedules (remove after running once)

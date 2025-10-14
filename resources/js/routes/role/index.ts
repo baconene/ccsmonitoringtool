@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
- * @see routes/web.php:270
+ * @see routes/web.php:319
  * @route '/role-management'
  */
 export const management = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ management.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:270
+ * @see routes/web.php:319
  * @route '/role-management'
  */
 management.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ management.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web.php:270
+ * @see routes/web.php:319
  * @route '/role-management'
  */
 management.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -30,7 +30,7 @@ management.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web.php:270
+ * @see routes/web.php:319
  * @route '/role-management'
  */
 management.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -39,7 +39,7 @@ management.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web.php:270
+ * @see routes/web.php:319
  * @route '/role-management'
  */
     const managementForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -48,7 +48,7 @@ management.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web.php:270
+ * @see routes/web.php:319
  * @route '/role-management'
  */
         managementForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -56,7 +56,7 @@ management.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web.php:270
+ * @see routes/web.php:319
  * @route '/role-management'
  */
         managementForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

@@ -2,7 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 import report611039 from './report'
 import student from './student'
 /**
- * @see routes/web.php:210
+ * @see routes/web.php:259
  * @route '/instructor/{id}'
  */
 export const details = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ details.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:210
+ * @see routes/web.php:259
  * @route '/instructor/{id}'
  */
 details.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -43,7 +43,7 @@ details.url = (args: { id: string | number } | [id: string | number ] | string |
 }
 
 /**
- * @see routes/web.php:210
+ * @see routes/web.php:259
  * @route '/instructor/{id}'
  */
 details.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -51,7 +51,7 @@ details.get = (args: { id: string | number } | [id: string | number ] | string |
     method: 'get',
 })
 /**
- * @see routes/web.php:210
+ * @see routes/web.php:259
  * @route '/instructor/{id}'
  */
 details.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -60,7 +60,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
 })
 
     /**
- * @see routes/web.php:210
+ * @see routes/web.php:259
  * @route '/instructor/{id}'
  */
     const detailsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -69,7 +69,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
     })
 
             /**
- * @see routes/web.php:210
+ * @see routes/web.php:259
  * @route '/instructor/{id}'
  */
         detailsForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -77,7 +77,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
             method: 'get',
         })
             /**
- * @see routes/web.php:210
+ * @see routes/web.php:259
  * @route '/instructor/{id}'
  */
         detailsForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { ref, computed, onMounted, watch, withDefaults } from 'vue';
+import { Head, usePage, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { Calendar, Clock, MapPin, Users, AlertCircle, RefreshCw } from 'lucide-vue-next';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -42,13 +42,22 @@ interface GroupedSchedules {
   [date: string]: Schedule[];
 }
 
+// Define props
+interface Props {
+  initialSchedules?: Schedule[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  initialSchedules: () => []
+});
+
 // Get authenticated user from Inertia page props
 const page = usePage();
 const user = computed(() => page.props.auth.user as any);
 
-// State
-const schedules = ref<Schedule[]>([]);
-const loading = ref(true);
+// State - Initialize with props
+const schedules = ref<Schedule[]>(props.initialSchedules || []);
+const loading = ref(false);
 const error = ref<string | null>(null);
 const viewMode = ref<'calendar' | 'list'>('calendar');
 
@@ -82,19 +91,12 @@ const fetchSchedules = async () => {
     return;
   }
 
-  try {
-    loading.value = true;
-    error.value = null;
-    
-    // Include trashed parameter to get soft-deleted schedules
-    const response = await axios.get(`/api/users/${user.value.id}/schedules/upcoming?include_cancelled=true`);
-    schedules.value = response.data.data || [];
-  } catch (err: any) {
-    console.error('Error fetching schedules:', err);
-    error.value = err.response?.data?.message || 'Failed to load schedules';
-  } finally {
-    loading.value = false;
-  }
+  loading.value = true;
+  error.value = null;
+  
+  // Use Inertia router to reload the page with fresh data
+  // This ensures proper session handling
+  router.reload({ only: ['initialSchedules'] });
 };
 
 // Handle event click
@@ -237,9 +239,18 @@ const getRoleBadgeColor = (role: string | undefined): string => {
   return roleMap[role.toLowerCase()] || 'bg-gray-50 text-gray-700 border-gray-200';
 };
 
-// Load schedules on mount
+// Watch for prop changes
+watch(() => props.initialSchedules, (newSchedules) => {
+  if (newSchedules) {
+    schedules.value = newSchedules;
+    loading.value = false;
+  }
+}, { immediate: true });
+
+// Load schedules on mount (already loaded from props, but keep for refresh functionality)
 onMounted(() => {
-  fetchSchedules();
+  // Data already loaded from Inertia props
+  loading.value = false;
 });
 </script>
 
