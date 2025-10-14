@@ -173,6 +173,12 @@ class StudentCourseController extends Controller
                     return $moduleDoc->document !== null; // Filter out null documents
                 })->map(function ($moduleDoc) {
                     $doc = $moduleDoc->document;
+                    
+                    // Additional safety check
+                    if (!$doc) {
+                        return null;
+                    }
+                    
                     return [
                         'id' => $doc->id,
                         'name' => $doc->name,
@@ -192,7 +198,7 @@ class StudentCourseController extends Controller
                         'can_preview' => in_array($doc->extension, ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'txt', 'doc', 'docx']),
                         'preview_url' => $doc->file_url, // Use file_url for preview
                     ];
-                })->values(); // Re-index array after filter
+                })->filter()->values(); // Filter out null values and re-index array
 
                 return [
                     'id' => $module->id,

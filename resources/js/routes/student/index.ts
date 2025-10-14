@@ -166,7 +166,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
     details.form = detailsForm
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:420
+ * @see app/Http/Controllers/Student/StudentCourseController.php:426
  * @route '/student/activities'
  */
 export const activities = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -181,7 +181,7 @@ activities.definition = {
 
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:420
+ * @see app/Http/Controllers/Student/StudentCourseController.php:426
  * @route '/student/activities'
  */
 activities.url = (options?: RouteQueryOptions) => {
@@ -190,7 +190,7 @@ activities.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:420
+ * @see app/Http/Controllers/Student/StudentCourseController.php:426
  * @route '/student/activities'
  */
 activities.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -199,7 +199,7 @@ activities.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:420
+ * @see app/Http/Controllers/Student/StudentCourseController.php:426
  * @route '/student/activities'
  */
 activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -209,7 +209,7 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:420
+ * @see app/Http/Controllers/Student/StudentCourseController.php:426
  * @route '/student/activities'
  */
     const activitiesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:420
+ * @see app/Http/Controllers/Student/StudentCourseController.php:426
  * @route '/student/activities'
  */
         activitiesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -228,7 +228,7 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:420
+ * @see app/Http/Controllers/Student/StudentCourseController.php:426
  * @route '/student/activities'
  */
         activitiesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
