@@ -215,7 +215,7 @@ class ComprehensiveSeeder extends Seeder
         }
     }
 
-    private function seedCourses(): void
+    private function seedCourses(): void 
     {
         // Get instructors
         $instructor1 = Instructor::where('user_id', 4)->first(); // First instructor (user_id = 1+3)
