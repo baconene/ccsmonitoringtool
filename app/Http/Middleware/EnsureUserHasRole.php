@@ -19,7 +19,7 @@ class EnsureUserHasRole
             return redirect()->route('login');
         }
 
-        $user = $request->user();
+        $user = $request->user()->load('role');
         
         // Check if user has any of the required roles
         $hasRole = false;
