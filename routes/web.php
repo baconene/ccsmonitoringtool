@@ -458,10 +458,13 @@ Route::delete('/modules/{module}/activities/{activity}', [ModuleController::clas
 Route::post('/modules/{module}/documents', [ModuleController::class, 'uploadDocuments'])->name('modules.documents.upload');
 
 // DOCUMENT ROUTES
+// View route is public to allow Microsoft Office Online Viewer access
+Route::get('/documents/{document}/view', [App\Http\Controllers\DocumentController::class, 'view'])->name('documents.view');
+Route::get('/documents/{document}/download', [App\Http\Controllers\DocumentController::class, 'download'])->name('documents.download');
+
+// Protected document routes
 Route::middleware(['auth'])->group(function () {
     Route::post('/api/documents/upload', [App\Http\Controllers\DocumentController::class, 'upload'])->name('documents.upload');
-    Route::get('/documents/{document}/view', [App\Http\Controllers\DocumentController::class, 'view'])->name('documents.view');
-    Route::get('/documents/{document}/download', [App\Http\Controllers\DocumentController::class, 'download'])->name('documents.download');
     Route::delete('/documents/{document}', [App\Http\Controllers\DocumentController::class, 'destroy'])->name('documents.destroy');
 });
 

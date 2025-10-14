@@ -205,16 +205,19 @@ const viewerUrl = computed(() => {
     return documentUrl.value;
   }
   
-  // Office documents - Microsoft Office Online Viewer requires PUBLIC access
-  // Since /documents/{id}/view requires auth, Office viewer can't access it
-  // For now, disable Office viewer and show download option instead
+  // Office documents - use Microsoft Office Online Viewer
+  // Note: /documents/{id}/view is now public to allow Microsoft's servers to access it
   if (isOfficeDocument.value) {
-    console.log('📊 Office document detected - Office viewer disabled (requires public URL)');
-    console.log('   Document will show download option instead');
-    console.log('   To enable viewer: Fix /storage/ path in Nginx or remove auth from /documents/{id}/view');
+    const fullUrl = window.location.origin + documentUrl.value;
+    const encodedUrl = encodeURIComponent(fullUrl);
+    const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`;
     
-    // Return null to show "Preview Not Available" with download button
-    return null;
+    console.log('📊 Office document detected - Using Microsoft Office Online Viewer');
+    console.log('   Full URL:', fullUrl);
+    console.log('   Encoded URL:', encodedUrl);
+    console.log('   Office Viewer URL:', officeViewerUrl);
+    
+    return officeViewerUrl;
   }
   
   console.log('📄 Using default viewer for:', props.document?.extension);
