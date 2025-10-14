@@ -79,10 +79,13 @@ class ComprehensiveSeeder extends Seeder
     {
         DB::statement('PRAGMA foreign_keys=OFF');
         
-        // Clear in reverse dependency order (keep foundation data: roles, grade_levels, activity_types, question_types)
+        // Clear in reverse dependency order (keep foundation data: roles, grade_levels, activity_types, question_types, schedule_types)
         DB::table('student_quiz_answers')->delete();
         DB::table('student_quiz_progress')->delete();
         DB::table('student_activities')->delete();
+        DB::table('schedule_participants')->delete();  // Clear schedule participants
+        DB::table('schedules')->delete();              // Clear schedules
+        DB::table('course_student')->delete();         // Clear course_student pivot
         DB::table('course_enrollments')->delete();
         DB::table('question_options')->delete();
         DB::table('questions')->delete();
@@ -579,7 +582,15 @@ class ComprehensiveSeeder extends Seeder
         ];
 
         foreach ($moduleActivities as $ma) {
-            DB::table('module_activities')->insert($ma + ['created_at' => now(), 'updated_at' => now()]);
+            // Check if the relationship already exists
+            $exists = DB::table('module_activities')
+                ->where('module_id', $ma['module_id'])
+                ->where('activity_id', $ma['activity_id'])
+                ->exists();
+            
+            if (!$exists) {
+                DB::table('module_activities')->insert($ma + ['created_at' => now(), 'updated_at' => now()]);
+            }
         }
     }
 
@@ -754,33 +765,49 @@ class ComprehensiveSeeder extends Seeder
 
     private function seedCourseEnrollments(): void
     {
+        $this->command->info('Seeding course enrollments...');
+        
         // Enroll all students in all courses
         for ($studentId = 1; $studentId <= 15; $studentId++) {
             $userId = $studentId + 8; // Student user IDs start at 9
             
             for ($courseId = 1; $courseId <= 3; $courseId++) {
-                CourseEnrollment::create([
-                    'user_id' => $userId,
-                    'student_id' => $studentId,
-                    'course_id' => $courseId,
-                    'instructor_id' => $courseId + 3, // Instructor IDs 4, 5, 6
-                    'enrolled_at' => $this->faker()->dateTimeBetween('-3 months', '-1 month'),
-                    'progress' => rand(10, 95),
-                    'is_completed' => rand(0, 1),
-                    'completed_at' => rand(0, 1) ? $this->faker()->dateTimeBetween('-1 month', 'now') : null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                // Check if enrollment already exists
+                $enrollmentExists = CourseEnrollment::where('student_id', $studentId)
+                    ->where('course_id', $courseId)
+                    ->exists();
                 
-                // Also create course_student pivot entry
-                \DB::table('course_student')->insert([
-                    'course_id' => $courseId,
-                    'student_id' => $studentId,
-                    'enrolled_at' => now(),
-                    'status' => 'enrolled',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                if (!$enrollmentExists) {
+                    CourseEnrollment::create([
+                        'user_id' => $userId,
+                        'student_id' => $studentId,
+                        'course_id' => $courseId,
+                        'instructor_id' => $courseId + 3, // Instructor IDs 4, 5, 6
+                        'enrolled_at' => $this->faker()->dateTimeBetween('-3 months', '-1 month'),
+                        'progress' => rand(10, 95),
+                        'is_completed' => rand(0, 1),
+                        'completed_at' => rand(0, 1) ? $this->faker()->dateTimeBetween('-1 month', 'now') : null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+                
+                // Check if course_student pivot entry exists
+                $pivotExists = \DB::table('course_student')
+                    ->where('course_id', $courseId)
+                    ->where('student_id', $studentId)
+                    ->exists();
+                
+                if (!$pivotExists) {
+                    \DB::table('course_student')->insert([
+                        'course_id' => $courseId,
+                        'student_id' => $studentId,
+                        'enrolled_at' => now(),
+                        'status' => 'enrolled',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
         }
         
