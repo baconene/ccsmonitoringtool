@@ -16,18 +16,41 @@ class ScheduleTypeSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get all schedule types from the enum
-        $scheduleTypes = ScheduleTypeEnum::getAllSeederData();
-
-        // Insert all schedule types
-        DB::table('schedule_types')->insert($scheduleTypes);
+        $this->command->info('Seeding schedule types...');
         
-        $count = count($scheduleTypes);
-        $this->command->info("✅ {$count} schedule types seeded successfully!");
+        $createdCount = 0;
+        $updatedCount = 0;
         
-        // Display what was seeded
+        // Loop through each schedule type and updateOrCreate
         foreach (ScheduleTypeEnum::cases() as $type) {
-            $this->command->line("   - {$type->label()} ({$type->value}) - {$type->color()}");
+            $data = $type->toSeederArray();
+            
+            // Check if it exists
+            $exists = DB::table('schedule_types')
+                ->where('name', $type->value)
+                ->exists();
+            
+            if ($exists) {
+                // Update existing
+                DB::table('schedule_types')
+                    ->where('name', $type->value)
+                    ->update([
+                        'description' => $data['description'],
+                        'color' => $data['color'],
+                        'icon' => $data['icon'],
+                        'is_active' => $data['is_active'],
+                        'updated_at' => now(),
+                    ]);
+                $updatedCount++;
+                $this->command->line("   ↻ Updated: {$type->label()} ({$type->value}) - {$type->color()}");
+            } else {
+                // Create new
+                DB::table('schedule_types')->insert($data);
+                $createdCount++;
+                $this->command->line("   ✓ Created: {$type->label()} ({$type->value}) - {$type->color()}");
+            }
         }
+        
+        $this->command->info("✅ Schedule types seeded: {$createdCount} created, {$updatedCount} updated");
     }
 }
