@@ -163,7 +163,15 @@ const textContent = ref('');
 // Computed
 const documentUrl = computed(() => {
   if (!props.document?.id) return null;
-  return `/documents/${props.document.id}/view`;
+  const url = `/documents/${props.document.id}/view`;
+  console.log('📄 Document URL generated:', url);
+  console.log('📄 Document details:', {
+    id: props.document.id,
+    name: props.document.name,
+    extension: props.document.extension,
+    mime_type: props.document.mime_type
+  });
+  return url;
 });
 
 const isImage = computed(() => {
@@ -186,10 +194,14 @@ const isOfficeDocument = computed(() => {
 });
 
 const viewerUrl = computed(() => {
-  if (!documentUrl.value) return null;
+  if (!documentUrl.value) {
+    console.log('⚠️ No document URL available');
+    return null;
+  }
   
   // PDF files - use browser's native PDF viewer via Laravel route
   if (isPdf.value) {
+    console.log('📕 PDF detected, using direct URL:', documentUrl.value);
     return documentUrl.value;
   }
   
@@ -198,10 +210,19 @@ const viewerUrl = computed(() => {
   // If symlink is not working, this will fail gracefully and show download option
   if (isOfficeDocument.value) {
     // Use the Laravel route instead of storage path for better compatibility
-    const encodedUrl = encodeURIComponent(window.location.origin + documentUrl.value);
-    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`;
+    const fullUrl = window.location.origin + documentUrl.value;
+    const encodedUrl = encodeURIComponent(fullUrl);
+    const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`;
+    
+    console.log('📊 Office document detected');
+    console.log('   Full URL:', fullUrl);
+    console.log('   Encoded URL:', encodedUrl);
+    console.log('   Office Viewer URL:', officeViewerUrl);
+    
+    return officeViewerUrl;
   }
   
+  console.log('📄 Using default viewer for:', props.document?.extension);
   return null;
 });
 
@@ -210,9 +231,15 @@ function close() {
   emit('close');
 }
 
-function handleError() {
+function handleError(event?: Event) {
   loading.value = false;
   error.value = 'Failed to load the document. The file may be corrupted or the format is not supported.';
+  console.error('❌ Document viewer error:', {
+    document: props.document,
+    documentUrl: documentUrl.value,
+    viewerUrl: viewerUrl.value,
+    event
+  });
 }
 
 async function loadTextContent() {
@@ -237,6 +264,15 @@ watch(
   () => props.isOpen,
   (newValue) => {
     if (newValue) {
+      console.log('🔍 DocumentViewer opened');
+      console.log('   Document:', props.document);
+      console.log('   Document URL:', documentUrl.value);
+      console.log('   Viewer URL:', viewerUrl.value);
+      console.log('   Is PDF:', isPdf.value);
+      console.log('   Is Office:', isOfficeDocument.value);
+      console.log('   Is Image:', isImage.value);
+      console.log('   Is Text:', isText.value);
+      
       loading.value = true;
       error.value = null;
       textContent.value = '';
