@@ -188,13 +188,16 @@ const isOfficeDocument = computed(() => {
 const viewerUrl = computed(() => {
   if (!documentUrl.value) return null;
   
-  // PDF files - use browser's native PDF viewer
+  // PDF files - use browser's native PDF viewer via Laravel route
   if (isPdf.value) {
     return documentUrl.value;
   }
   
-  // Office documents - use Microsoft Office Online Viewer
+  // Office documents - try Microsoft Office Online Viewer
+  // Note: This requires the file to be publicly accessible via direct URL
+  // If symlink is not working, this will fail gracefully and show download option
   if (isOfficeDocument.value) {
+    // Use the Laravel route instead of storage path for better compatibility
     const encodedUrl = encodeURIComponent(window.location.origin + documentUrl.value);
     return `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}`;
   }
