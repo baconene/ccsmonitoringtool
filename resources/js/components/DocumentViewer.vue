@@ -80,8 +80,8 @@
               :src="viewerUrl"
               class="w-full h-full border-0"
               frameborder="0"
-              @load="loading = false"
-              @error="handleError"
+              @load="() => { loading = false; console.log('✅ Iframe loaded successfully'); }"
+              @error="(e) => { console.error('❌ Iframe error:', e); handleError(e); }"
             ></iframe>
 
             <!-- Image Viewer -->
@@ -277,6 +277,13 @@ watch(
       
       if (isText.value) {
         loadTextContent();
+      } else if (viewerUrl.value || isImage.value) {
+        // For iframe/image viewers, stop showing loading after 3 seconds
+        // The iframe @load event will stop it sooner if it loads successfully
+        setTimeout(() => {
+          loading.value = false;
+          console.log('⏱️ Loading timeout - displaying viewer');
+        }, 3000);
       }
     }
   }
