@@ -403,14 +403,25 @@ class StudentCourseEnrollmentService
                     ->first();
 
                 if (!$existingActivity) {
-                    $student->studentActivities()->create([
-                        'activity_id' => $activity->id,
-                        'score' => null,
-                        'status' => 'not_started',
-                        'started_at' => null,
-                        'completed_at' => null,
-                        'attempt_count' => 0,
-                    ]);
+                    try {
+                        $student->studentActivities()->create([
+                            'activity_id' => $activity->id,
+                            'module_id' => $module->id, // Required field
+                            'score' => null,
+                            'status' => 'not_started',
+                            'started_at' => null,
+                            'completed_at' => null,
+                            'attempt_count' => 0,
+                        ]);
+                    } catch (\Exception $e) {
+                        // Log and continue if there are constraint issues
+                        Log::warning('Failed to create student activity record', [
+                            'student_id' => $student->id,
+                            'activity_id' => $activity->id,
+                            'module_id' => $module->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
                 }
             }
         }

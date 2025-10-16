@@ -32,9 +32,21 @@ class CourseGradeLevel extends Model
 
     /**
      * Check if a student with given grade level can access a course.
+     * Returns true if:
+     * - Course has no grade level restrictions, OR
+     * - Student's grade level matches one of the course's allowed grade levels
      */
     public static function canStudentAccessCourse(int $courseId, int $gradeLevelId): bool
     {
+        // Check if course has any grade level restrictions
+        $hasRestrictions = self::where('course_id', $courseId)->exists();
+        
+        // If no restrictions, all students can access
+        if (!$hasRestrictions) {
+            return true;
+        }
+        
+        // If there are restrictions, check if student's grade level matches
         return self::where('course_id', $courseId)
                    ->where('grade_level_id', $gradeLevelId)
                    ->exists();
