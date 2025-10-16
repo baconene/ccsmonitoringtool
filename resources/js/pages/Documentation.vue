@@ -93,6 +93,9 @@ const sections: DocSection[] = [
     subsections: [
       { id: 'grade-reporting-overview', title: 'Grade Reporting Overview' },
       { id: 'grade-calculation', title: 'Grade Calculation System' },
+      { id: 'grade-settings', title: 'Grade Settings Management' },
+      { id: 'dynamic-weights', title: 'Dynamic Weight System' },
+      { id: 'course-specific-grades', title: 'Course-Specific Settings' },
       { id: 'student-reports', title: 'Student Grade Reports' },
       { id: 'instructor-reports', title: 'Instructor Reports' },
       { id: 'analytics-dashboard', title: 'Analytics Dashboard' },
@@ -2605,6 +2608,541 @@ function getContentForSection(sectionId: string) {
               <li>✓ Formula support</li>
             </ul>
           </div>
+        </div>
+      `
+    },
+    'grade-calculation': {
+      title: 'Grade Calculation System',
+      content: `
+        <p class="text-lg mb-6">AstroLearn uses a sophisticated multi-level grade calculation system with dynamic weight adjustment to ensure accurate and fair assessment of student performance.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">🧮 Calculation Hierarchy</h3>
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
+          <div class="space-y-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg">1</div>
+              <div class="flex-1">
+                <h4 class="font-bold text-lg">Activity Scores</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Individual quiz/assignment results (0-100%)</p>
+              </div>
+            </div>
+            <div class="ml-6 border-l-4 border-blue-300 dark:border-blue-600 pl-6">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-lg">2</div>
+                <div class="flex-1">
+                  <h4 class="font-bold text-lg">Activity Type Scores</h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">Quiz (30%) + Assignment (15%) + Assessment (35%) + Exercise (20%)</p>
+                </div>
+              </div>
+            </div>
+            <div class="ml-12 border-l-4 border-green-300 dark:border-green-600 pl-6">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold text-lg">3</div>
+                <div class="flex-1">
+                  <h4 class="font-bold text-lg">Module Grades</h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">Lessons (20%) + Activities (80%) = Module Score</p>
+                </div>
+              </div>
+            </div>
+            <div class="ml-18 border-l-4 border-purple-300 dark:border-purple-600 pl-6">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center font-bold text-lg">4</div>
+                <div class="flex-1">
+                  <h4 class="font-bold text-lg">Course Grades</h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">Weighted average of all module scores</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📐 Module Grade Formula</h3>
+        <div class="bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 mb-6">
+          <div class="text-center mb-4">
+            <div class="text-2xl font-mono font-bold text-blue-600 dark:text-blue-400 mb-2">
+              Module Score = (Lessons × Lesson Weight%) + (Activities × Activity Weight%)
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Default: (Lessons × 20%) + (Activities × 80%)</p>
+          </div>
+          
+          <div class="bg-white dark:bg-gray-700 rounded-lg p-4 mt-4">
+            <h4 class="font-bold mb-3">💡 Example Calculation:</h4>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span>Lessons Score:</span>
+                <span class="font-mono">100%</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Activities Score:</span>
+                <span class="font-mono">85%</span>
+              </div>
+              <hr class="border-gray-300 dark:border-gray-600">
+              <div class="flex justify-between">
+                <span>Lesson Contribution (100% × 20%):</span>
+                <span class="font-mono">20%</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Activity Contribution (85% × 80%):</span>
+                <span class="font-mono">68%</span>
+              </div>
+              <hr class="border-gray-300 dark:border-gray-600 border-2">
+              <div class="flex justify-between font-bold text-lg">
+                <span>Final Module Score:</span>
+                <span class="font-mono text-blue-600 dark:text-blue-400">88%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🎨 Activity Type Weighting</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-center">
+            <div class="text-3xl font-bold text-blue-600 dark:text-blue-400">30%</div>
+            <div class="text-sm font-medium mt-2">Quiz</div>
+          </div>
+          <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-center">
+            <div class="text-3xl font-bold text-green-600 dark:text-green-400">15%</div>
+            <div class="text-sm font-medium mt-2">Assignment</div>
+          </div>
+          <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 text-center">
+            <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">35%</div>
+            <div class="text-sm font-medium mt-2">Assessment</div>
+          </div>
+          <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 text-center">
+            <div class="text-3xl font-bold text-orange-600 dark:text-orange-400">20%</div>
+            <div class="text-sm font-medium mt-2">Exercise</div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🏆 Letter Grade Conversion</h3>
+        <div class="overflow-x-auto mb-6">
+          <table class="w-full border-collapse border border-gray-300 dark:border-gray-600 rounded-lg">
+            <thead>
+              <tr class="bg-gray-100 dark:bg-gray-800">
+                <th class="border border-gray-300 dark:border-gray-600 px-4 py-3 text-left">Range</th>
+                <th class="border border-gray-300 dark:border-gray-600 px-4 py-3 text-left">Grade</th>
+                <th class="border border-gray-300 dark:border-gray-600 px-4 py-3 text-left">GPA</th>
+                <th class="border border-gray-300 dark:border-gray-600 px-4 py-3 text-left">Performance</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm">
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">97-100%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-green-600">A+</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">4.0</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Exceptional</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">93-96%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-green-600">A</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">4.0</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Excellent</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">90-92%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-green-500">A-</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">3.7</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Very Good</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">87-89%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-blue-600">B+</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">3.3</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Good</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">83-86%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-blue-600">B</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">3.0</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Satisfactory</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">70-82%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-yellow-600">C/C+/B-</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">1.7-2.7</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Average</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">65-69%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-orange-600">D</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">1.0</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Minimal Pass</td></tr>
+              <tr><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">0-64%</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2 font-bold text-red-600">F</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">0.0</td><td class="border border-gray-300 dark:border-gray-600 px-4 py-2">Failing</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-lg">
+          <p class="text-sm"><strong>💡 Note:</strong> Grades update automatically when activities are completed. Students can view their grade breakdown in the Student Report page.</p>
+        </div>
+      `
+    },
+    'grade-settings': {
+      title: 'Grade Settings Management',
+      content: `
+        <p class="text-lg mb-6">The Grade Settings Management system allows administrators to configure and customize grade calculation weights globally or per course, ensuring flexible assessment strategies.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">⚙️ Settings Overview</h3>
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-2 border-indigo-200 dark:border-indigo-800 rounded-lg p-6 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 class="text-xl font-bold mb-3 text-indigo-700 dark:text-indigo-400">🌐 Global Settings</h4>
+              <ul class="space-y-2 text-sm">
+                <li>✓ Default weights for all courses</li>
+                <li>✓ System-wide configuration</li>
+                <li>✓ Applied to courses without custom settings</li>
+                <li>✓ Easy to update and manage</li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="text-xl font-bold mb-3 text-purple-700 dark:text-purple-400">📚 Course-Specific Settings</h4>
+              <ul class="space-y-2 text-sm">
+                <li>✓ Override global defaults per course</li>
+                <li>✓ Tailored to course requirements</li>
+                <li>✓ Can be reverted to global anytime</li>
+                <li>✓ Cached for performance</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🎛️ Configurable Weights</h3>
+        <div class="space-y-4 mb-6">
+          <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-5">
+            <h4 class="text-lg font-bold mb-3 text-green-700 dark:text-green-400">📊 Module Components</h4>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div class="bg-white dark:bg-gray-800 rounded-lg p-3">
+                <div class="font-bold mb-1">Lessons</div>
+                <div class="text-gray-600 dark:text-gray-400">Default: <span class="font-mono text-green-600">20%</span></div>
+                <div class="text-xs mt-1">Reading materials, videos, content</div>
+              </div>
+              <div class="bg-white dark:bg-gray-800 rounded-lg p-3">
+                <div class="font-bold mb-1">Activities</div>
+                <div class="text-gray-600 dark:text-gray-400">Default: <span class="font-mono text-green-600">80%</span></div>
+                <div class="text-xs mt-1">Quizzes, assignments, assessments</div>
+              </div>
+            </div>
+            <div class="mt-3 text-xs text-green-700 dark:text-green-300">
+              ⚠️ Must total 100%
+            </div>
+          </div>
+
+          <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-5">
+            <h4 class="text-lg font-bold mb-3 text-orange-700 dark:text-orange-400">📝 Activity Types</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div class="bg-white dark:bg-gray-800 rounded-lg p-3">
+                <div class="font-bold mb-1">Quiz</div>
+                <div class="text-gray-600 dark:text-gray-400">Default: <span class="font-mono text-orange-600">30%</span></div>
+              </div>
+              <div class="bg-white dark:bg-gray-800 rounded-lg p-3">
+                <div class="font-bold mb-1">Assignment</div>
+                <div class="text-gray-600 dark:text-gray-400">Default: <span class="font-mono text-orange-600">15%</span></div>
+              </div>
+              <div class="bg-white dark:bg-gray-800 rounded-lg p-3">
+                <div class="font-bold mb-1">Assessment</div>
+                <div class="text-gray-600 dark:text-gray-400">Default: <span class="font-mono text-orange-600">35%</span></div>
+              </div>
+              <div class="bg-white dark:bg-gray-800 rounded-lg p-3">
+                <div class="font-bold mb-1">Exercise</div>
+                <div class="text-gray-600 dark:text-gray-400">Default: <span class="font-mono text-orange-600">20%</span></div>
+              </div>
+            </div>
+            <div class="mt-3 text-xs text-orange-700 dark:text-orange-300">
+              ⚠️ Must total 100%
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🖥️ Admin Interface</h3>
+        <div class="bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900/20 border border-slate-200 dark:border-slate-700 rounded-lg p-6 mb-6">
+          <p class="mb-4">The Grade Settings page features a <strong>3-column layout</strong>:</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-blue-300 dark:border-blue-600">
+              <div class="font-bold text-center mb-2 text-blue-600 dark:text-blue-400">🔍 Course Search</div>
+              <ul class="space-y-1 text-xs">
+                <li>• Search by name/code</li>
+                <li>• Filter by instructor</li>
+                <li>• Badge shows custom settings</li>
+                <li>• Quick selection</li>
+              </ul>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-green-300 dark:border-green-600">
+              <div class="font-bold text-center mb-2 text-green-600 dark:text-green-400">⚙️ Settings Config</div>
+              <ul class="space-y-1 text-xs">
+                <li>• Adjust module weights</li>
+                <li>• Configure activity types</li>
+                <li>• Real-time validation</li>
+                <li>• Save/reset options</li>
+              </ul>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-purple-300 dark:border-purple-600">
+              <div class="font-bold text-center mb-2 text-purple-600 dark:text-purple-400">🧮 Grade Simulator</div>
+              <ul class="space-y-1 text-xs">
+                <li>• Toggle components</li>
+                <li>• Enter test scores</li>
+                <li>• See dynamic weights</li>
+                <li>• Live calculation</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📋 How to Configure</h3>
+        <div class="space-y-3">
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+            <div>
+              <strong>Navigate to Grade Settings:</strong> Admin menu → Grade Settings
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+            <div>
+              <strong>Global Settings:</strong> Leave course search empty to configure defaults
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+            <div>
+              <strong>Course-Specific:</strong> Search and select a course to override
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">4</div>
+            <div>
+              <strong>Adjust Weights:</strong> Use sliders or input fields (must total 100%)
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">5</div>
+            <div>
+              <strong>Test in Simulator:</strong> Verify calculations before saving
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold">6</div>
+            <div>
+              <strong>Save Changes:</strong> Click save for each section (Module Components and Activity Types)
+            </div>
+          </div>
+        </div>
+      `
+    },
+    'dynamic-weights': {
+      title: 'Dynamic Weight System',
+      content: `
+        <p class="text-lg mb-6">The Dynamic Weight System automatically adjusts grade calculations when modules have missing components, ensuring fair and accurate assessment regardless of module structure.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">🎯 The Problem It Solves</h3>
+        <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-5 rounded-r-lg mb-6">
+          <h4 class="font-bold mb-2 text-red-700 dark:text-red-400">❌ Without Dynamic Weights (OLD)</h4>
+          <div class="text-sm space-y-2">
+            <p>A module with only lessons (no activities) would calculate:</p>
+            <div class="bg-white dark:bg-gray-800 rounded p-3 font-mono text-xs">
+              Module Score = (100% × 20%) + (0% × 80%) = <span class="text-red-600 font-bold">20%</span>
+            </div>
+            <p class="text-red-700 dark:text-red-300">This unfairly penalizes modules for having different structures!</p>
+          </div>
+        </div>
+
+        <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-5 rounded-r-lg mb-6">
+          <h4 class="font-bold mb-2 text-green-700 dark:text-green-400">✅ With Dynamic Weights (NEW)</h4>
+          <div class="text-sm space-y-2">
+            <p>The same module dynamically adjusts:</p>
+            <div class="bg-white dark:bg-gray-800 rounded p-3 font-mono text-xs">
+              Lessons: 20% → <span class="text-green-600 font-bold">100%</span> (adjusted)<br>
+              Activities: 80% → <span class="text-green-600 font-bold">0%</span> (none exist)<br>
+              Module Score = (100% × 100%) + (0% × 0%) = <span class="text-green-600 font-bold">100%</span>
+            </div>
+            <p class="text-green-700 dark:text-green-300">Fair and accurate—students get full credit for what they completed!</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🔄 How It Works</h3>
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
+          <div class="space-y-4">
+            <div class="border-l-4 border-blue-400 pl-4">
+              <h4 class="font-bold mb-2">Step 1: Check What Exists</h4>
+              <p class="text-sm">System checks if module has lessons and/or activities</p>
+            </div>
+            <div class="border-l-4 border-green-400 pl-4">
+              <h4 class="font-bold mb-2">Step 2: Adjust Component Weights</h4>
+              <ul class="text-sm space-y-1">
+                <li>• Both exist → Use configured weights (20%/80%)</li>
+                <li>• Only lessons → Lessons 100%, Activities 0%</li>
+                <li>• Only activities → Lessons 0%, Activities 100%</li>
+              </ul>
+            </div>
+            <div class="border-l-4 border-purple-400 pl-4">
+              <h4 class="font-bold mb-2">Step 3: Check Activity Types</h4>
+              <p class="text-sm">Within activities, check which types exist (Quiz, Assignment, etc.)</p>
+            </div>
+            <div class="border-l-4 border-orange-400 pl-4">
+              <h4 class="font-bold mb-2">Step 4: Normalize Activity Type Weights</h4>
+              <p class="text-sm">Redistribute weights among existing types to total 100%</p>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">📊 Weight Normalization Examples</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-5">
+            <h4 class="font-bold text-lg mb-3 text-purple-700 dark:text-purple-400">Example 1: Only Quiz Exists</h4>
+            <div class="text-sm space-y-2">
+              <div class="font-mono text-xs bg-white dark:bg-gray-800 rounded p-2">
+                Configured: Quiz 30%, Assignment 15%,<br>
+                Assessment 35%, Exercise 20%
+              </div>
+              <div class="text-center py-2">⬇️ Normalization ⬇️</div>
+              <div class="font-mono text-xs bg-purple-100 dark:bg-purple-900/30 rounded p-2">
+                <strong>Quiz: 30/30 × 100 = 100%</strong><br>
+                (Only type present gets 100%)
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-5">
+            <h4 class="font-bold text-lg mb-3 text-orange-700 dark:text-orange-400">Example 2: Quiz + Assignment</h4>
+            <div class="text-sm space-y-2">
+              <div class="font-mono text-xs bg-white dark:bg-gray-800 rounded p-2">
+                Quiz: 30%<br>
+                Assignment: 15%<br>
+                Total existing: 45%
+              </div>
+              <div class="text-center py-2">⬇️ Normalization ⬇️</div>
+              <div class="font-mono text-xs bg-orange-100 dark:bg-orange-900/30 rounded p-2">
+                <strong>Quiz: 30/45 × 100 = 66.67%</strong><br>
+                <strong>Assignment: 15/45 × 100 = 33.33%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🎨 Visual Indicators</h3>
+        <div class="space-y-4 mb-6">
+          <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+            <h4 class="font-bold mb-2 text-amber-700 dark:text-amber-400">⚠️ Warning Badge</h4>
+            <p class="text-sm">Student report shows warning when weights are adjusted: "⚠️ Weights adjusted: No activities in module"</p>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-4">
+            <h4 class="font-bold mb-2 text-gray-700 dark:text-gray-400">Grayed Out Components</h4>
+            <p class="text-sm">Missing components appear with reduced opacity and 0% weight display</p>
+          </div>
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h4 class="font-bold mb-2 text-blue-700 dark:text-blue-400">Dynamic Weight Labels</h4>
+            <p class="text-sm">Shows both configured (20%) and actual used (100%) weights for transparency</p>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">💡 Benefits</h3>
+        <ul class="list-disc pl-6 space-y-2 text-sm">
+          <li><strong>Fair Assessment:</strong> Modules with different structures don't penalize students</li>
+          <li><strong>Automatic Adjustment:</strong> No manual configuration needed per module</li>
+          <li><strong>Transparent:</strong> Students see exactly how weights were adjusted</li>
+          <li><strong>Flexible Design:</strong> Instructors can create modules however they like</li>
+          <li><strong>Always 100%:</strong> All weights always normalize to exactly 100%</li>
+        </ul>
+      `
+    },
+    'course-specific-grades': {
+      title: 'Course-Specific Grade Settings',
+      content: `
+        <p class="text-lg mb-6">Course-specific settings allow you to override global grade defaults for individual courses, perfect for courses with unique assessment requirements.</p>
+        
+        <h3 class="text-2xl font-bold mb-4">🎯 When to Use Course-Specific Settings</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-5">
+            <h4 class="font-bold mb-3 text-blue-700 dark:text-blue-400">📚 Theory-Heavy Courses</h4>
+            <p class="text-sm mb-2">Courses focused on reading and comprehension</p>
+            <div class="bg-white dark:bg-gray-800 rounded p-3 text-xs">
+              <strong>Custom Weights:</strong><br>
+              Lessons: <span class="font-mono text-blue-600">40%</span> ⬆️<br>
+              Activities: <span class="font-mono text-blue-600">60%</span> ⬇️
+            </div>
+          </div>
+
+          <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-5">
+            <h4 class="font-bold mb-3 text-orange-700 dark:text-orange-400">⚗️ Lab/Practical Courses</h4>
+            <p class="text-sm mb-2">Hands-on courses with lots of exercises</p>
+            <div class="bg-white dark:bg-gray-800 rounded p-3 text-xs">
+              <strong>Custom Weights:</strong><br>
+              Lessons: <span class="font-mono text-orange-600">10%</span> ⬇️<br>
+              Activities: <span class="font-mono text-orange-600">90%</span> ⬆️
+            </div>
+          </div>
+
+          <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-5">
+            <h4 class="font-bold mb-3 text-purple-700 dark:text-purple-400">📊 Assessment-Focused</h4>
+            <p class="text-sm mb-2">Courses emphasizing formal assessments</p>
+            <div class="bg-white dark:bg-gray-800 rounded p-3 text-xs">
+              <strong>Activity Types:</strong><br>
+              Assessment: <span class="font-mono text-purple-600">50%</span> ⬆️<br>
+              Quiz: <span class="font-mono text-purple-600">30%</span><br>
+              Others: <span class="font-mono text-purple-600">20%</span> ⬇️
+            </div>
+          </div>
+
+          <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-5">
+            <h4 class="font-bold mb-3 text-green-700 dark:text-green-400">✏️ Assignment-Heavy</h4>
+            <p class="text-sm mb-2">Project-based or portfolio courses</p>
+            <div class="bg-white dark:bg-gray-800 rounded p-3 text-xs">
+              <strong>Activity Types:</strong><br>
+              Assignment: <span class="font-mono text-green-600">50%</span> ⬆️<br>
+              Project: <span class="font-mono text-green-600">30%</span><br>
+              Others: <span class="font-mono text-green-600">20%</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🔧 Setting Up Course-Specific Weights</h3>
+        <div class="space-y-3 mb-6">
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+            <div class="flex-1">
+              <strong>Navigate to Grade Settings</strong>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Admin menu → Grade Settings</p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+            <div class="flex-1">
+              <strong>Search for Course</strong>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Use the search box to find course by name, code, or instructor</p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+            <div class="flex-1">
+              <strong>Select Course</strong>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Click on the course card (badge shows if it already has custom settings)</p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">4</div>
+            <div class="flex-1">
+              <strong>Adjust Weights</strong>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Modify module components and/or activity type weights</p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">5</div>
+            <div class="flex-1">
+              <strong>Test in Simulator</strong>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Use the grade simulator to verify calculations</p>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">6</div>
+            <div class="flex-1">
+              <strong>Save Changes</strong>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Click save to apply course-specific settings</p>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🚀 Performance & Caching</h3>
+        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-5 mb-6">
+          <h4 class="font-bold mb-3 text-green-700 dark:text-green-400">⚡ Intelligent Caching</h4>
+          <ul class="space-y-2 text-sm">
+            <li>• Settings cached for <strong>1 hour</strong> per course</li>
+            <li>• Cache automatically cleared when settings updated</li>
+            <li>• Fallback to global settings if course-specific not found</li>
+            <li>• Minimal database queries during grade calculation</li>
+          </ul>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4">🔄 Reverting to Global Settings</h3>
+        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-5">
+          <p class="text-sm mb-3">To remove course-specific settings and revert to global defaults:</p>
+          <ol class="space-y-2 text-sm list-decimal list-inside">
+            <li>Select the course with custom settings</li>
+            <li>Click <strong>"Revert to Global"</strong> button</li>
+            <li>Confirm the action</li>
+            <li>Course will immediately use global defaults</li>
+          </ol>
+          <div class="mt-3 p-3 bg-white dark:bg-gray-800 rounded text-xs">
+            💡 <strong>Tip:</strong> You can tell which courses have custom settings by the badge displayed in the course search list.
+          </div>
+        </div>
+
+        <h3 class="text-2xl font-bold mb-4 mt-6">📊 Database Structure</h3>
+        <div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-5">
+          <h4 class="font-bold mb-3">Tables:</h4>
+          <div class="space-y-2 text-sm font-mono">
+            <div class="bg-white dark:bg-gray-800 rounded p-3">
+              <strong>grade_settings</strong> - Global defaults
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded p-3">
+              <strong>course_grade_settings</strong> - Course-specific overrides
+            </div>
+          </div>
+          <p class="text-xs mt-3 text-gray-600 dark:text-gray-400">Both tables have identical structure, course_grade_settings includes a course_id foreign key.</p>
         </div>
       `
     },
