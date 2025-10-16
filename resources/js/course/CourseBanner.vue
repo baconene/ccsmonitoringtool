@@ -37,6 +37,21 @@
 
       <!-- Right: Action Buttons (Top right on desktop, bottom on mobile) -->
       <div class="flex gap-2 lg:order-last order-last lg:mt-0">
+        <!-- Schedule Button - Shows CalendarPlus for create, Edit3 for edit -->
+        <button
+          @click="handleScheduleButtonClick"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+          :title="hasSchedule ? 'Edit Schedule' : 'Create Schedule'"
+        >
+          <Edit3 
+            v-if="hasSchedule"
+            class="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" 
+          />
+          <CalendarPlus 
+            v-else
+            class="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors" 
+          />
+        </button>
         <button
           @click="$emit('manageStudents')"
           class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
@@ -104,13 +119,86 @@
         <span class="text-gray-600 dark:text-gray-300">Modules:</span>
         <span class="font-medium text-gray-900 dark:text-white">{{ reactiveCourse.modules.length }}</span>
       </div>
+
+      <!-- Course Schedules -->
+      <div v-if="schedules.length > 0" class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center gap-2 mb-3">
+          <Calendar class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Upcoming Schedules</span>
+        </div>
+        <div class="space-y-2">
+          <div
+            v-for="schedule in schedules.slice(0, 3)"
+            :key="schedule.id"
+            class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+          >
+            <div class="flex-shrink-0 mt-0.5">
+              <div class="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded">
+                <Clock class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ schedule.title || reactiveCourse.name }}
+                </p>
+                <span
+                  v-if="schedule.is_recurring"
+                  class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full"
+                >
+                  <Repeat class="w-3 h-3" />
+                  {{ getFrequencyText(schedule) }}
+                </span>
+                <span
+                  v-if="schedule.session_number"
+                  class="text-xs text-gray-500 dark:text-gray-400"
+                >
+                  Session #{{ schedule.session_number }}
+                </span>
+              </div>
+              <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                {{ formatScheduleTime(schedule) }}
+              </p>
+              <p v-if="schedule.location" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                📍 {{ schedule.location }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div v-if="schedules.length > 3" class="mt-2 text-center">
+          <span class="text-xs text-gray-500 dark:text-gray-400">
+            +{{ schedules.length - 3 }} more schedule(s)
+          </span>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Course Schedule Modal -->
+  <CourseScheduleModal
+    :is-open="showScheduleModal"
+    :course-id="reactiveCourse.id"
+    :course-name="reactiveCourse.name"
+    :existing-schedule="existingSchedule"
+    @close="handleScheduleModalClose"
+  />
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, watch } from "vue";
-import { Edit3, Trash, Users, GraduationCap, UserCircle, UserPlus, Calendar } from "lucide-vue-next";
+import { reactive, computed, watch, ref } from "vue";
+import { Edit3, Trash, Users, GraduationCap, UserCircle, UserPlus, Calendar, CalendarPlus, Clock, Repeat } from "lucide-vue-next";
+import CourseScheduleModal from "@/components/CourseScheduleModal.vue";
+
+interface Schedule {
+  id: number;
+  title: string;
+  from_datetime: string;
+  to_datetime: string;
+  is_recurring: boolean;
+  recurrence_rule?: string;
+  location?: string;
+  session_number?: number;
+}
 
 const props = defineProps<{
   course: {
@@ -141,6 +229,7 @@ const props = defineProps<{
       name: string;
       email: string;
     };
+    schedules?: Schedule[];
   };
 }>();
 
@@ -150,6 +239,14 @@ defineEmits<{
   (e: "manageStudents"): void;
 }>();
 
+// State
+const showScheduleModal = ref(false);
+const schedules = ref<Schedule[]>(props.course.schedules || []);
+const existingSchedule = ref<Schedule | null>(null);
+
+// Computed: Check if course has a schedule
+const hasSchedule = computed(() => schedules.value.length > 0);
+
 // Make a reactive copy so changes trigger updates
 const reactiveCourse = reactive({ ...props.course });
 
@@ -158,6 +255,8 @@ watch(
   () => props.course,
   (newCourse) => {
     Object.assign(reactiveCourse, newCourse);
+    // Update schedules when course prop changes
+    schedules.value = newCourse.schedules || [];
   },
   { deep: true, immediate: true }
 );
@@ -195,4 +294,58 @@ const courseStatus = computed(() => {
   if (now > end) return 'completed';
   return 'active';
 });
+
+// Format schedule frequency
+const getFrequencyText = (schedule: Schedule): string => {
+  if (!schedule.is_recurring) return 'One-time';
+  
+  if (schedule.recurrence_rule) {
+    const rule = schedule.recurrence_rule.toLowerCase();
+    if (rule.includes('daily')) return 'Daily';
+    if (rule.includes('weekly')) return 'Weekly';
+    if (rule.includes('monthly')) return 'Monthly';
+  }
+  
+  return 'Recurring';
+};
+
+// Format schedule time range
+const formatScheduleTime = (schedule: Schedule): string => {
+  const from = new Date(schedule.from_datetime);
+  const to = new Date(schedule.to_datetime);
+  
+  const dateStr = from.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric',
+    year: 'numeric'
+  });
+  
+  const timeStr = `${from.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit' 
+  })} - ${to.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit' 
+  })}`;
+  
+  return `${dateStr}, ${timeStr}`;
+};
+
+// Handle schedule button click
+const handleScheduleButtonClick = () => {
+  if (hasSchedule.value) {
+    // Edit existing schedule - pass the first schedule
+    existingSchedule.value = schedules.value[0];
+  } else {
+    // Create new schedule
+    existingSchedule.value = null;
+  }
+  showScheduleModal.value = true;
+};
+
+// Handle schedule modal close
+const handleScheduleModalClose = () => {
+  showScheduleModal.value = false;
+  existingSchedule.value = null;
+};
 </script>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { type BreadcrumbItem, type Activity } from '@/types';
 import AddModuleModal from '@/module/AddModuleModal.vue';
 import EditModuleModal from '@/module/EditModuleModal.vue';
@@ -16,6 +16,10 @@ import AddLessonModal from '@/lesson/AddLessonModal.vue';
 import CourseModal from '@/course/CourseModal.vue';
 import AddCourseButton from '@/course/AddCourseButton.vue';
 import CosmicBackground from '@/components/CosmicBackground.vue';
+import { CheckCircle, XCircle, X } from 'lucide-vue-next';
+
+// Get page props for flash messages
+const page = usePage();
 
 // Breadcrumb items
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -107,6 +111,34 @@ const editingCourse = ref<any>(null);
 
 const showModuleList = ref(false);
 const windowWidth = ref(window.innerWidth);
+
+// Flash message handling
+const showFlashMessage = ref(false);
+const flashMessage = ref('');
+const flashType = ref<'success' | 'error'>('success');
+
+// Watch for flash messages
+watch(
+  () => page.props.flash,
+  (flash: any) => {
+    if (flash?.success) {
+      flashMessage.value = flash.success;
+      flashType.value = 'success';
+      showFlashMessage.value = true;
+      setTimeout(() => {
+        showFlashMessage.value = false;
+      }, 5000);
+    } else if (flash?.error) {
+      flashMessage.value = flash.error;
+      flashType.value = 'error';
+      showFlashMessage.value = true;
+      setTimeout(() => {
+        showFlashMessage.value = false;
+      }, 5000);
+    }
+  },
+  { deep: true, immediate: true }
+);
 
 // Handle window resize
 const handleResize = () => {
@@ -238,6 +270,55 @@ function handleLessonsUpdate(updatedLessons: any[]) {
 <template>
   <Head title="Course Management" />
   <AppLayout :breadcrumbs="breadcrumbItems">
+    <!-- Flash Message Toast -->
+    <Transition
+      enter-active-class="transition ease-out duration-300"
+      enter-from-class="translate-y-0 opacity-0"
+      enter-to-class="translate-y-0 opacity-100"
+      leave-active-class="transition ease-in duration-200"
+      leave-from-class="translate-y-0 opacity-100"
+      leave-to-class="translate-y-0 opacity-0"
+    >
+      <div
+        v-if="showFlashMessage"
+        class="fixed top-4 right-4 z-50 max-w-md"
+      >
+        <div
+          :class="[
+            'flex items-center gap-3 p-4 rounded-lg shadow-lg',
+            flashType === 'success'
+              ? 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800'
+              : 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800'
+          ]"
+        >
+          <CheckCircle
+            v-if="flashType === 'success'"
+            class="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0"
+          />
+          <XCircle
+            v-else
+            class="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0"
+          />
+          <p
+            :class="[
+              'text-sm font-medium flex-1',
+              flashType === 'success'
+                ? 'text-green-800 dark:text-green-200'
+                : 'text-red-800 dark:text-red-200'
+            ]"
+          >
+            {{ flashMessage }}
+          </p>
+          <button
+            @click="showFlashMessage = false"
+            class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+          >
+            <X class="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          </button>
+        </div>
+      </div>
+    </Transition>
+
     <div class="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-pink-50/30 dark:from-gray-900 dark:via-purple-950/20 dark:to-pink-950/20 transition-colors relative overflow-hidden">
       <!-- Cosmic Background -->
       <CosmicBackground />

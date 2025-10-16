@@ -89,6 +89,9 @@ Route::get('schedule', function () {
         'creator:id,name,email',
         'participants.user:id,name,email',
         'schedulable',
+        'courseDetails', // Load course-specific schedule data from schedule_courses table
+        'activityDetails', // Load activity-specific schedule data
+        'adhocDetails', // Load adhoc-specific schedule data
     ])
     ->forUser($user->id)
     ->upcoming()
@@ -125,6 +128,21 @@ Route::get('schedule', function () {
             'schedulable_type' => $schedule->schedulable_type,
             'schedulable_id' => $schedule->schedulable_id,
             'deleted_at' => $schedule->deleted_at,
+            'is_recurring' => $schedule->is_recurring,
+            'recurrence_rule' => $schedule->recurrence_rule,
+            // Include course-specific data if available
+            'course_details' => $schedule->courseDetails ? [
+                'session_number' => $schedule->courseDetails->session_number,
+                'topics_covered' => $schedule->courseDetails->topics_covered,
+                'required_materials' => $schedule->courseDetails->required_materials,
+                'homework_assigned' => $schedule->courseDetails->homework_assigned,
+            ] : null,
+            // Include activity-specific data if available
+            'activity_details' => $schedule->activityDetails ? [
+                'submission_deadline' => $schedule->activityDetails->submission_deadline,
+                'points' => $schedule->activityDetails->points,
+                'instructions' => $schedule->activityDetails->instructions,
+            ] : null,
         ];
     });
     
@@ -187,14 +205,8 @@ Route::get('/fix-schedules', function () {
     return "Fixed $fixed schedules with participants. Added " . count($participants ?? []) . " participants to last schedule.";
 })->middleware(['auth', 'role:admin']);
 
-// Role management page (admin only)
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    // Role Management UI
-    Route::get('/role-management', function () {
-        return Inertia::render('RoleManagement');
-    })->name('role.management');
-
-    // Student Details Page
+// Student Details Page (accessible by instructors and admins)
+Route::middleware(['auth', 'role:instructor,admin'])->group(function () {
     Route::get('/student/{id}/details', function ($id) {
         $student = \App\Models\User::with(['role', 'student.gradeLevel'])->findOrFail($id);
         
@@ -243,6 +255,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
             'enrolledCourses' => $enrolledCourses,
         ]);
     })->name('student.details');
+});
+
+// Role management page (admin only)
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    // Role Management UI
+    Route::get('/role-management', function () {
+        return Inertia::render('RoleManagement');
+    })->name('role.management');
 
     // API Routes for User Management
     Route::prefix('api')->group(function () {
@@ -430,6 +450,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/courses/{course}/assign-grade-levels', [CourseController::class, 'assignGradeLevels'])->name('courses.assign-grade-levels');
         Route::get('/grade-levels', [CourseController::class, 'getAvailableGradeLevels'])->name('grade-levels.index');
         Route::get('/courses/by-grade-level', [CourseController::class, 'getCoursesForGradeLevel'])->name('courses.by-grade-level');
+        
+        // Student Management Routes (for instructors)
+        Route::prefix('student-management')->name('student-management.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Instructor\StudentManagementController::class, 'index'])->name('index');
+            Route::get('/statistics', [\App\Http\Controllers\Instructor\StudentManagementController::class, 'getStatistics'])->name('statistics');
+            Route::get('/course/{course}/students', [\App\Http\Controllers\Instructor\StudentManagementController::class, 'getStudentsByCourse'])->name('course.students');
+            Route::get('/course/{course}/student/{student}/activities', [\App\Http\Controllers\Instructor\StudentManagementController::class, 'getStudentActivities'])->name('student.activities');
+            Route::get('/course/{course}/export', [\App\Http\Controllers\Instructor\StudentManagementController::class, 'exportReport'])->name('export');
+        });
     });
 });
 
@@ -443,6 +472,12 @@ Route::middleware(['auth'])->prefix('courses')->name('courses.')->group(function
     // New routes using StudentCourseEnrollmentService
     Route::get('/{course}/enrollment-statistics', [\App\Http\Controllers\CourseStudentController::class, 'getEnrollmentStatistics'])->name('enrollment-statistics');
     Route::get('/{course}/enrollments', [\App\Http\Controllers\CourseStudentController::class, 'getCourseEnrollments'])->name('enrollments');
+    
+    // Course Schedule Management
+    Route::get('/{course}/schedules', [\App\Http\Controllers\CourseScheduleController::class, 'index'])->name('schedules.index');
+    Route::post('/{course}/schedules', [\App\Http\Controllers\CourseScheduleController::class, 'store'])->name('schedules.store');
+    Route::put('/{course}/schedules/{schedule}', [\App\Http\Controllers\CourseScheduleController::class, 'update'])->name('schedules.update');
+    Route::delete('/{course}/schedules/{schedule}', [\App\Http\Controllers\CourseScheduleController::class, 'destroy'])->name('schedules.destroy');
     Route::put('/{course}/enrollments/{studentUser}/status', [\App\Http\Controllers\CourseStudentController::class, 'updateEnrollmentStatus'])->name('enrollments.update-status');
 });
 //LESSON ROUTES

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { ArrowLeft } from 'lucide-vue-next';
 import { type BreadcrumbItem } from '@/types';
 
@@ -25,17 +25,29 @@ const props = defineProps<{
   }>;
 }>();
 
-// Breadcrumb items
-const breadcrumbItems: BreadcrumbItem[] = [
-  { title: 'Home', href: '/' },
-  { title: 'User Management', href: '/role-management' },
-  { title: 'Student Details', href: `/student/${props.student.id}/details` }
-];
+// Get return URL from query params
+const urlParams = new URLSearchParams(window.location.search);
+const returnUrl = urlParams.get('returnUrl') || '/role-management';
+
+// Determine breadcrumb based on return URL
+const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
+  const items: BreadcrumbItem[] = [{ title: 'Home', href: '/' }];
+  
+  if (returnUrl.includes('/student-management')) {
+    items.push({ title: 'Student Management', href: returnUrl });
+  } else {
+    items.push({ title: 'User Management', href: '/role-management' });
+  }
+  
+  items.push({ title: 'Student Details', href: `/student/${props.student.id}/details` });
+  
+  return items;
+});
 
 const loading = ref(true);
 
 const goBack = () => {
-  router.visit('/role-management');
+  router.visit(returnUrl);
 };
 
 onMounted(() => {

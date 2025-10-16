@@ -1,60 +1,5 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
-* @see \App\Http\Controllers\DocumentController::upload
- * @see app/Http/Controllers/DocumentController.php:29
- * @route '/api/documents/upload'
- */
-export const upload = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: upload.url(options),
-    method: 'post',
-})
-
-upload.definition = {
-    methods: ["post"],
-    url: '/api/documents/upload',
-} satisfies RouteDefinition<["post"]>
-
-/**
-* @see \App\Http\Controllers\DocumentController::upload
- * @see app/Http/Controllers/DocumentController.php:29
- * @route '/api/documents/upload'
- */
-upload.url = (options?: RouteQueryOptions) => {
-    return upload.definition.url + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\DocumentController::upload
- * @see app/Http/Controllers/DocumentController.php:29
- * @route '/api/documents/upload'
- */
-upload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: upload.url(options),
-    method: 'post',
-})
-
-    /**
-* @see \App\Http\Controllers\DocumentController::upload
- * @see app/Http/Controllers/DocumentController.php:29
- * @route '/api/documents/upload'
- */
-    const uploadForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-        action: upload.url(options),
-        method: 'post',
-    })
-
-            /**
-* @see \App\Http\Controllers\DocumentController::upload
- * @see app/Http/Controllers/DocumentController.php:29
- * @route '/api/documents/upload'
- */
-        uploadForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-            action: upload.url(options),
-            method: 'post',
-        })
-    
-    upload.form = uploadForm
-/**
 * @see \App\Http\Controllers\DocumentController::view
  * @see app/Http/Controllers/DocumentController.php:164
  * @route '/documents/{document}/view'
@@ -259,6 +204,61 @@ download.head = (args: { document: number | { id: number } } | [document: number
     
     download.form = downloadForm
 /**
+* @see \App\Http\Controllers\DocumentController::upload
+ * @see app/Http/Controllers/DocumentController.php:29
+ * @route '/api/documents/upload'
+ */
+export const upload = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: upload.url(options),
+    method: 'post',
+})
+
+upload.definition = {
+    methods: ["post"],
+    url: '/api/documents/upload',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\DocumentController::upload
+ * @see app/Http/Controllers/DocumentController.php:29
+ * @route '/api/documents/upload'
+ */
+upload.url = (options?: RouteQueryOptions) => {
+    return upload.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\DocumentController::upload
+ * @see app/Http/Controllers/DocumentController.php:29
+ * @route '/api/documents/upload'
+ */
+upload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: upload.url(options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Http\Controllers\DocumentController::upload
+ * @see app/Http/Controllers/DocumentController.php:29
+ * @route '/api/documents/upload'
+ */
+    const uploadForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: upload.url(options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\DocumentController::upload
+ * @see app/Http/Controllers/DocumentController.php:29
+ * @route '/api/documents/upload'
+ */
+        uploadForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: upload.url(options),
+            method: 'post',
+        })
+    
+    upload.form = uploadForm
+/**
 * @see \App\Http\Controllers\DocumentController::destroy
  * @see app/Http/Controllers/DocumentController.php:199
  * @route '/documents/{document}'
@@ -348,9 +348,9 @@ destroy.delete = (args: { document: number | { id: number } } | [document: numbe
     
     destroy.form = destroyForm
 const documents = {
-    upload: Object.assign(upload, upload),
-view: Object.assign(view, view),
+    view: Object.assign(view, view),
 download: Object.assign(download, download),
+upload: Object.assign(upload, upload),
 destroy: Object.assign(destroy, destroy),
 }
 

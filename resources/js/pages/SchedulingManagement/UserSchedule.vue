@@ -24,6 +24,8 @@ interface Schedule {
   from_datetime: string;
   to_datetime: string;
   status: string;
+  is_recurring: boolean;
+  recurrence_rule: string | null;
   type: {
     id: number;
     name: string;
@@ -36,6 +38,17 @@ interface Schedule {
   schedulable_type: string | null;
   schedulable_id: number | null;
   deleted_at: string | null;
+  course_details?: {
+    session_number: number | null;
+    topics_covered: string | null;
+    required_materials: string | null;
+    homework_assigned: string | null;
+  } | null;
+  activity_details?: {
+    submission_deadline: string | null;
+    points: number | null;
+    instructions: string | null;
+  } | null;
 }
 
 interface GroupedSchedules {
@@ -60,6 +73,7 @@ const schedules = ref<Schedule[]>(props.initialSchedules || []);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const viewMode = ref<'calendar' | 'list'>('calendar');
+const selectedDate = ref<Date | string | null>(null);
 
 // Modal state
 const modalOpen = ref(false);
@@ -120,9 +134,22 @@ const handleScheduleDeleted = () => {
 
 // Format schedules for Vue Cal
 const calendarEvents = computed(() => {
-  const events = schedules.value.map(schedule => {
+  console.log('🔍 Raw schedules:', schedules.value);
+  
+  const allEvents: any[] = [];
+  
+  schedules.value.forEach(schedule => {
     const startDate = new Date(schedule.from_datetime);
     const endDate = new Date(schedule.to_datetime);
+    
+    console.log('📅 Processing schedule:', {
+      id: schedule.id,
+      title: schedule.title,
+      is_recurring: schedule.is_recurring,
+      recurrence_rule: schedule.recurrence_rule,
+      from_datetime: schedule.from_datetime,
+      to_datetime: schedule.to_datetime,
+    });
     
     // Normalize the schedule type name for CSS class
     const typeClass = schedule.type.name.toLowerCase().replace(/\s+/g, '-');
@@ -132,22 +159,128 @@ const calendarEvents = computed(() => {
       ? 'schedule-cancelled' 
       : `schedule-${typeClass}`;
     
-    return {
-      start: startDate,
-      end: endDate,
-      title: schedule.deleted_at ? `[CANCELLED] ${schedule.title}` : schedule.title,
-      content: schedule.description || '',
-      class: eventClass,
-      // Store full schedule data for event details in custom template
-      scheduleData: schedule,
-    };
+    if (schedule.is_recurring && schedule.recurrence_rule) {
+      // For recurring schedules, generate multiple events
+      const recurringEvents = generateRecurringEvents(schedule, startDate, endDate, eventClass);
+      allEvents.push(...recurringEvents);
+      console.log(`✅ Created ${recurringEvents.length} recurring events`);
+    } else {
+      // For non-recurring schedules, create single event
+      const event = {
+        start: startDate,
+        end: endDate,
+        title: schedule.deleted_at ? `[CANCELLED] ${schedule.title}` : schedule.title,
+        content: schedule.description || '',
+        class: eventClass,
+        scheduleData: schedule,
+      };
+      allEvents.push(event);
+      console.log('✅ Created single event:', event);
+    }
   });
   
-  // Debug: Log the events for inspection
-  console.log('Calendar Events:', events);
+  console.log('📊 Total events for VueCal:', allEvents.length, allEvents);
+  
+  return allEvents;
+});
+
+// Generate recurring events based on recurrence rule
+const generateRecurringEvents = (schedule: Schedule, rangeStart: Date, rangeEnd: Date, eventClass: string) => {
+  const events: any[] = [];
+  const rule = schedule.recurrence_rule?.toUpperCase() || '';
+  
+  // Extract time from the start datetime (event start time)
+  const eventStartTime = {
+    hours: rangeStart.getHours(),
+    minutes: rangeStart.getMinutes(),
+    seconds: rangeStart.getSeconds(),
+  };
+  
+  // Extract time from the end datetime (event end time) 
+  const eventEndTime = {
+    hours: rangeEnd.getHours(),
+    minutes: rangeEnd.getMinutes(),
+    seconds: rangeEnd.getSeconds(),
+  };
+  
+  // Get date range (start date to end date)
+  const startDateOnly = new Date(rangeStart);
+  startDateOnly.setHours(0, 0, 0, 0);
+  
+  const endDateOnly = new Date(rangeEnd);
+  endDateOnly.setHours(0, 0, 0, 0);
+  
+  console.log('🔄 Generating recurring events:', {
+    startDate: startDateOnly.toISOString(),
+    endDate: endDateOnly.toISOString(),
+    startTime: `${eventStartTime.hours}:${eventStartTime.minutes}`,
+    endTime: `${eventEndTime.hours}:${eventEndTime.minutes}`,
+    rule: rule,
+  });
+  
+  // Parse recurrence rule
+  let frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' = 'WEEKLY';
+  if (rule.includes('FREQ=DAILY')) frequency = 'DAILY';
+  else if (rule.includes('FREQ=WEEKLY')) frequency = 'WEEKLY';
+  else if (rule.includes('FREQ=MONTHLY')) frequency = 'MONTHLY';
+  
+  // Parse BYDAY for weekly recurrence
+  let byDays: number[] = []; // 0=Sunday, 1=Monday, ..., 6=Saturday
+  if (frequency === 'WEEKLY' && rule.includes('BYDAY=')) {
+    const byDayMatch = rule.match(/BYDAY=([A-Z,]+)/);
+    if (byDayMatch) {
+      const dayMap: Record<string, number> = {
+        'SU': 0, 'MO': 1, 'TU': 2, 'WE': 3, 'TH': 4, 'FR': 5, 'SA': 6
+      };
+      const days = byDayMatch[1].split(',');
+      byDays = days.map(day => dayMap[day]).filter(d => d !== undefined);
+    }
+  }
+  
+  // Generate events based on frequency
+  let currentDate = new Date(startDateOnly);
+  
+  while (currentDate <= endDateOnly) {
+    let shouldCreateEvent = true;
+    
+    // For weekly recurrence with BYDAY, only create events on specified days
+    if (frequency === 'WEEKLY' && byDays.length > 0) {
+      shouldCreateEvent = byDays.includes(currentDate.getDay());
+    }
+    
+    if (shouldCreateEvent) {
+      // Create event for this occurrence - SAME DAY, with start and end times
+      const eventStart = new Date(currentDate);
+      eventStart.setHours(eventStartTime.hours, eventStartTime.minutes, eventStartTime.seconds, 0);
+      
+      // End time is on the SAME DAY, just with different time
+      const eventEnd = new Date(currentDate);
+      eventEnd.setHours(eventEndTime.hours, eventEndTime.minutes, eventEndTime.seconds, 0);
+      
+      console.log('✅ Creating event:', {
+        date: currentDate.toISOString().split('T')[0],
+        start: eventStart.toISOString(),
+        end: eventEnd.toISOString(),
+      });
+      
+      events.push({
+        start: eventStart,
+        end: eventEnd,
+        title: schedule.deleted_at ? `[CANCELLED] ${schedule.title}` : schedule.title,
+        content: schedule.description || '',
+        class: eventClass,
+        scheduleData: schedule,
+      });
+    }
+    
+    // Move to next day (we'll filter by BYDAY if needed)
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  
+  console.log(`✅ Generated ${events.length} recurring events`);
   
   return events;
-});
+};
 
 // Group schedules by date for list view
 const groupedSchedules = computed<GroupedSchedules>(() => {
@@ -244,6 +377,11 @@ watch(() => props.initialSchedules, (newSchedules) => {
   if (newSchedules) {
     schedules.value = newSchedules;
     loading.value = false;
+    
+    // Auto-navigate to first event date
+    if (newSchedules.length > 0) {
+      selectedDate.value = new Date(newSchedules[0].from_datetime);
+    }
   }
 }, { immediate: true });
 
@@ -251,6 +389,11 @@ watch(() => props.initialSchedules, (newSchedules) => {
 onMounted(() => {
   // Data already loaded from Inertia props
   loading.value = false;
+  
+  // Set initial date to first event
+  if (schedules.value.length > 0) {
+    selectedDate.value = new Date(schedules.value[0].from_datetime);
+  }
 });
 </script>
 
@@ -370,13 +513,21 @@ onMounted(() => {
                 <strong>{{ schedules.length }}</strong> schedule(s) loaded | 
                 <strong>{{ calendarEvents.length }}</strong> event(s) formatted for calendar
               </p>
+              <p v-if="schedules.length > 0" class="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                First event: {{ new Date(schedules[0].from_datetime).toLocaleString() }}
+                <span v-if="selectedDate"> | Showing: {{ new Date(selectedDate).toLocaleString() }}</span>
+              </p>
+              <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                📊 Check browser console for detailed event data
+              </p>
             </div>
             
             <VueCal
               :key="calendarKey"
               :events="calendarEvents"
-              :time-from="7 * 60"
-              :time-to="23 * 60"
+              :selected-date="selectedDate"
+              :time-from="0 * 60"
+              :time-to="24 * 60"
               :disable-views="['years']"
               default-view="week"
               :editable-events="false"
@@ -414,6 +565,10 @@ onMounted(() => {
               <div class="flex items-center gap-2">
                 <div class="w-4 h-4 rounded" style="background-color: #10B981"></div>
                 <span class="text-sm text-gray-700 dark:text-gray-300">Course</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded" style="background-color: #14B8A6"></div>
+                <span class="text-sm text-gray-700 dark:text-gray-300">Course Due Date</span>
               </div>
               <div class="flex items-center gap-2">
                 <div class="w-4 h-4 rounded" style="background-color: #F59E0B"></div>
@@ -951,6 +1106,14 @@ onMounted(() => {
 }
 
 /* Schedule type event classes - matches the colors from the legend */
+
+/* Fallback for all schedule events (in case type doesn't match predefined classes) */
+:deep(.vuecal__event[class*="schedule-"]) {
+  background-color: #6366f1 !important; /* Indigo fallback */
+  border-color: #4f46e5 !important;
+  color: white !important;
+}
+
 :deep(.vuecal__event.schedule-activity) {
   background-color: #3B82F6 !important;
   border-color: #2563EB !important;
@@ -960,6 +1123,13 @@ onMounted(() => {
 :deep(.vuecal__event.schedule-course) {
   background-color: #10B981 !important;
   border-color: #059669 !important;
+  color: white !important;
+}
+
+/* Course due date - lighter green variation */
+:deep(.vuecal__event.schedule-course-due-date) {
+  background-color: #14B8A6 !important; /* Teal */
+  border-color: #0D9488 !important;
   color: white !important;
 }
 
@@ -984,6 +1154,7 @@ onMounted(() => {
 /* Ensure event content text is always white */
 :deep(.vuecal__event.schedule-activity .custom-event-content),
 :deep(.vuecal__event.schedule-course .custom-event-content),
+:deep(.vuecal__event.schedule-course-due-date .custom-event-content),
 :deep(.vuecal__event.schedule-adhoc .custom-event-content),
 :deep(.vuecal__event.schedule-exam .custom-event-content),
 :deep(.vuecal__event.schedule-office-hours .custom-event-content) {
@@ -992,6 +1163,7 @@ onMounted(() => {
 
 :deep(.vuecal__event.schedule-activity .custom-event-content *),
 :deep(.vuecal__event.schedule-course .custom-event-content *),
+:deep(.vuecal__event.schedule-course-due-date .custom-event-content *),
 :deep(.vuecal__event.schedule-adhoc .custom-event-content *),
 :deep(.vuecal__event.schedule-exam .custom-event-content *),
 :deep(.vuecal__event.schedule-office-hours .custom-event-content *) {

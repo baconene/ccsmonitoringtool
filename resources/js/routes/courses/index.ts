@@ -1,5 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import enrollments889e66 from './enrollments'
+import schedules from './schedules'
 /**
 * @see \App\Http\Controllers\CourseController::index
  * @see app/Http/Controllers/CourseController.php:34
@@ -1070,6 +1071,7 @@ removeStudents: Object.assign(removeStudents, removeStudents),
 eligibleStudents: Object.assign(eligibleStudents, eligibleStudents),
 enrollmentStatistics: Object.assign(enrollmentStatistics, enrollmentStatistics),
 enrollments: Object.assign(enrollments, enrollments889e66),
+schedules: Object.assign(schedules, schedules),
 }
 
 export default courses

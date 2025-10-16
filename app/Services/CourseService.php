@@ -227,7 +227,13 @@ class CourseService
             'modules.activities.activityType', 
             'modules.lessons.documents.document.uploader', // Load lesson documents with full details
             'modules.documents.document.uploader', 
-            'gradeLevels'
+            'gradeLevels',
+            'schedules' => function($query) {
+                $query->where('from_datetime', '>=', now())
+                      ->orderBy('from_datetime', 'asc')
+                      ->limit(5);
+            },
+            'schedules.courseDetails'
         ])
             ->withCount(['students']);
         
