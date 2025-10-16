@@ -171,11 +171,22 @@
                   <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border dark:border-blue-800/30">
                     <h6 class="text-xs font-semibold text-blue-900 dark:text-blue-100 mb-3">Module Grade Calculation:</h6>
                     
+                    <!-- Dynamic Weight Notice -->
+                    <div v-if="!module.has_lessons || !module.has_activities" class="bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded p-2 mb-2 text-xs">
+                      <span class="text-amber-800 dark:text-amber-200">
+                        ⚠️ Weights adjusted: 
+                        <span v-if="!module.has_lessons">No lessons in module</span>
+                        <span v-else-if="!module.has_activities">No activities in module</span>
+                      </span>
+                    </div>
+                    
                     <!-- Formula Display -->
                     <div class="bg-white dark:bg-gray-800 rounded p-2 mb-3 text-xs border dark:border-gray-600">
-                      <div class="font-medium text-gray-800 dark:text-gray-200 mb-1">{{ module.module_score || 0 }}% = (Lessons × 20%) + (Activities × 80%)</div>
+                      <div class="font-medium text-gray-800 dark:text-gray-200 mb-1">
+                        {{ module.module_score || 0 }}% = (Lessons × {{ module.lesson_weight_used || 0 }}%) + (Activities × {{ module.activity_weight_used || 0 }}%)
+                      </div>
                       <div class="text-gray-600 dark:text-gray-400">
-                        = ({{ module.lesson_score || 100 }}% × 20%) + ({{ module.activity_score || 0 }}% × 80%)
+                        = ({{ module.lesson_score || 0 }}% × {{ module.lesson_weight_used || 0 }}%) + ({{ module.activity_score || 0 }}% × {{ module.activity_weight_used || 0 }}%)
                       </div>
                       <div class="text-gray-600 dark:text-gray-400">
                         = {{ module.lesson_contribution || 0 }}% + {{ module.activity_contribution || 0 }}%
@@ -185,17 +196,43 @@
                     <!-- Component Breakdown -->
                     <div class="grid grid-cols-2 gap-3 text-xs">
                       <!-- Lessons Component -->
-                      <div class="bg-green-50 dark:bg-green-900/20 rounded p-2 border dark:border-green-800/30">
-                        <div class="font-medium text-green-800 dark:text-green-200 mb-1">📚 Lessons (20%)</div>
-                        <div class="text-green-700 dark:text-green-300">Score: {{ module.lesson_score || 100 }}%</div>
-                        <div class="text-green-700 dark:text-green-300">Contributes: {{ module.lesson_contribution || 0 }}%</div>
+                      <div 
+                        :class="[
+                          'rounded p-2 border',
+                          module.has_lessons 
+                            ? 'bg-green-50 dark:bg-green-900/20 border-green-800/30' 
+                            : 'bg-gray-50 dark:bg-gray-800/20 border-gray-600 opacity-50'
+                        ]"
+                      >
+                        <div :class="module.has_lessons ? 'text-green-800 dark:text-green-200' : 'text-gray-600 dark:text-gray-400'" class="font-medium mb-1">
+                          📚 Lessons ({{ module.lesson_weight_used || 0 }}%)
+                        </div>
+                        <div :class="module.has_lessons ? 'text-green-700 dark:text-green-300' : 'text-gray-500 dark:text-gray-500'">
+                          Score: {{ module.lesson_score || 0 }}%
+                        </div>
+                        <div :class="module.has_lessons ? 'text-green-700 dark:text-green-300' : 'text-gray-500 dark:text-gray-500'">
+                          Contributes: {{ module.lesson_contribution || 0 }}%
+                        </div>
                       </div>
 
                       <!-- Activities Component -->
-                      <div class="bg-orange-50 dark:bg-orange-900/20 rounded p-2 border dark:border-orange-800/30">
-                        <div class="font-medium text-orange-800 dark:text-orange-200 mb-1">📝 Activities (80%)</div>
-                        <div class="text-orange-700 dark:text-orange-300">Score: {{ module.activity_score || 0 }}%</div>
-                        <div class="text-orange-700 dark:text-orange-300">Contributes: {{ module.activity_contribution || 0 }}%</div>
+                      <div 
+                        :class="[
+                          'rounded p-2 border',
+                          module.has_activities 
+                            ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-800/30' 
+                            : 'bg-gray-50 dark:bg-gray-800/20 border-gray-600 opacity-50'
+                        ]"
+                      >
+                        <div :class="module.has_activities ? 'text-orange-800 dark:text-orange-200' : 'text-gray-600 dark:text-gray-400'" class="font-medium mb-1">
+                          📝 Activities ({{ module.activity_weight_used || 0 }}%)
+                        </div>
+                        <div :class="module.has_activities ? 'text-orange-700 dark:text-orange-300' : 'text-gray-500 dark:text-gray-500'">
+                          Score: {{ module.activity_score || 0 }}%
+                        </div>
+                        <div :class="module.has_activities ? 'text-orange-700 dark:text-orange-300' : 'text-gray-500 dark:text-gray-500'">
+                          Contributes: {{ module.activity_contribution || 0 }}%
+                        </div>
                       </div>
                     </div>
 

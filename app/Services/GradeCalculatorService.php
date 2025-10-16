@@ -10,6 +10,8 @@ use App\Models\Student;
 use App\Models\StudentActivity;
 use App\Models\StudentQuizProgress;
 use App\Models\ModuleCompletion;
+use App\Models\GradeSetting;
+use App\Models\CourseGradeSetting;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 class GradeCalculatorService
 {
     /**
-     * Default activity type weights (as percentages of the 80% activity portion)
+     * Default activity type weights (fallback if database settings are unavailable)
      */
     private const DEFAULT_ACTIVITY_WEIGHTS = [
         'Quiz' => 30,
@@ -27,12 +29,56 @@ class GradeCalculatorService
     ];
 
     /**
-     * Module composition weights
+     * Module composition weights (fallback if database settings are unavailable)
      */
-    private const MODULE_COMPONENT_WEIGHTS = [
+    private const DEFAULT_MODULE_COMPONENT_WEIGHTS = [
         'lessons' => 20,    // Lessons contribute 20% to module score
         'activities' => 80, // Activities contribute 80% to module score
     ];
+
+    /**
+     * Get module component weights from database or use defaults
+     * If courseId is provided, gets course-specific weights with fallback to global
+     */
+    private function getModuleComponentWeights(?int $courseId = null): array
+    {
+        try {
+            if ($courseId) {
+                $weights = CourseGradeSetting::getModuleComponentWeights($courseId);
+            } else {
+                $weights = GradeSetting::getModuleComponentWeights();
+            }
+            return !empty($weights) ? $weights : self::DEFAULT_MODULE_COMPONENT_WEIGHTS;
+        } catch (\Exception $e) {
+            \Log::warning('Failed to load module component weights from database, using defaults', [
+                'course_id' => $courseId,
+                'error' => $e->getMessage()
+            ]);
+            return self::DEFAULT_MODULE_COMPONENT_WEIGHTS;
+        }
+    }
+
+    /**
+     * Get activity type weights from database or use defaults
+     * If courseId is provided, gets course-specific weights with fallback to global
+     */
+    private function getActivityTypeWeights(?int $courseId = null): array
+    {
+        try {
+            if ($courseId) {
+                $weights = CourseGradeSetting::getActivityTypeWeights($courseId);
+            } else {
+                $weights = GradeSetting::getActivityTypeWeights();
+            }
+            return !empty($weights) ? $weights : self::DEFAULT_ACTIVITY_WEIGHTS;
+        } catch (\Exception $e) {
+            \Log::warning('Failed to load activity type weights from database, using defaults', [
+                'course_id' => $courseId,
+                'error' => $e->getMessage()
+            ]);
+            return self::DEFAULT_ACTIVITY_WEIGHTS;
+        }
+    }
 
     /**
      * Calculate comprehensive grades for a student in a specific course
@@ -96,19 +142,54 @@ class GradeCalculatorService
 
     /**
      * Calculate grade for a specific module
+     * Dynamically adjusts weights based on what exists in the module
      * @param int $userId The user ID of the student
      */
     public function calculateModuleGrade(int $userId, Module $module): array
     {
-        // Calculate lesson score (20% of module)
-        $lessonScore = $this->calculateLessonScore($userId, $module);
+        // Check what exists in the module
+        $hasLessons = $module->lessons()->count() > 0;
+        $hasActivities = $module->activities()->count() > 0;
         
-        // Calculate activity score (80% of module)
-        $activityResult = $this->calculateModuleActivityScore($userId, $module);
+        // Calculate lesson score if lessons exist
+        $lessonScore = $hasLessons ? $this->calculateLessonScore($userId, $module) : 0;
         
-        // Calculate final module score: (Lesson Score × 20%) + (Activity Score × 80%)
-        $lessonContribution = ($lessonScore * self::MODULE_COMPONENT_WEIGHTS['lessons']) / 100;
-        $activityContribution = ($activityResult['average_score'] * self::MODULE_COMPONENT_WEIGHTS['activities']) / 100;
+        // Calculate activity score if activities exist
+        $activityResult = $hasActivities 
+            ? $this->calculateModuleActivityScore($userId, $module)
+            : ['average_score' => 0, 'type_scores' => [], 'activity_grades' => []];
+        
+        // Get dynamic module component weights (course-specific)
+        $courseId = $module->course_id;
+        $moduleWeights = $this->getModuleComponentWeights($courseId);
+        $configuredLessonWeight = $moduleWeights['lessons'] ?? 20;
+        $configuredActivityWeight = $moduleWeights['activities'] ?? 80;
+        
+        // Dynamically adjust weights based on what exists
+        $actualLessonWeight = 0;
+        $actualActivityWeight = 0;
+        
+        if ($hasLessons && $hasActivities) {
+            // Both exist: Use configured weights as-is
+            $actualLessonWeight = $configuredLessonWeight;
+            $actualActivityWeight = $configuredActivityWeight;
+        } elseif ($hasLessons && !$hasActivities) {
+            // Only lessons: Lessons get 100%
+            $actualLessonWeight = 100;
+            $actualActivityWeight = 0;
+        } elseif (!$hasLessons && $hasActivities) {
+            // Only activities: Activities get 100%
+            $actualLessonWeight = 0;
+            $actualActivityWeight = 100;
+        } else {
+            // Nothing exists: Default to 50/50 (shouldn't happen but safe)
+            $actualLessonWeight = 50;
+            $actualActivityWeight = 50;
+        }
+        
+        // Calculate final module score
+        $lessonContribution = ($lessonScore * $actualLessonWeight) / 100;
+        $activityContribution = ($activityResult['average_score'] * $actualActivityWeight) / 100;
         $moduleScore = $lessonContribution + $activityContribution;
 
         // Check if module is completed
@@ -125,8 +206,12 @@ class GradeCalculatorService
             'module_letter_grade' => $this->getLetterGrade($moduleScore),
             'lesson_score' => round($lessonScore, 2),
             'lesson_contribution' => round($lessonContribution, 2),
+            'lesson_weight_used' => $actualLessonWeight,
             'activity_score' => round($activityResult['average_score'], 2),
             'activity_contribution' => round($activityContribution, 2),
+            'activity_weight_used' => $actualActivityWeight,
+            'has_lessons' => $hasLessons,
+            'has_activities' => $hasActivities,
             'activity_types' => $activityResult['type_scores'],
             'activities' => $activityResult['activity_grades'],
             'completion_status' => $this->getModuleCompletionStatus($activityResult['activity_grades'], $moduleCompletion),
@@ -264,58 +349,78 @@ class GradeCalculatorService
         $activities = $module->activities;
         $activityGrades = [];
         $typeScores = [];
-        $totalScore = 0;
-        $completedCount = 0;
 
         if ($activities->isEmpty()) {
             return [
                 'average_score' => 100, // No activities = 100% activity score
                 'type_scores' => [],
                 'activity_grades' => [],
+                'has_activities' => false,
             ];
         }
 
-        // Group activities by type for reporting but calculate simple average for module score
+        // Group activities by type
         $activitiesByType = $activities->groupBy('activityType.name');
+        
+        // Get configured weights for each activity type that exists
+        $configuredWeights = [];
+        $totalConfiguredWeight = 0;
+        
+        foreach ($activitiesByType as $typeName => $typeActivities) {
+            $weight = $this->getActivityTypeWeight($typeName, $module->course_id);
+            $configuredWeights[$typeName] = $weight;
+            $totalConfiguredWeight += $weight;
+        }
+
+        // Dynamically adjust weights based on which activity types exist
+        // Normalize weights to total 100% for existing types only
+        $normalizedWeights = [];
+        if ($totalConfiguredWeight > 0) {
+            foreach ($configuredWeights as $typeName => $weight) {
+                $normalizedWeights[$typeName] = ($weight / $totalConfiguredWeight) * 100;
+            }
+        }
+
+        // Calculate weighted score based on activity types
+        $weightedScore = 0;
         
         foreach ($activitiesByType as $typeName => $typeActivities) {
             $typeScore = $this->calculateActivityTypeScore($userId, $typeActivities, $module->id);
-            $typeWeight = $this->getActivityTypeWeight($typeName);
+            $configuredWeight = $configuredWeights[$typeName] ?? 0;
+            $normalizedWeight = $normalizedWeights[$typeName] ?? 0;
             
             $typeScores[] = [
                 'type' => $typeName,
                 'activities' => $typeScore['activities'],
                 'type_score' => $typeScore['average_score'],
-                'type_weight' => $typeWeight,
+                'configured_weight' => $configuredWeight,
+                'weight_used' => $normalizedWeight, // Actual weight after normalization
                 'completed_count' => $typeScore['completed_count'],
                 'total_count' => $typeScore['total_count'],
             ];
 
+            // Add to weighted score (type score × normalized weight)
+            $weightedScore += ($typeScore['average_score'] * ($normalizedWeight / 100));
             $activityGrades = array_merge($activityGrades, $typeScore['activities']);
         }
 
-        // Calculate simple average of all activities (completed and incomplete)
-        // Incomplete activities count as 0% towards the average
-        foreach ($activityGrades as $activity) {
-            $totalScore += $activity['percentage_score']; // This will be 0 for incomplete activities
-        }
-
-        $totalActivityCount = count($activityGrades);
-        $averageScore = $totalActivityCount > 0 ? $totalScore / $totalActivityCount : 0;
-
         return [
-            'average_score' => $averageScore,
+            'average_score' => $weightedScore,
             'type_scores' => $typeScores,
             'activity_grades' => $activityGrades,
+            'has_activities' => true,
+            'types_present' => array_keys($normalizedWeights),
+            'normalized_weights' => $normalizedWeights,
         ];
     }
 
     /**
-     * Get activity type weight
+     * Get activity type weight (course-specific)
      */
-    private function getActivityTypeWeight(string $typeName): int
+    private function getActivityTypeWeight(string $typeName, ?int $courseId = null): int
     {
-        return self::DEFAULT_ACTIVITY_WEIGHTS[$typeName] ?? 0;
+        $activityWeights = $this->getActivityTypeWeights($courseId);
+        return $activityWeights[$typeName] ?? self::DEFAULT_ACTIVITY_WEIGHTS[$typeName] ?? 0;
     }
 
     /**

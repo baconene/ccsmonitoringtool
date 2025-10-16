@@ -67,6 +67,11 @@ class Course extends Model
         return $this->hasMany(Module::class);
     }
 
+    public function gradeSettings(): HasMany
+    {
+        return $this->hasMany(CourseGradeSetting::class);
+    }
+
     public function instructor(): BelongsTo
     {
         return $this->belongsTo(Instructor::class, 'instructor_id');

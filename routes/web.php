@@ -558,5 +558,14 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+// GRADE SETTINGS ROUTES
+Route::middleware(['auth', 'role:instructor,admin'])->group(function () {
+    Route::get('/grade-settings', [App\Http\Controllers\GradeSettingsController::class, 'index'])->name('grade-settings.index');
+    Route::post('/grade-settings/module-components', [App\Http\Controllers\GradeSettingsController::class, 'updateModuleComponents'])->name('grade-settings.module-components');
+    Route::post('/grade-settings/activity-types', [App\Http\Controllers\GradeSettingsController::class, 'updateActivityTypes'])->name('grade-settings.activity-types');
+    Route::post('/grade-settings/reset', [App\Http\Controllers\GradeSettingsController::class, 'reset'])->name('grade-settings.reset');
+    Route::delete('/grade-settings/course', [App\Http\Controllers\GradeSettingsController::class, 'deleteCourseSettings'])->name('grade-settings.delete-course');
+});
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

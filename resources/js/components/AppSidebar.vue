@@ -14,7 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, GraduationCap, ClipboardList, Users, Calendar, UserCog } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, GraduationCap, ClipboardList, Users, Calendar, UserCog, Sliders } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -65,6 +65,11 @@ const adminNavItems: NavItem[] = [
         icon: Users,
     }, 
     {
+        title: 'Grade Settings',
+        href: "/grade-settings",
+        icon: Sliders,
+    },
+    {
         title: 'Grade Reports',
         href: "/instructor/report",
         icon: Folder,
@@ -102,6 +107,11 @@ const instructorNavItems: NavItem[] = [
         title: 'Assessment Tool',
         href: "/assessment-tool",
         icon: BookOpen,
+    },
+    {
+        title: 'Grade Settings',
+        href: "/grade-settings",
+        icon: Sliders,
     },
     {
         title: 'Grade Reports',
