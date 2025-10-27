@@ -5,13 +5,30 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Quiz;
-use App\Models\StudentQuizProgress;
+use App\Models\Student;
+use App\Models\StudentActivity;
+use App\Models\StudentActivityProgress;
 use App\Models\StudentQuizAnswer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class StudentQuizController extends Controller
 {
+    /**
+     * Show quiz by StudentActivity ID - redirects to start method
+     */
+    public function show(StudentActivity $studentActivity)
+    {
+        // Verify the student owns this activity
+        $user = auth()->user();
+        if (!$user->student || $studentActivity->student_id !== $user->student->id) {
+            abort(403, 'Unauthorized access to this activity.');
+        }
+
+        // Redirect to the quiz start route with the activity ID
+        return redirect()->route('student.quiz.start', $studentActivity->activity_id);
+    }
+
     /**
      * Start a new quiz or continue existing progress
      */
@@ -31,17 +48,17 @@ class StudentQuizController extends Controller
         }
         
         // Check if student already has progress for this quiz
-        $progress = StudentQuizProgress::where('student_id', $student->id)
-            ->where('quiz_id', $activity->quiz->id)
+        $progress = StudentActivityProgress::where('student_id', $student->id)
             ->where('activity_id', $activityId)
+            ->where('activity_type', 'quiz')
             ->first();
 
-        // Get activity status using the existing method
-        $statusData = StudentQuizProgress::getActivityStatus($student->id, $activityId);
+        // Get activity status
+        $statusData = $this->getActivityStatus($student->id, $activityId);
         
         // Check if quiz is already completed
         if ($statusData['status'] === 'completed' && $statusData['progress']) {
-            return redirect()->route('student.quiz.results', $statusData['progress']->id)
+            return redirect()->route('student.activities.results', $statusData['progress']->student_activity_id)
                 ->with('info', 'Quiz already completed. Redirected to results.');
         }
 
@@ -59,23 +76,25 @@ class StudentQuizController extends Controller
         
         if (!$progress) {
             // Use updateOrCreate to prevent duplicates
-            $progress = StudentQuizProgress::updateOrCreate(
+            $progress = StudentActivityProgress::updateOrCreate(
                 [
                     'student_id' => $student->id,
-                    'quiz_id' => $activity->quiz->id,
                     'activity_id' => $activityId,
+                    'activity_type' => 'quiz',
                 ],
                 [
                     'started_at' => now(),
                     'last_accessed_at' => now(),
                     'total_questions' => $activity->quiz->questions->count(),
                     'completed_questions' => 0,
+                    'status' => 'in_progress',
+                    'quiz_data' => json_encode(['quiz_id' => $activity->quiz->id]),
                 ]
             );
         } else {
             // Double-check that the quiz is not completed (additional safety check)
             if ($progress->is_completed) {
-                return redirect()->route('student.quiz.results', $progress->id)
+                return redirect()->route('student.activities.results', $progress->student_activity_id)
                     ->with('info', 'Quiz already completed. Redirected to results.');
             }
             
@@ -113,7 +132,7 @@ class StudentQuizController extends Controller
             return response()->json(['error' => 'Please provide an answer'], 422);
         }
 
-        $progress = StudentQuizProgress::findOrFail($progressId);
+        $progress = StudentActivityProgress::where('activity_type', 'quiz')->findOrFail($progressId);
 
         // Check if this is the current user's progress
         $user = auth()->user();
@@ -137,7 +156,7 @@ class StudentQuizController extends Controller
         // Use updateOrCreate to prevent duplicates and ensure answer_text is always populated
         StudentQuizAnswer::updateOrCreate(
             [
-                'quiz_progress_id' => $progress->id,
+                'activity_progress_id' => $progress->id,
                 'question_id' => $validated['question_id'],
             ],
             [
@@ -149,7 +168,7 @@ class StudentQuizController extends Controller
         );
 
         // Get fresh count from database (not from cached relationship)
-        $answeredCount = StudentQuizAnswer::where('quiz_progress_id', $progress->id)->count();
+        $answeredCount = StudentQuizAnswer::where('activity_progress_id', $progress->id)->count();
 
         // Update progress with fresh count
         $progress->update([
@@ -166,7 +185,9 @@ class StudentQuizController extends Controller
      */
     public function submit(Request $request, $progressId)
     {
-        $progress = StudentQuizProgress::with(['quiz.questions', 'activity'])->findOrFail($progressId);
+        $progress = StudentActivityProgress::with(['activity.quiz.questions'])
+            ->where('activity_type', 'quiz')
+            ->findOrFail($progressId);
 
         // Check if this is the current user's progress
         $user = auth()->user();
@@ -181,9 +202,15 @@ class StudentQuizController extends Controller
             return redirect()->back()->with('error', 'Quiz already submitted');
         }
 
+        // Get the quiz
+        $quiz = $progress->activity->quiz;
+        if (!$quiz) {
+            return redirect()->back()->with('error', 'Quiz not found');
+        }
+
         // Validate that all questions have been answered
-        $totalQuestions = $progress->quiz->questions->count();
-        $answeredQuestions = StudentQuizAnswer::where('quiz_progress_id', $progress->id)->count();
+        $totalQuestions = $quiz->questions->count();
+        $answeredQuestions = StudentQuizAnswer::where('activity_progress_id', $progress->id)->count();
 
         if ($answeredQuestions < $totalQuestions) {
             return redirect()->back()->with('error', 'Please answer all questions before submitting.');
@@ -194,7 +221,7 @@ class StudentQuizController extends Controller
 
         // Check all answers and calculate points
         $answers = StudentQuizAnswer::with(['question', 'selectedOption'])
-            ->where('quiz_progress_id', $progress->id)
+            ->where('activity_progress_id', $progress->id)
             ->get();
         
         foreach ($answers as $answer) {
@@ -203,7 +230,7 @@ class StudentQuizController extends Controller
 
         // Reload the answers to get the updated points_earned from database
         $progress->refresh();
-        $progress->load(['answers', 'quiz.questions', 'activity']);
+        $progress->load(['answers', 'activity.quiz.questions']);
 
         // Mark as completed and submitted
         $progress->update([
@@ -214,11 +241,25 @@ class StudentQuizController extends Controller
         ]);
         
         // Calculate final score after refreshing
-        $progress->calculateScore();
+        $totalPointsEarned = $progress->answers->sum('points_earned');
+        $totalPointsPossible = $quiz->questions->sum('points');
+        $percentageScore = $totalPointsPossible > 0 ? round(($totalPointsEarned / $totalPointsPossible) * 100, 2) : 0;
+        
+        $progress->update([
+            'points_earned' => $totalPointsEarned,
+            'points_possible' => $totalPointsPossible,
+            'score' => $totalPointsEarned,
+            'max_score' => $totalPointsPossible,
+            'percentage_score' => $percentageScore,
+        ]);
+        
+        // Refresh to get updated values
+        $progress->refresh();
 
         // Update StudentActivity status to completed
         $studentActivity = \App\Models\StudentActivity::where('student_id', $student->id)
             ->where('activity_id', $progress->activity_id)
+            ->where('activity_type', $progress->activity_type)
             ->first();
             
         if ($studentActivity) {
@@ -229,6 +270,11 @@ class StudentQuizController extends Controller
                 'score' => $progress->score,
                 'percentage_score' => $progress->percentage_score,
             ]);
+            
+            // Ensure progress record has the student_activity_id
+            if (!$progress->student_activity_id) {
+                $progress->update(['student_activity_id' => $studentActivity->id]);
+            }
             
             // Update course enrollment progress
             $courseId = $progress->activity->modules->first()?->course_id;
@@ -249,48 +295,15 @@ class StudentQuizController extends Controller
             ? "Congratulations! You passed with a score of {$progress->percentage_score}%!" 
             : "You scored {$progress->percentage_score}%. The passing score is {$passingScore}%. Keep practicing!";
 
-        return redirect()->route('student.quiz.results', $progress->id)
-            ->with('success', $message);
-    }
-
-    /**
-     * Show quiz results
-     */
-    public function results($progressId)
-    {
-        $progress = StudentQuizProgress::with([
-            'quiz.questions.options',
-            'answers.question.options',
-            'answers.selectedOption',
-            'activity.modules.course'
-        ])->findOrFail($progressId);
-
-        // Check if this is the current user's progress
-        $user = auth()->user();
-        $student = $user->student;
+        // Use student_activity_id for the unified results route
+        $studentActivityId = $progress->student_activity_id ?? $studentActivity->id ?? null;
         
-        if (!$student || $progress->student_id !== $student->id) {
-            return redirect()->back()->with('error', 'Unauthorized');
+        if (!$studentActivityId) {
+            return redirect()->back()->with('error', 'Unable to find student activity record');
         }
 
-        // Calculate total points from questions
-        $totalPoints = $progress->quiz->questions->sum('points');
-        
-        // Attach total_points to quiz object for frontend as float
-        $progress->quiz->total_points = (float) $totalPoints;
-
-        // Get course_id from the first module (activities can be in multiple modules, but usually in one)
-        $courseId = $progress->activity->modules->first()?->course_id;
-
-        // Ensure score and percentage are floats (Laravel decimal cast returns strings)
-        $progress->score = (float) $progress->score;
-        $progress->percentage_score = (float) $progress->percentage_score;
-
-        return Inertia::render('Student/QuizResults', [
-            'progress' => $progress,
-            'activity' => $progress->activity,
-            'courseId' => $courseId,
-        ]);
+        return redirect()->route('student.activities.results', $studentActivityId)
+            ->with('success', $message);
     }
 
     /**
@@ -305,11 +318,49 @@ class StudentQuizController extends Controller
             return response()->json(['error' => 'Student record not found'], 404);
         }
         
-        $progress = StudentQuizProgress::where('student_id', $student->id)
+        $progress = StudentActivityProgress::where('student_id', $student->id)
             ->where('activity_id', $activityId)
-            ->with(['quiz', 'answers'])
+            ->where('activity_type', 'quiz')
+            ->with(['activity'])
             ->first();
 
+        if ($progress) {
+            // Load quiz answers separately
+            $quizData = json_decode($progress->quiz_data, true);
+            $answers = StudentQuizAnswer::where('quiz_progress_id', $progress->id)->get();
+            $progress->answers = $answers;
+        }
+
         return response()->json($progress);
+    }
+    
+    /**
+     * Helper method to get activity status for quiz
+     */
+    private function getActivityStatus($studentId, $activityId)
+    {
+        $progress = StudentActivityProgress::where('student_id', $studentId)
+            ->where('activity_id', $activityId)
+            ->where('activity_type', 'quiz')
+            ->first();
+
+        if (!$progress) {
+            return [
+                'status' => 'not-taken',
+                'progress' => null
+            ];
+        }
+
+        $status = 'not-taken';
+        if ($progress->is_completed && $progress->is_submitted) {
+            $status = 'completed';
+        } elseif ($progress->started_at) {
+            $status = 'in-progress';
+        }
+
+        return [
+            'status' => $status,
+            'progress' => $progress
+        ];
     }
 }

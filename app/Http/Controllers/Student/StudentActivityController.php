@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use App\Models\Student;
 use App\Models\StudentActivity;
-use App\Models\StudentQuizProgress;
+use App\Models\StudentActivityProgress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -54,11 +55,11 @@ class StudentActivityController extends Controller
         // For Quiz activities only, create a completed quiz progress record if needed
         if ($activityTypeName === 'Quiz' && $activity->quiz && $activity->quiz->id) {
             // Use updateOrCreate to prevent duplicates
-            StudentQuizProgress::updateOrCreate(
+            StudentActivityProgress::updateOrCreate(
                 [
                     'student_id' => $student->id,
-                    'quiz_id' => $activity->quiz->id,
                     'activity_id' => $activity->id,
+                    'activity_type' => 'quiz',
                 ],
                 [
                     'score' => 0,
@@ -67,6 +68,8 @@ class StudentActivityController extends Controller
                     'is_completed' => true,
                     'is_submitted' => true,
                     'started_at' => now(),
+                    'status' => 'completed',
+                    'quiz_data' => json_encode(['quiz_id' => $activity->quiz->id]),
                     'time_spent' => 0,
                 ]
             );

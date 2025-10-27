@@ -9,7 +9,7 @@ class StudentQuizAnswer extends Model
 {
     protected $fillable = [
         'student_id',
-        'quiz_progress_id',
+        'activity_progress_id',
         'question_id',
         'selected_option_id',
         'answer_text',
@@ -53,11 +53,20 @@ class StudentQuizAnswer extends Model
     }
 
     /**
-     * Get the quiz progress associated with this answer
+     * Get the activity progress associated with this answer
+     */
+    public function activityProgress(): BelongsTo
+    {
+        return $this->belongsTo(StudentActivityProgress::class, 'activity_progress_id');
+    }
+    
+    /**
+     * Backwards compatibility alias for quizProgress
+     * @deprecated Use activityProgress() instead
      */
     public function quizProgress(): BelongsTo
     {
-        return $this->belongsTo(StudentQuizProgress::class, 'quiz_progress_id');
+        return $this->activityProgress();
     }
 
     /**

@@ -520,12 +520,49 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     // Student Activities
     Route::get('/activities', [App\Http\Controllers\Student\StudentCourseController::class, 'activities'])->name('activities');
     
-    // Quiz routes
+    // Unified Activity Results Route (works for all activity types: Quiz, Assignment, Assessment, Exercise)
+    Route::get('/activities/{studentActivity}/results', [App\Http\Controllers\Student\StudentActivityResultsController::class, 'show'])->name('activities.results');
+    
+    // Activity Type Specific Results Routes: /student/{activityType}/{studentActivityId}/results
+    Route::get('/quiz/{studentActivity}/results', [App\Http\Controllers\Student\StudentActivityResultsController::class, 'show'])->name('quiz.results');
+    Route::get('/assignment/{studentActivity}/results', [App\Http\Controllers\Student\StudentActivityResultsController::class, 'show'])->name('assignment.results');
+    Route::get('/project/{studentActivity}/results', [App\Http\Controllers\Student\StudentActivityResultsController::class, 'show'])->name('project.results');
+    Route::get('/assessment/{studentActivity}/results', [App\Http\Controllers\Student\StudentActivityResultsController::class, 'show'])->name('assessment.results');
+    
+    Route::get('/assignment/{studentActivity}/results', function(\App\Models\StudentActivity $studentActivity) {
+        return redirect()->route('student.activities.results', $studentActivity->id);
+    })->name('assignment.results');
+    
+    // Unified Activity Routes - handles start/continue for all activity types
+    Route::get('/quizs/{studentActivity}', [App\Http\Controllers\Student\StudentQuizController::class, 'show'])->name('quizs.show');
+    Route::get('/assignments/{studentActivity}', [App\Http\Controllers\StudentAssignmentController::class, 'showByStudentActivity'])->name('assignments.show');
+    Route::get('/projects/{studentActivity}', function(\App\Models\StudentActivity $studentActivity) {
+        // Placeholder: Redirect to course module until ProjectController is implemented
+        return redirect()->route('student.courses.modules.show', [
+            'course' => $studentActivity->course_id,
+            'moduleId' => $studentActivity->module_id
+        ])->with('info', 'Project functionality coming soon.');
+    })->name('projects.show');
+    Route::get('/assessments/{studentActivity}', function(\App\Models\StudentActivity $studentActivity) {
+        // Placeholder: Redirect to course module until AssessmentController is implemented
+        return redirect()->route('student.courses.modules.show', [
+            'course' => $studentActivity->course_id,
+            'moduleId' => $studentActivity->module_id
+        ])->with('info', 'Assessment functionality coming soon.');
+    })->name('assessments.show');
+    
+    // Quiz routes (legacy - keeping for backward compatibility)
     Route::get('/quiz/start/{activity}', [App\Http\Controllers\Student\StudentQuizController::class, 'start'])->name('quiz.start');
     Route::post('/quiz/{progress}/answer', [App\Http\Controllers\Student\StudentQuizController::class, 'submitAnswer'])->name('quiz.answer');
     Route::post('/quiz/{progress}/submit', [App\Http\Controllers\Student\StudentQuizController::class, 'submit'])->name('quiz.submit');
-    Route::get('/quiz/{progress}/results', [App\Http\Controllers\Student\StudentQuizController::class, 'results'])->name('quiz.results');
     Route::get('/quiz/{activity}/progress', [App\Http\Controllers\Student\StudentQuizController::class, 'getProgress'])->name('quiz.progress');
+    
+    // Assignment routes (legacy - keeping for backward compatibility)
+    Route::get('/assignment/start/{activity}', [App\Http\Controllers\StudentAssignmentController::class, 'start'])->name('assignment.start');
+    Route::get('/assignments/{assignment}/old', [App\Http\Controllers\StudentAssignmentController::class, 'show'])->name('assignments.show.old');
+    Route::post('/assignments/{assignment}/answers', [App\Http\Controllers\StudentAssignmentController::class, 'saveAnswer'])->name('assignments.save-answer');
+    Route::post('/assignments/{assignment}/upload', [App\Http\Controllers\StudentAssignmentController::class, 'uploadFile'])->name('assignments.upload');
+    Route::post('/assignments/{assignment}/submit', [App\Http\Controllers\StudentAssignmentController::class, 'submit'])->name('assignments.submit');
 });
 
 // Additional API routes moved to top of file with Dashboard routes
@@ -555,6 +592,42 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/report/pdf', [App\Http\Controllers\GradeController::class, 'instructorReportPDF'])->name('report.pdf');
         Route::get('/report/csv', [App\Http\Controllers\GradeController::class, 'instructorReportCSV'])->name('report.csv');
         Route::get('/student/{student}/detail', [App\Http\Controllers\GradeController::class, 'studentDetail'])->name('student.detail');
+        
+        // Instructor notifications
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            // Test route - remove after debugging
+            Route::get('/test', function() {
+                $userId = auth()->id();
+                $notifications = \App\Models\InstructorNotification::forInstructor($userId)
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(20);
+                return response()->json([
+                    'debug' => true,
+                    'user_id' => $userId,
+                    'count' => $notifications->count(),
+                    'total' => $notifications->total(),
+                    'data' => $notifications
+                ]);
+            })->name('test');
+            
+            Route::get('/unread-count', [App\Http\Controllers\Instructor\NotificationController::class, 'getUnreadCount'])->name('unread-count');
+            Route::get('/', [App\Http\Controllers\Instructor\NotificationController::class, 'index'])->name('index');
+            Route::post('/{id}/read', [App\Http\Controllers\Instructor\NotificationController::class, 'markAsRead'])->name('read');
+            Route::post('/read-all', [App\Http\Controllers\Instructor\NotificationController::class, 'markAllAsRead'])->name('read-all');
+            Route::delete('/{id}', [App\Http\Controllers\Instructor\NotificationController::class, 'destroy'])->name('destroy');
+        });
+
+        // Assignment submissions and grading
+        Route::prefix('assignments')->name('assignments.')->group(function () {
+            Route::get('/{assignment}/submissions', [App\Http\Controllers\Instructor\AssignmentGradingController::class, 'submissions'])->name('submissions');
+            Route::get('/{assignment}/submissions/{progress}', [App\Http\Controllers\Instructor\AssignmentGradingController::class, 'viewSubmission'])->name('submissions.view');
+            Route::post('/{assignment}/grade/{progress}/question', [App\Http\Controllers\Instructor\AssignmentGradingController::class, 'gradeQuestion'])->name('grade.question');
+            Route::post('/{assignment}/grade/{progress}/submit', [App\Http\Controllers\Instructor\AssignmentGradingController::class, 'submitGrade'])->name('grade.submit');
+        });
+
+        // Student submission routes for viewing individual submissions
+        Route::get('/submissions/{submission}', [App\Http\Controllers\Instructor\StudentSubmissionController::class, 'show'])->name('submissions.show');
+        Route::post('/submissions/{submission}/grade', [App\Http\Controllers\Instructor\StudentSubmissionController::class, 'grade'])->name('submissions.grade');
     });
 });
 

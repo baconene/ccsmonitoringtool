@@ -217,6 +217,7 @@ class ActivityController extends Controller
             'creator', 
             'quiz.questions.options', 
             'assignment.document',
+            'assignment.questions.options',
             'modules.course'
         ]);
 

@@ -54,7 +54,7 @@ const isSubmitting = ref(false);
 onMounted(() => {
   // Check if quiz is already completed
   if (props.progress.is_completed) {
-    router.visit(`/student/quiz/${props.progress.id}/results`, {
+    router.visit(`/student/quiz/${props.progress.student_activity_id}/results`, {
       replace: true,
       onError: () => {
         // Fallback if results route fails
@@ -79,7 +79,7 @@ onMounted(() => {
   // Prevent browser back button from accessing completed/past due quizzes
   const handlePopState = () => {
     if (props.progress.is_completed) {
-      router.visit(`/student/quiz/${props.progress.id}/results`, { replace: true });
+      router.visit(`/student/quiz/${props.progress.student_activity_id}/results`, { replace: true });
     }
   };
   
@@ -201,7 +201,8 @@ const confirmSubmit = () => {
   
   router.post(`/student/quiz/${props.progress.id}/submit`, {}, {
     onSuccess: () => {
-      router.visit(`/student/quiz/${props.progress.id}/results`);
+      // Use student_activity_id for results, not progress id
+      router.visit(`/student/quiz/${props.progress.student_activity_id}/results`);
     },
     onError: (errors) => {
       console.error('Quiz submission failed:', errors);

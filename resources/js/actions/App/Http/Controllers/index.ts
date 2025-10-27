@@ -14,6 +14,7 @@ import CourseScheduleController from './CourseScheduleController'
 import LessonController from './LessonController'
 import DocumentController from './DocumentController'
 import Student from './Student'
+import StudentAssignmentController from './StudentAssignmentController'
 import GradeController from './GradeController'
 import GradeSettingsController from './GradeSettingsController'
 import Settings from './Settings'
@@ -34,6 +35,7 @@ CourseScheduleController: Object.assign(CourseScheduleController, CourseSchedule
 LessonController: Object.assign(LessonController, LessonController),
 DocumentController: Object.assign(DocumentController, DocumentController),
 Student: Object.assign(Student, Student),
+StudentAssignmentController: Object.assign(StudentAssignmentController, StudentAssignmentController),
 GradeController: Object.assign(GradeController, GradeController),
 GradeSettingsController: Object.assign(GradeSettingsController, GradeSettingsController),
 Settings: Object.assign(Settings, Settings),

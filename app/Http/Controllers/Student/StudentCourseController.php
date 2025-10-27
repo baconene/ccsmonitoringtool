@@ -90,6 +90,9 @@ class StudentCourseController extends Controller
                 'activities.quiz' => function($query) {
                     $query->with('questions');
                 },
+                'activities.assignment' => function($query) {
+                    $query->with('questions');
+                },
                 'documents.document.uploader' // Load module documents with the document file and uploader
             ])
             ->get()
@@ -104,8 +107,9 @@ class StudentCourseController extends Controller
                     $quizProgress = null;
                     
                     if ($activity->quiz) {
-                        $quizProgress = \App\Models\StudentQuizProgress::where('student_id', $student->id)
+                        $quizProgress = \App\Models\StudentActivityProgress::where('student_id', $student->id)
                             ->where('activity_id', $activity->id)
+                            ->where('activity_type', 'quiz')
                             ->orderBy('id', 'desc')
                             ->first();
                     }
@@ -139,17 +143,32 @@ class StudentCourseController extends Controller
                     $dueDate = $activity->due_date ?? $activity->created_at->addDays(7);
                     $isPastDue = now()->isAfter($dueDate);
                     
+                    // Get question count and total points from quiz OR assignment
+                    $questionCount = 0;
+                    $totalPoints = 0;
+                    
+                    if ($activity->quiz) {
+                        $questionCount = $activity->quiz->questions->count();
+                        $totalPoints = $activity->quiz->questions->sum('points');
+                    } elseif ($activity->assignment) {
+                        $questionCount = $activity->assignment->questions->count();
+                        $totalPoints = $activity->assignment->questions->sum('points');
+                    }
+                    
                     return [
                         'id' => $activity->id,
                         'title' => $activity->title,
                         'description' => $activity->description,
                         'activity_type' => $activity->activityType ? $activity->activityType->name : 'Unknown',
-                        'question_count' => $activity->quiz ? $activity->quiz->questions->count() : 0,
-                        'total_points' => $activity->quiz ? $activity->quiz->questions->sum('points') : 0,
+                        'question_count' => $questionCount,
+                        'total_points' => $totalPoints,
                         'due_date' => $dueDate->toDateTimeString(),
                         'is_past_due' => $isPastDue,
                         'is_completed' => $studentActivity && $studentActivity->status === 'completed' ? true : false, // Add completion status
+                        'assignment_id' => $activity->assignment ? $activity->assignment->id : null,
                         'student_activity' => $studentActivity ? [
+                            'id' => $studentActivity->id, // Add student_activity_id for unified results route
+                            'activity_type' => $studentActivity->activity_type, // Add activity_type for dynamic routing
                             'score' => $studentActivity->score,
                             'max_score' => $studentActivity->max_score,
                             'percentage_score' => $studentActivity->percentage_score,
@@ -270,7 +289,11 @@ class StudentCourseController extends Controller
      */
     public function completeLesson(Request $request, Course $course, $lessonId)
     {
-        \Log::info('completeLesson called', ['courseId' => $course->id, 'lessonId' => $lessonId]);
+        \Log::info('completeLesson called', [
+            'courseId' => $course->id, 
+            'lessonId' => $lessonId,
+            'user_id' => auth()->id()
+        ]);
         
         $user = auth()->user();
         \Log::info('User found', ['userId' => $user->id, 'userName' => $user->name]);
@@ -280,7 +303,7 @@ class StudentCourseController extends Controller
         
         if (!$student) {
             \Log::error('Student record not found for user', ['userId' => $user->id]);
-            return redirect()->back()->with('error', 'Student record not found');
+            return back()->with('error', 'Student record not found');
         }
         
         // Verify enrollment (check both user_id for backward compatibility and student_id)
@@ -290,15 +313,25 @@ class StudentCourseController extends Controller
         })
         ->where('course_id', $course->id)
         ->first();
+        
+        \Log::info('Enrollment check', ['enrollment_found' => $enrollment !== null]);
             
         if (!$enrollment) {
-            return redirect()->back()->with('error', "You are not enrolled in the '{$course->title}' course");
+            \Log::warning('User not enrolled in course', [
+                'user_id' => $user->id,
+                'course_id' => $course->id
+            ]);
+            return back()->with('error', "You are not enrolled in the '{$course->title}' course");
         }
 
         // Verify lesson belongs to course
         $lesson = $course->lessons()->find($lessonId);
         if (!$lesson) {
-            return redirect()->back()->with('error', "Lesson not found in the '{$course->title}' course");
+            \Log::warning('Lesson not found in course', [
+                'lesson_id' => $lessonId,
+                'course_id' => $course->id
+            ]);
+            return back()->with('error', "Lesson not found in the '{$course->title}' course");
         }
 
         // Check if already completed
@@ -306,13 +339,16 @@ class StudentCourseController extends Controller
             ->where('lesson_id', $lessonId)
             ->where('course_id', $course->id)
             ->first();
+        
+        \Log::info('Existing completion check', ['exists' => $existingCompletion !== null]);
             
         if ($existingCompletion) {
-            return redirect()->back()->with('info', "You have already completed the '{$lesson->title}' lesson");
+            \Log::info('Lesson already completed', ['lesson_id' => $lessonId]);
+            return back()->with('info', "You have already completed the '{$lesson->title}' lesson");
         }
 
         // Create lesson completion
-        LessonCompletion::create([
+        $completion = LessonCompletion::create([
             'user_id' => $user->id,
             'lesson_id' => $lessonId,
             'course_id' => $course->id,
@@ -323,10 +359,21 @@ class StudentCourseController extends Controller
             ])
         ]);
 
+        \Log::info('Lesson completion created', [
+            'completion_id' => $completion->id,
+            'lesson_id' => $lessonId,
+            'user_id' => $user->id
+        ]);
+
         // Update course enrollment progress
         $enrollment->updateProgress();
+        $enrollment->refresh();
+        
+        \Log::info('Progress updated', [
+            'new_progress' => $enrollment->progress
+        ]);
 
-        return redirect()->back()->with('success', 'Lesson marked as completed');
+        return back()->with('success', 'Lesson marked as completed');
     }
 
     /**
@@ -426,9 +473,50 @@ class StudentCourseController extends Controller
     public function activities(Request $request)
     {
         $user = auth()->user();
+        $student = $user->student;
         
-        // Use the new method from StudentQuizProgress to get all activities
-        $studentActivities = \App\Models\StudentQuizProgress::getStudentActivities($user->id);
+        if (!$student) {
+            return Inertia::render('Student/MyActivity', ['activities' => []]);
+        }
+        
+        // Get all courses the student is enrolled in
+        $enrolledCourses = \App\Models\CourseEnrollment::with([
+            'course.modules.activities.activityType',
+            'course.modules.lessons.activities.activityType'
+        ])
+        ->where('user_id', $user->id)
+        ->get();
+
+        $studentActivities = collect();
+        foreach ($enrolledCourses as $enrollment) {
+            $course = $enrollment->course;
+            
+            // Get activities from modules
+            foreach ($course->modules as $module) {
+                foreach ($module->activities as $activity) {
+                    $studentActivities->push([
+                        'activity' => $activity,
+                        'course' => $course,
+                        'module' => $module,
+                        'lesson' => null,
+                        'source' => 'module'
+                    ]);
+                }
+                
+                // Get activities from lessons within modules
+                foreach ($module->lessons as $lesson) {
+                    foreach ($lesson->activities as $activity) {
+                        $studentActivities->push([
+                            'activity' => $activity,
+                            'course' => $course,
+                            'module' => $module,
+                            'lesson' => $lesson,
+                            'source' => 'lesson'
+                        ]);
+                    }
+                }
+            }
+        }
 
         $activities = [];
         $courses = collect();
@@ -439,15 +527,32 @@ class StudentCourseController extends Controller
             $module = $item['module'];
             $lesson = $item['lesson'];
             
-            // Get activity status and progress
-            $statusData = \App\Models\StudentQuizProgress::getActivityStatus($user->id, $activity->id);
+            // Get activity progress/status
+            $progress = \App\Models\StudentActivityProgress::where('student_id', $student->id)
+                ->where('activity_id', $activity->id)
+                ->first();
+            
+            // Get or create student_activity record
+            $studentActivity = \App\Models\StudentActivity::where('student_id', $student->id)
+                ->where('activity_id', $activity->id)
+                ->first();
+            
+            $status = 'not-taken';
+            if ($progress) {
+                if ($progress->is_completed && $progress->is_submitted) {
+                    $status = 'completed';
+                } elseif ($progress->started_at) {
+                    $status = 'in-progress';
+                }
+            }
             
             // Get due date from activity model (fallback to created_at + 7 days if not set)
             $dueDate = $activity->due_date ?? $activity->created_at->addDays(7);
-            $isPastDue = $dueDate->isPast() && $statusData['status'] !== 'completed';
+            $isPastDue = $dueDate->isPast() && $status !== 'completed';
             
             $activities[] = [
                 'id' => $activity->id,
+                'student_activity_id' => $studentActivity ? $studentActivity->id : null,
                 'title' => $activity->title,
                 'description' => $activity->description,
                 'activity_type' => $activity->activityType ? $activity->activityType->name : 'Unknown',
@@ -460,14 +565,14 @@ class StudentCourseController extends Controller
                 'source' => $item['source'], // 'module' or 'lesson'
                 'due_date' => $dueDate->format('Y-m-d H:i:s'),
                 'due_date_formatted' => $dueDate->format('M j, Y'),
-                'status' => $statusData['status'],
+                'status' => $status,
                 'is_past_due' => $isPastDue,
-                'progress_id' => ($statusData['progress'] && is_object($statusData['progress'])) ? $statusData['progress']->id : null,
-                'progress' => ($statusData['progress'] && is_object($statusData['progress'])) ? [
-                    'score' => $statusData['progress']->score ?? 0,
-                    'percentage_score' => $statusData['progress']->percentage_score ?? 0,
-                    'completed_questions' => $statusData['progress']->completed_questions ?? 0,
-                    'total_questions' => $statusData['progress']->total_questions ?? 0,
+                'progress_id' => $progress ? $progress->id : null,
+                'progress' => $progress ? [
+                    'score' => $progress->score ?? 0,
+                    'percentage_score' => $progress->percentage_score ?? 0,
+                    'completed_questions' => $progress->completed_questions ?? 0,
+                    'total_questions' => $progress->total_questions ?? 0,
                 ] : null,
                 'question_count' => $activity->quiz ? $activity->quiz->questions->count() : 0,
                 'total_points' => $activity->quiz ? $activity->quiz->questions->sum('points') : 0,
@@ -589,15 +694,13 @@ class StudentCourseController extends Controller
 
         // Get activities with completion status
         $activities = $module->activities->map(function ($activity) use ($student) {
-            $quizProgress = null;
+            $activityProgress = null;
             $studentActivity = null;
             
-            // Check for quiz progress
-            if ($activity->quiz) {
-                $quizProgress = \App\Models\StudentQuizProgress::where('student_id', $student->id)
-                    ->where('activity_id', $activity->id)
-                    ->first();
-            }
+            // Check for activity progress (quiz, assignment, project, assessment)
+            $activityProgress = \App\Models\StudentActivityProgress::where('student_id', $student->id)
+                ->where('activity_id', $activity->id)
+                ->first();
             
             // Check for general student activity completion
             $studentActivity = \App\Models\StudentActivity::where('student_id', $student->id)
@@ -606,7 +709,7 @@ class StudentCourseController extends Controller
             
             // Determine completion status
             $isCompleted = false;
-            if ($quizProgress && $quizProgress->is_completed && $quizProgress->is_submitted) {
+            if ($activityProgress && $activityProgress->is_completed && $activityProgress->is_submitted) {
                 $isCompleted = true;
             } elseif ($studentActivity && $studentActivity->status === 'completed') {
                 $isCompleted = true;
@@ -620,14 +723,15 @@ class StudentCourseController extends Controller
                 'question_count' => $activity->quiz ? $activity->quiz->questions->count() : 0,
                 'total_points' => $activity->quiz ? $activity->quiz->questions->sum('points') : 0,
                 'is_completed' => $isCompleted,
-                'quiz_progress' => $quizProgress ? [
-                    'id' => $quizProgress->id,
-                    'is_completed' => $quizProgress->is_completed,
-                    'is_submitted' => $quizProgress->is_submitted,
-                    'score' => $quizProgress->score,
-                    'percentage_score' => $quizProgress->percentage_score,
-                    'completed_questions' => $quizProgress->completed_questions,
-                    'total_questions' => $quizProgress->total_questions,
+                // Use the activity progress record (may be named $activityProgress above)
+                'quiz_progress' => $activityProgress ? [
+                    'id' => $activityProgress->id,
+                    'is_completed' => $activityProgress->is_completed,
+                    'is_submitted' => $activityProgress->is_submitted,
+                    'score' => $activityProgress->score,
+                    'percentage_score' => $activityProgress->percentage_score,
+                    'completed_questions' => $activityProgress->completed_questions,
+                    'total_questions' => $activityProgress->total_questions,
                 ] : null,
             ];
         });

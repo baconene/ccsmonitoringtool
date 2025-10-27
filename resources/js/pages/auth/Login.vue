@@ -10,6 +10,11 @@ defineProps<{
     status?: string;
     canResetPassword: boolean;
 }>();
+
+// Force full page reload after successful login to get new CSRF token
+const handleLoginSuccess = () => {
+    window.location.href = '/dashboard';
+};
 </script>
 
 <template>
@@ -76,6 +81,9 @@ defineProps<{
                 <Form
                     v-bind="AuthenticatedSessionController.store.form()"
                     :reset-on-success="['password']"
+                    :preserve-state="false"
+                    :preserve-scroll="false"
+                    @success="handleLoginSuccess"
                     v-slot="{ errors, processing }"
                     class="space-y-4 sm:space-y-6"
                 >

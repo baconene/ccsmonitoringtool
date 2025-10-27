@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\CourseEnrollment;
-use App\Models\StudentQuizProgress;
+use App\Models\StudentActivityProgress;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -45,8 +45,52 @@ class StudentDashboardController extends Controller
                     ];
                 });
 
-            // Get student activities (assignments/quizzes)
-            $studentActivities = StudentQuizProgress::getStudentActivities($user->id);
+            $student = $user->student;
+            if (!$student) {
+                return response()->json([
+                    'enrolledCourses' => $enrollments->values()->toArray(),
+                    'assignments' => [],
+                    'overdueActivities' => [],
+                    'grades' => [],
+                    'schedule' => []
+                ]);
+            }
+
+            // Get all courses the student is enrolled in
+            $enrolledCoursesWithActivities = CourseEnrollment::with([
+                'course.modules.activities.activityType',
+                'course.modules.lessons.activities.activityType'
+            ])
+            ->where('user_id', $user->id)
+            ->get();
+
+            $studentActivities = collect();
+            foreach ($enrolledCoursesWithActivities as $enrollment) {
+                $course = $enrollment->course;
+                
+                // Get activities from modules
+                foreach ($course->modules as $module) {
+                    foreach ($module->activities as $activity) {
+                        $studentActivities->push([
+                            'activity' => $activity,
+                            'course' => $course,
+                            'module' => $module,
+                        ]);
+                    }
+                    
+                    // Get activities from lessons within modules
+                    foreach ($module->lessons as $lesson) {
+                        foreach ($lesson->activities as $activity) {
+                            $studentActivities->push([
+                                'activity' => $activity,
+                                'course' => $course,
+                                'module' => $module,
+                            ]);
+                        }
+                    }
+                }
+            }
+
             $assignments = [];
             $overdueActivities = [];
             
@@ -54,10 +98,17 @@ class StudentDashboardController extends Controller
                 $activity = $item['activity'];
                 $course = $item['course'];
                 
-                // Get activity status
-                $statusData = StudentQuizProgress::getActivityStatus($user->id, $activity->id);
+                // Get activity progress/status
+                $progress = StudentActivityProgress::where('student_id', $student->id)
+                    ->where('activity_id', $activity->id)
+                    ->first();
+                
+                $isCompleted = false;
+                if ($progress && $progress->is_completed && $progress->is_submitted) {
+                    $isCompleted = true;
+                }
+                
                 $dueDate = $activity->due_date ?? $activity->created_at->addDays(7);
-                $isCompleted = $statusData['status'] === 'completed';
                 $isOverdue = $dueDate->isPast() && !$isCompleted;
                 
                 $activityData = [
@@ -81,22 +132,18 @@ class StudentDashboardController extends Controller
             foreach ($studentActivities as $item) {
                 $activity = $item['activity'];
                 $course = $item['course'];
-                $statusData = StudentQuizProgress::getActivityStatus($user->id, $activity->id);
                 
-                if ($statusData['status'] === 'completed') {
-                    // Use a safe approach to get score
-                    $score = 85; // Default score for completed activities
-                    if (isset($statusData['progress'])) {
-                        $progress = $statusData['progress'];
-                        if (is_object($progress) && isset($progress->percentage_score)) {
-                            $score = (int) $progress->percentage_score;
-                        }
-                    }
+                $progress = StudentActivityProgress::where('student_id', $student->id)
+                    ->where('activity_id', $activity->id)
+                    ->first();
+                
+                if ($progress && $progress->is_completed && $progress->is_submitted) {
+                    $score = $progress->percentage_score ?? 85; // Default score if not set
                     
                     $grades[] = [
                         'course' => $course->title,
                         'assignment' => $activity->title,
-                        'score' => $score
+                        'score' => (int) $score
                     ];
                 }
             }

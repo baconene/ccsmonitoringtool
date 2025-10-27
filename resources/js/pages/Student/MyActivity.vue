@@ -70,14 +70,14 @@
             v-for="activity in filteredActivities" 
             :key="activity.id"
             :class="[
-              'bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow',
+              'bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow flex flex-col',
               activity.is_past_due && activity.status !== 'completed' 
                 ? 'border-2 border-red-500 dark:border-red-400' 
                 : 'border border-gray-200 dark:border-gray-700'
             ]"
           >
             <!-- Activity Header -->
-            <div class="p-6">
+            <div class="p-6 flex-grow flex flex-col">
               <div class="flex justify-between items-start mb-4">
                 <div class="flex-1">
                   <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -180,7 +180,7 @@
               </div>
 
               <!-- Action Button -->
-              <div class="mt-4">
+              <div class="mt-auto pt-4">
                 <button 
                   @click="handleActivityAction(activity)"
                   :class="getActionButtonClass(activity.status)"
@@ -232,6 +232,7 @@ import {
 
 interface Activity {
   id: number;
+  student_activity_id?: number | null;
   title: string;
   description: string;
   activity_type: string;
@@ -382,18 +383,20 @@ const handleActivityAction = (activity: Activity) => {
 };
 
 const getActivityLink = (activity: Activity) => {
-  if (activity.activity_type === 'Quiz') {
-    if (activity.status === 'completed' && activity.progress_id) {
-      // For completed quizzes, link to results page using progress ID
-      return `/student/quiz/${activity.progress_id}/results`;
-    } else {
-      // For not taken or in-progress quizzes, start/continue quiz
-      return `/student/quiz/start/${activity.id}`;
-    }
+  // For completed activities with student_activity_id, link to unified results page
+  if (activity.status === 'completed' && activity.student_activity_id) {
+    return `/student/activities/${activity.student_activity_id}/results`;
   }
   
-  // For other activity types, link to activity details
-  return `/student/activities/${activity.id}`;
+  // For non-completed activities, route to activity based on type using student_activity_id
+  if (activity.student_activity_id) {
+    const activityType = activity.activity_type.toLowerCase();
+    // Route pattern: /student/{activityType}/{studentActivityId}
+    return `/student/${activityType}s/${activity.student_activity_id}`;
+  }
+  
+  // Fallback: navigate to course module page to view the activity
+  return `/student/courses/${activity.course_id}/modules/${activity.module_id}`;
 };
 
 const filterActivities = () => {

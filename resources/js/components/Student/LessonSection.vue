@@ -59,18 +59,6 @@
 
             <!-- Full Width Lesson Content -->
             <div class="mt-6">
-              <!-- PROMINENT Debug info -->
-              <div class="mb-4 p-4 bg-red-100 dark:bg-red-900/50 border-2 border-red-300 dark:border-red-600 rounded-lg">
-                <div class="text-sm font-bold text-red-800 dark:text-red-200 mb-2">🔍 DEBUG INFO:</div>
-                <div class="text-sm text-red-700 dark:text-red-300">
-                  <div>is_completed = <span class="font-mono bg-yellow-200 dark:bg-yellow-800 px-1">{{ lesson.is_completed }}</span></div>
-                  <div>Type = <span class="font-mono bg-yellow-200 dark:bg-yellow-800 px-1">{{ typeof lesson.is_completed }}</span></div>
-                  <div>completed_at = <span class="font-mono bg-yellow-200 dark:bg-yellow-800 px-1">{{ lesson.completed_at }}</span></div>
-                  <div>isLessonCompleted() = <span class="font-mono bg-yellow-200 dark:bg-yellow-800 px-1">{{ isLessonCompleted(lesson) }}</span></div>
-                  <div>Button should show = <span class="font-mono bg-yellow-200 dark:bg-yellow-800 px-1">{{ !isLessonCompleted(lesson) }}</span></div>
-                </div>
-              </div>
-              
               <div 
                 :key="`lesson-${lesson.id}-${isDarkMode}`"
                 class="lesson-content prose prose-base max-w-none dark:prose-invert bg-transparent"

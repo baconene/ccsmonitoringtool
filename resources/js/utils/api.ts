@@ -44,6 +44,11 @@ export interface DashboardStats {
 // API base configuration
 const API_BASE_URL = '/api';
 
+// Function to get fresh CSRF token
+function getCsrfToken(): string {
+  return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+}
+
 // Create a separate axios instance for API calls
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -54,10 +59,24 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-// Add CSRF token if available
-const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-if (csrfToken) {
-  apiClient.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+// Add interceptor to include fresh CSRF token with every request
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = getCsrfToken();
+    if (token) {
+      config.headers['X-CSRF-TOKEN'] = token;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Set initial CSRF token
+const initialToken = getCsrfToken();
+if (initialToken) {
+  apiClient.defaults.headers.common['X-CSRF-TOKEN'] = initialToken;
 }
 
 // Function to get CSRF cookie - DEPRECATED: No longer needed with web route authentication
@@ -78,7 +97,7 @@ async function checkAuthStatus() {
       withCredentials: true,
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        'X-CSRF-TOKEN': getCsrfToken(),
       }
     });
     console.log('Auth status:', response.data);

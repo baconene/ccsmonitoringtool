@@ -16,8 +16,20 @@ interface Props {
     user: User;
 }
 
-const handleLogout = () => {
+const handleLogout = (event: Event) => {
+    event.preventDefault();
     router.flushAll();
+    // Use router.post with preserveState: false to force full page reload
+    // This ensures the new CSRF token is properly loaded after logout
+    router.post(logout(), {}, {
+        preserveState: false,
+        preserveScroll: false,
+        replace: true,
+        onSuccess: () => {
+            // Force a full page reload to get new CSRF token
+            window.location.href = '/';
+        }
+    });
 };
 
 defineProps<Props>();
@@ -40,15 +52,13 @@ defineProps<Props>();
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
     <DropdownMenuItem :as-child="true">
-        <Link
-            class="block w-full"
-            :href="logout()"
+        <button
+            class="flex w-full items-center"
             @click="handleLogout"
-            as="button"
             data-test="logout-button"
         >
             <LogOut class="mr-2 h-4 w-4" />
             Log out
-        </Link>
+        </button>
     </DropdownMenuItem>
 </template>

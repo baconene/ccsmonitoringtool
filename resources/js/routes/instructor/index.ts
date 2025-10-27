@@ -1,6 +1,9 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import report611039 from './report'
 import student from './student'
+import notifications from './notifications'
+import assignments from './assignments'
+import submissions from './submissions'
 /**
  * @see routes/web.php:279
  * @route '/instructor/{id}'
@@ -258,6 +261,9 @@ const instructor = {
 update: Object.assign(update, update),
 report: Object.assign(report, report611039),
 student: Object.assign(student, student),
+notifications: Object.assign(notifications, notifications),
+assignments: Object.assign(assignments, assignments),
+submissions: Object.assign(submissions, submissions),
 }
 
 export default instructor

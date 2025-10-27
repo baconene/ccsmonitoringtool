@@ -1,6 +1,14 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import courses from './courses'
+import activities63c2d9 from './activities'
 import quiz from './quiz'
+import assignment from './assignment'
+import project from './project'
+import assessment from './assessment'
+import quizs from './quizs'
+import assignments from './assignments'
+import projects from './projects'
+import assessments from './assessments'
 import report611039 from './report'
 import course from './course'
 /**
@@ -166,7 +174,7 @@ details.head = (args: { id: string | number } | [id: string | number ] | string 
     details.form = detailsForm
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:426
+ * @see app/Http/Controllers/Student/StudentCourseController.php:473
  * @route '/student/activities'
  */
 export const activities = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -181,7 +189,7 @@ activities.definition = {
 
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:426
+ * @see app/Http/Controllers/Student/StudentCourseController.php:473
  * @route '/student/activities'
  */
 activities.url = (options?: RouteQueryOptions) => {
@@ -190,7 +198,7 @@ activities.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:426
+ * @see app/Http/Controllers/Student/StudentCourseController.php:473
  * @route '/student/activities'
  */
 activities.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -199,7 +207,7 @@ activities.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:426
+ * @see app/Http/Controllers/Student/StudentCourseController.php:473
  * @route '/student/activities'
  */
 activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -209,7 +217,7 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:426
+ * @see app/Http/Controllers/Student/StudentCourseController.php:473
  * @route '/student/activities'
  */
     const activitiesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +227,7 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:426
+ * @see app/Http/Controllers/Student/StudentCourseController.php:473
  * @route '/student/activities'
  */
         activitiesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -228,7 +236,7 @@ activities.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Student\StudentCourseController::activities
- * @see app/Http/Controllers/Student/StudentCourseController.php:426
+ * @see app/Http/Controllers/Student/StudentCourseController.php:473
  * @route '/student/activities'
  */
         activitiesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -324,8 +332,15 @@ const student = {
     dashboard: Object.assign(dashboard, dashboard),
 details: Object.assign(details, details),
 courses: Object.assign(courses, courses),
-activities: Object.assign(activities, activities),
+activities: Object.assign(activities, activities63c2d9),
 quiz: Object.assign(quiz, quiz),
+assignment: Object.assign(assignment, assignment),
+project: Object.assign(project, project),
+assessment: Object.assign(assessment, assessment),
+quizs: Object.assign(quizs, quizs),
+assignments: Object.assign(assignments, assignments),
+projects: Object.assign(projects, projects),
+assessments: Object.assign(assessments, assessments),
 report: Object.assign(report, report611039),
 course: Object.assign(course, course),
 }

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\AssignmentController::index
- * @see app/Http/Controllers/AssignmentController.php:16
+ * @see app/Http/Controllers/AssignmentController.php:22
  * @route '/assignments'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\AssignmentController::index
- * @see app/Http/Controllers/AssignmentController.php:16
+ * @see app/Http/Controllers/AssignmentController.php:22
  * @route '/assignments'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AssignmentController::index
- * @see app/Http/Controllers/AssignmentController.php:16
+ * @see app/Http/Controllers/AssignmentController.php:22
  * @route '/assignments'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\AssignmentController::index
- * @see app/Http/Controllers/AssignmentController.php:16
+ * @see app/Http/Controllers/AssignmentController.php:22
  * @route '/assignments'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\AssignmentController::index
- * @see app/Http/Controllers/AssignmentController.php:16
+ * @see app/Http/Controllers/AssignmentController.php:22
  * @route '/assignments'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\AssignmentController::index
- * @see app/Http/Controllers/AssignmentController.php:16
+ * @see app/Http/Controllers/AssignmentController.php:22
  * @route '/assignments'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\AssignmentController::index
- * @see app/Http/Controllers/AssignmentController.php:16
+ * @see app/Http/Controllers/AssignmentController.php:22
  * @route '/assignments'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\AssignmentController::create
- * @see app/Http/Controllers/AssignmentController.php:25
+ * @see app/Http/Controllers/AssignmentController.php:31
  * @route '/assignments/create'
  */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\AssignmentController::create
- * @see app/Http/Controllers/AssignmentController.php:25
+ * @see app/Http/Controllers/AssignmentController.php:31
  * @route '/assignments/create'
  */
 create.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AssignmentController::create
- * @see app/Http/Controllers/AssignmentController.php:25
+ * @see app/Http/Controllers/AssignmentController.php:31
  * @route '/assignments/create'
  */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\AssignmentController::create
- * @see app/Http/Controllers/AssignmentController.php:25
+ * @see app/Http/Controllers/AssignmentController.php:31
  * @route '/assignments/create'
  */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\AssignmentController::create
- * @see app/Http/Controllers/AssignmentController.php:25
+ * @see app/Http/Controllers/AssignmentController.php:31
  * @route '/assignments/create'
  */
     const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\AssignmentController::create
- * @see app/Http/Controllers/AssignmentController.php:25
+ * @see app/Http/Controllers/AssignmentController.php:31
  * @route '/assignments/create'
  */
         createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\AssignmentController::create
- * @see app/Http/Controllers/AssignmentController.php:25
+ * @see app/Http/Controllers/AssignmentController.php:31
  * @route '/assignments/create'
  */
         createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\AssignmentController::store
- * @see app/Http/Controllers/AssignmentController.php:35
+ * @see app/Http/Controllers/AssignmentController.php:63
  * @route '/assignments'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\AssignmentController::store
- * @see app/Http/Controllers/AssignmentController.php:35
+ * @see app/Http/Controllers/AssignmentController.php:63
  * @route '/assignments'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AssignmentController::store
- * @see app/Http/Controllers/AssignmentController.php:35
+ * @see app/Http/Controllers/AssignmentController.php:63
  * @route '/assignments'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\AssignmentController::store
- * @see app/Http/Controllers/AssignmentController.php:35
+ * @see app/Http/Controllers/AssignmentController.php:63
  * @route '/assignments'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\AssignmentController::store
- * @see app/Http/Controllers/AssignmentController.php:35
+ * @see app/Http/Controllers/AssignmentController.php:63
  * @route '/assignments'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +212,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\AssignmentController::show
- * @see app/Http/Controllers/AssignmentController.php:57
+ * @see app/Http/Controllers/AssignmentController.php:41
  * @route '/assignments/{assignment}'
  */
 export const show = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\AssignmentController::show
- * @see app/Http/Controllers/AssignmentController.php:57
+ * @see app/Http/Controllers/AssignmentController.php:41
  * @route '/assignments/{assignment}'
  */
 show.url = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -260,7 +260,7 @@ show.url = (args: { assignment: number | { id: number } } | [assignment: number 
 
 /**
 * @see \App\Http\Controllers\AssignmentController::show
- * @see app/Http/Controllers/AssignmentController.php:57
+ * @see app/Http/Controllers/AssignmentController.php:41
  * @route '/assignments/{assignment}'
  */
 show.get = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -269,7 +269,7 @@ show.get = (args: { assignment: number | { id: number } } | [assignment: number 
 })
 /**
 * @see \App\Http\Controllers\AssignmentController::show
- * @see app/Http/Controllers/AssignmentController.php:57
+ * @see app/Http/Controllers/AssignmentController.php:41
  * @route '/assignments/{assignment}'
  */
 show.head = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -279,7 +279,7 @@ show.head = (args: { assignment: number | { id: number } } | [assignment: number
 
     /**
 * @see \App\Http\Controllers\AssignmentController::show
- * @see app/Http/Controllers/AssignmentController.php:57
+ * @see app/Http/Controllers/AssignmentController.php:41
  * @route '/assignments/{assignment}'
  */
     const showForm = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +289,7 @@ show.head = (args: { assignment: number | { id: number } } | [assignment: number
 
             /**
 * @see \App\Http\Controllers\AssignmentController::show
- * @see app/Http/Controllers/AssignmentController.php:57
+ * @see app/Http/Controllers/AssignmentController.php:41
  * @route '/assignments/{assignment}'
  */
         showForm.get = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -298,7 +298,7 @@ show.head = (args: { assignment: number | { id: number } } | [assignment: number
         })
             /**
 * @see \App\Http\Controllers\AssignmentController::show
- * @see app/Http/Controllers/AssignmentController.php:57
+ * @see app/Http/Controllers/AssignmentController.php:41
  * @route '/assignments/{assignment}'
  */
         showForm.head = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -314,10 +314,10 @@ show.head = (args: { assignment: number | { id: number } } | [assignment: number
     show.form = showForm
 /**
 * @see \App\Http\Controllers\AssignmentController::edit
- * @see app/Http/Controllers/AssignmentController.php:66
+ * @see app/Http/Controllers/AssignmentController.php:0
  * @route '/assignments/{assignment}/edit'
  */
-export const edit = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const edit = (args: { assignment: string | number } | [assignment: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: edit.url(args, options),
     method: 'get',
 })
@@ -329,17 +329,14 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\AssignmentController::edit
- * @see app/Http/Controllers/AssignmentController.php:66
+ * @see app/Http/Controllers/AssignmentController.php:0
  * @route '/assignments/{assignment}/edit'
  */
-edit.url = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+edit.url = (args: { assignment: string | number } | [assignment: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { assignment: args }
     }
 
-            if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
-            args = { assignment: args.id }
-        }
     
     if (Array.isArray(args)) {
         args = {
@@ -350,9 +347,7 @@ edit.url = (args: { assignment: number | { id: number } } | [assignment: number 
     args = applyUrlDefaults(args)
 
     const parsedArgs = {
-                        assignment: typeof args.assignment === 'object'
-                ? args.assignment.id
-                : args.assignment,
+                        assignment: args.assignment,
                 }
 
     return edit.definition.url
@@ -362,48 +357,48 @@ edit.url = (args: { assignment: number | { id: number } } | [assignment: number 
 
 /**
 * @see \App\Http\Controllers\AssignmentController::edit
- * @see app/Http/Controllers/AssignmentController.php:66
+ * @see app/Http/Controllers/AssignmentController.php:0
  * @route '/assignments/{assignment}/edit'
  */
-edit.get = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+edit.get = (args: { assignment: string | number } | [assignment: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: edit.url(args, options),
     method: 'get',
 })
 /**
 * @see \App\Http\Controllers\AssignmentController::edit
- * @see app/Http/Controllers/AssignmentController.php:66
+ * @see app/Http/Controllers/AssignmentController.php:0
  * @route '/assignments/{assignment}/edit'
  */
-edit.head = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+edit.head = (args: { assignment: string | number } | [assignment: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: edit.url(args, options),
     method: 'head',
 })
 
     /**
 * @see \App\Http\Controllers\AssignmentController::edit
- * @see app/Http/Controllers/AssignmentController.php:66
+ * @see app/Http/Controllers/AssignmentController.php:0
  * @route '/assignments/{assignment}/edit'
  */
-    const editForm = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const editForm = (args: { assignment: string | number } | [assignment: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: edit.url(args, options),
         method: 'get',
     })
 
             /**
 * @see \App\Http\Controllers\AssignmentController::edit
- * @see app/Http/Controllers/AssignmentController.php:66
+ * @see app/Http/Controllers/AssignmentController.php:0
  * @route '/assignments/{assignment}/edit'
  */
-        editForm.get = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        editForm.get = (args: { assignment: string | number } | [assignment: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: edit.url(args, options),
             method: 'get',
         })
             /**
 * @see \App\Http\Controllers\AssignmentController::edit
- * @see app/Http/Controllers/AssignmentController.php:66
+ * @see app/Http/Controllers/AssignmentController.php:0
  * @route '/assignments/{assignment}/edit'
  */
-        editForm.head = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        editForm.head = (args: { assignment: string | number } | [assignment: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: edit.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
@@ -416,7 +411,7 @@ edit.head = (args: { assignment: number | { id: number } } | [assignment: number
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\AssignmentController::update
- * @see app/Http/Controllers/AssignmentController.php:75
+ * @see app/Http/Controllers/AssignmentController.php:153
  * @route '/assignments/{assignment}'
  */
 export const update = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -431,7 +426,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\AssignmentController::update
- * @see app/Http/Controllers/AssignmentController.php:75
+ * @see app/Http/Controllers/AssignmentController.php:153
  * @route '/assignments/{assignment}'
  */
 update.url = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -464,7 +459,7 @@ update.url = (args: { assignment: number | { id: number } } | [assignment: numbe
 
 /**
 * @see \App\Http\Controllers\AssignmentController::update
- * @see app/Http/Controllers/AssignmentController.php:75
+ * @see app/Http/Controllers/AssignmentController.php:153
  * @route '/assignments/{assignment}'
  */
 update.put = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -473,7 +468,7 @@ update.put = (args: { assignment: number | { id: number } } | [assignment: numbe
 })
 /**
 * @see \App\Http\Controllers\AssignmentController::update
- * @see app/Http/Controllers/AssignmentController.php:75
+ * @see app/Http/Controllers/AssignmentController.php:153
  * @route '/assignments/{assignment}'
  */
 update.patch = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -483,7 +478,7 @@ update.patch = (args: { assignment: number | { id: number } } | [assignment: num
 
     /**
 * @see \App\Http\Controllers\AssignmentController::update
- * @see app/Http/Controllers/AssignmentController.php:75
+ * @see app/Http/Controllers/AssignmentController.php:153
  * @route '/assignments/{assignment}'
  */
     const updateForm = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -498,7 +493,7 @@ update.patch = (args: { assignment: number | { id: number } } | [assignment: num
 
             /**
 * @see \App\Http\Controllers\AssignmentController::update
- * @see app/Http/Controllers/AssignmentController.php:75
+ * @see app/Http/Controllers/AssignmentController.php:153
  * @route '/assignments/{assignment}'
  */
         updateForm.put = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -512,7 +507,7 @@ update.patch = (args: { assignment: number | { id: number } } | [assignment: num
         })
             /**
 * @see \App\Http\Controllers\AssignmentController::update
- * @see app/Http/Controllers/AssignmentController.php:75
+ * @see app/Http/Controllers/AssignmentController.php:153
  * @route '/assignments/{assignment}'
  */
         updateForm.patch = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -528,7 +523,7 @@ update.patch = (args: { assignment: number | { id: number } } | [assignment: num
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\AssignmentController::destroy
- * @see app/Http/Controllers/AssignmentController.php:92
+ * @see app/Http/Controllers/AssignmentController.php:276
  * @route '/assignments/{assignment}'
  */
 export const destroy = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -543,7 +538,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\AssignmentController::destroy
- * @see app/Http/Controllers/AssignmentController.php:92
+ * @see app/Http/Controllers/AssignmentController.php:276
  * @route '/assignments/{assignment}'
  */
 destroy.url = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -576,7 +571,7 @@ destroy.url = (args: { assignment: number | { id: number } } | [assignment: numb
 
 /**
 * @see \App\Http\Controllers\AssignmentController::destroy
- * @see app/Http/Controllers/AssignmentController.php:92
+ * @see app/Http/Controllers/AssignmentController.php:276
  * @route '/assignments/{assignment}'
  */
 destroy.delete = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -586,7 +581,7 @@ destroy.delete = (args: { assignment: number | { id: number } } | [assignment: n
 
     /**
 * @see \App\Http\Controllers\AssignmentController::destroy
- * @see app/Http/Controllers/AssignmentController.php:92
+ * @see app/Http/Controllers/AssignmentController.php:276
  * @route '/assignments/{assignment}'
  */
     const destroyForm = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -601,7 +596,7 @@ destroy.delete = (args: { assignment: number | { id: number } } | [assignment: n
 
             /**
 * @see \App\Http\Controllers\AssignmentController::destroy
- * @see app/Http/Controllers/AssignmentController.php:92
+ * @see app/Http/Controllers/AssignmentController.php:276
  * @route '/assignments/{assignment}'
  */
         destroyForm.delete = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

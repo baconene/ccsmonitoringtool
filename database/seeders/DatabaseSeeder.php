@@ -10,20 +10,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->command->info('🌱 Starting comprehensive database seeding...');
         
-        // First, seed the basic foundation data
+        // Use the single comprehensive seeder
         $this->call([
-            RoleSeeder::class,              // 1. Roles (admin, instructor, student)
-            GradeLevelSeeder::class,        // 2. Grade Levels (Year 1-5, Grade 1-12)
-            ActivityTypeSeeder::class,      // 3. Activity Types (Quiz, Assignment, etc.)
-            QuestionTypeSeeder::class,      // 4. Question Types (Multiple Choice, True/False, etc.)
-            ScheduleTypeSeeder::class,      // 5. Schedule Types (Course, Activity, Exam, etc.)
-        ]);
-        
-        $this->command->info('✅ Foundation data seeded successfully!');
-        
-        // Then seed the comprehensive data
-        $this->call([
-            ComprehensiveSeeder::class,     // 5. Users, Students, Courses, etc.
+            SingleComprehensiveSeeder::class,
         ]);
         
         $this->command->info('🎉 Database seeding completed successfully!');

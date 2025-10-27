@@ -432,14 +432,11 @@ class CourseService
                 // Delete student activity records
                 \App\Models\StudentActivity::where('activity_id', $activity->id)->delete();
                 
+                // Delete student activity progress (quiz, assignment, project, assessment)
+                \App\Models\StudentActivityProgress::where('activity_id', $activity->id)->delete();
+                
                 // Delete quiz-related data
                 if ($activity->quiz) {
-                    // Delete student quiz progress and answers
-                    $quizProgressIds = \App\Models\StudentQuizProgress::where('quiz_id', $activity->quiz->id)
-                        ->pluck('id');
-                    \App\Models\StudentQuizAnswer::whereIn('quiz_progress_id', $quizProgressIds)->delete();
-                    \App\Models\StudentQuizProgress::where('quiz_id', $activity->quiz->id)->delete();
-                    
                     // Delete questions and their options
                     foreach ($activity->quiz->questions as $question) {
                         $question->options()->delete();

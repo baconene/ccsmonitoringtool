@@ -291,7 +291,7 @@ const getQuizStatusBadge = (activity: Activity & { quiz_progress?: StudentQuizPr
   };
 };
 
-const handleQuizClick = (activity: Activity & { quiz_progress?: StudentQuizProgress | null; is_past_due?: boolean }) => {
+const handleQuizClick = (activity: Activity & { quiz_progress?: StudentQuizProgress | null; is_past_due?: boolean; student_activity?: any }) => {
   // Check if activity is overdue and not yet completed
   if (activity.is_past_due && !activity.quiz_progress?.is_completed) {
     showNotification('error', 'This activity is overdue and can no longer be submitted.');
@@ -299,10 +299,37 @@ const handleQuizClick = (activity: Activity & { quiz_progress?: StudentQuizProgr
   }
 
   const progress = activity.quiz_progress;
-  if (progress?.is_completed) {
-    router.visit(`/student/quiz/${progress.id}/results`);
+  if (progress?.is_completed && activity.student_activity?.id) {
+    // Use unified results route with student_activity_id
+    router.visit(`/student/activities/${activity.student_activity.id}/results`);
   } else {
     router.visit(`/student/quiz/start/${activity.id}`);
+  }
+};
+
+const handleAssignmentClick = (activity: any) => {
+  console.log('=== ASSIGNMENT CLICK DEBUG ===');
+  console.log('Full activity object:', activity);
+  console.log('activity.id:', activity.id);
+  console.log('activity.student_activity:', activity.student_activity);
+  console.log('activity.student_activity.id:', activity.student_activity?.id);
+  console.log('activity.student_activity.activity_type:', activity.student_activity?.activity_type);
+  console.log('activity.student_activity.status:', activity.student_activity?.status);
+  
+  // Check if activity is completed
+  if (activity.student_activity?.status === 'submitted' || activity.student_activity?.status === 'graded') {
+    // Navigate to results page
+    const activityType = activity.student_activity.activity_type || 'assignment';
+    const url = `/student/${activityType}/${activity.student_activity.id}/results`;
+    console.log('Generated URL:', url);
+    console.log('==============================');
+    router.visit(url);
+  } else {
+    // Navigate to start assignment page
+    const url = `/student/assignment/start/${activity.id}`;
+    console.log('Generated URL:', url);
+    console.log('==============================');
+    router.visit(url);
   }
 };
 
@@ -787,13 +814,20 @@ const closeDocumentViewer = () => {
                         </div>
                         
                         <!-- View Activity Button for assignments with questions -->
-                        <Link
+                        <button
                           v-else-if="activity.question_count && activity.question_count > 0"
-                          :href="`/student/activities/${activity.id}`"
-                          class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors inline-block text-center"
+                          @click="handleAssignmentClick(activity)"
+                          :class="[
+                            'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+                            activity.student_activity?.status === 'submitted' || activity.student_activity?.status === 'graded'
+                              ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                              : 'bg-orange-600 hover:bg-orange-700 text-white'
+                          ]"
                         >
-                          View Activity
-                        </Link>
+                          {{ activity.student_activity?.status === 'submitted' ? 'View Submission' : 
+                             activity.student_activity?.status === 'graded' ? 'View Results' : 
+                             'Start Assignment' }}
+                        </button>
                       </div>
                     </div>
                   </div>

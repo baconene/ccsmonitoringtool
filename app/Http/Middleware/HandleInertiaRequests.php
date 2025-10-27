@@ -18,6 +18,24 @@ class HandleInertiaRequests extends Middleware
     protected $rootView = 'app';
 
     /**
+     * Determine if the request should be handled by Inertia.
+     */
+    public function handle(Request $request, \Closure $next)
+    {
+        // Skip Inertia for notification API routes
+        if ($request->is('instructor/notifications*')) {
+            return $next($request);
+        }
+        
+        // Skip Inertia for explicit JSON requests (like AJAX API calls)
+        if ($request->wantsJson() || $request->expectsJson()) {
+            return $next($request);
+        }
+
+        return parent::handle($request, $next);
+    }
+
+    /**
      * Determines the current asset version.
      *
      * @see https://inertiajs.com/asset-versioning
@@ -45,6 +63,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user() ? $request->user()->load('role') : null,
             ],
+            'csrf_token' => csrf_token(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

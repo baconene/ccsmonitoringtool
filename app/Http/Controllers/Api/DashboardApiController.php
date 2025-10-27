@@ -24,9 +24,28 @@ class DashboardApiController extends Controller
      */
     public function getStats(Request $request): JsonResponse
     {
+        \Log::info('Dashboard getStats called', [
+            'url' => $request->fullUrl(),
+            'user_id' => Auth::id(),
+            'authenticated' => Auth::check(),
+            'session_id' => session()->getId(),
+            'csrf_token' => csrf_token(),
+        ]);
+
         try {
             $user = Auth::user();
-            $roleName = $user->role_name; // Use role_name attribute instead of role relationship
+            
+            if (!$user) {
+                \Log::error('getStats: User not authenticated');
+                return response()->json(['message' => 'User not authenticated'], 401);
+            }
+
+            $roleName = $user->role_name;
+            
+            \Log::info('getStats: User role determined', [
+                'user_id' => $user->id,
+                'role_name' => $roleName,
+            ]);
             
             if ($roleName === 'instructor' || $roleName === 'admin') {
                 return $this->getInstructorStats($user);
@@ -34,6 +53,11 @@ class DashboardApiController extends Controller
                 return $this->getStudentStats($user);
             }
             
+            \Log::warning('getStats: Invalid user role', [
+                'user_id' => $user->id,
+                'role_name' => $roleName,
+            ]);
+
             return response()->json([
                 'message' => 'Invalid user role',
                 'user_role' => $roleName,
@@ -44,6 +68,11 @@ class DashboardApiController extends Controller
             ], 403);
             
         } catch (\Exception $e) {
+            \Log::error('getStats: Exception occurred', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'message' => 'Failed to fetch dashboard statistics',
                 'error' => $e->getMessage()
@@ -56,13 +85,19 @@ class DashboardApiController extends Controller
      */
     private function getInstructorStats($user): JsonResponse
     {
+        \Log::info('getInstructorStats called', ['user_id' => $user->id]);
+
         // Get courses taught by instructor
         $instructor = Instructor::where('user_id', $user->id)->first();
         if (!$instructor) {
+            \Log::error('getInstructorStats: Instructor record not found', ['user_id' => $user->id]);
             return response()->json([
                 'message' => 'Instructor record not found for user'
             ], 404);
         }
+
+        \Log::info('getInstructorStats: Instructor found', ['instructor_id' => $instructor->id]);
+
         $totalCourses = Course::where('instructor_id', $instructor->id)->count();
 
         // Get unique students across all instructor's courses
@@ -86,6 +121,13 @@ class DashboardApiController extends Controller
         // Placeholder for pending activity reviews
         $pendingReviews = 0; // Placeholder
         
+        \Log::info('getInstructorStats: Stats calculated', [
+            'totalCourses' => $totalCourses,
+            'totalStudents' => $totalStudents,
+            'totalActivities' => $totalActivities,
+            'upcomingSchedules' => $upcomingSchedules,
+        ]);
+
         return response()->json([
             'totalCourses' => $totalCourses,
             'totalStudents' => $totalStudents,
@@ -100,14 +142,20 @@ class DashboardApiController extends Controller
      */
     private function getStudentStats($user): JsonResponse
     {
+        \Log::info('getStudentStats called', ['user_id' => $user->id]);
+
         try {
             // Get enrolled courses count 
             $student= Student::where('user_id', $user->id)->first();
             if (!$student) {
+                \Log::error('getStudentStats: Student record not found', ['user_id' => $user->id]);
                 return response()->json([
                     'message' => 'Student record not found for user'
                 ], 404);
             }
+
+            \Log::info('getStudentStats: Student found', ['student_id' => $student->id]);
+
             $totalCourses = CourseEnrollment::where('student_id', $student->id)->count();
 
             // Simplified incomplete activities count - placeholder for now
@@ -121,6 +169,12 @@ class DashboardApiController extends Controller
             // Placeholder for grade average
             $gradeAverage = 0; // Placeholder
             
+            \Log::info('getStudentStats: Stats calculated', [
+                'totalCourses' => $totalCourses,
+                'incompleteActivities' => $incompleteActivities,
+                'scheduledCourses' => $scheduledCourses,
+            ]);
+
             return response()->json([
                 'totalCourses' => $totalCourses,
                 'incompleteActivities' => $incompleteActivities,
@@ -145,8 +199,22 @@ class DashboardApiController extends Controller
      */
     public function getInstructorProfile(Request $request): JsonResponse
     {
+        \Log::info('DashboardApiController::getInstructorProfile called', [
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+            'user_id' => Auth::id(),
+            'session_id' => session()->getId(),
+            'csrf_token' => csrf_token(),
+        ]);
+        
         try {
             $user = Auth::user();
+            
+            \Log::info('DashboardApiController::getInstructorProfile - Profile retrieved', [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+            ]);
             
             return response()->json([
                 'id' => $user->id,
@@ -154,6 +222,11 @@ class DashboardApiController extends Controller
                 'email' => $user->email,
             ]);
         } catch (\Exception $e) {
+            \Log::error('DashboardApiController::getInstructorProfile - Error: ' . $e->getMessage(), [
+                'user_id' => Auth::id() ?? 'unknown',
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'message' => 'Failed to fetch instructor profile',
                 'error' => $e->getMessage()
@@ -166,17 +239,29 @@ class DashboardApiController extends Controller
      */
     public function getStudentData(Request $request): JsonResponse
     {
+        \Log::info('DashboardApiController::getStudentData called', [
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+            'user_id' => Auth::id(),
+            'session_id' => session()->getId(),
+            'csrf_token' => csrf_token(),
+        ]);
+        
         try {
             $user = Auth::user();
             $student = Student::where('user_id', $user->id)->first();
             
-            \Log::info('getStudentData called', [
+            \Log::info('DashboardApiController::getStudentData - Student lookup', [
                 'user_id' => $user->id,
-                'student_found' => $student ? 'yes' : 'no',
-                'student_id' => $student ? $student->id : 'N/A'
+                'student_found' => $student !== null,
+                'student_id' => $student ? $student->id : null
             ]);
             
             if (!$student) {
+                \Log::warning('DashboardApiController::getStudentData - No student record found', [
+                    'user_id' => $user->id,
+                ]);
+                
                 return response()->json([
                     'message' => 'Student record not found for user',
                     'enrolledCourses' => [],
@@ -274,6 +359,13 @@ class DashboardApiController extends Controller
                 ];
             });
             
+            \Log::info('DashboardApiController::getStudentData - Data prepared', [
+                'enrolled_courses_count' => $enrolledCourses->count(),
+                'assignments_count' => $activities->count(),
+                'overdue_activities_count' => count($overdueActivities),
+                'schedules_count' => $schedules->count(),
+            ]);
+            
             return response()->json([
                 'enrolledCourses' => $enrolledCourses,
                 'assignments' => $activities,
@@ -283,6 +375,11 @@ class DashboardApiController extends Controller
             ]);
             
         } catch (\Exception $e) {
+            \Log::error('DashboardApiController::getStudentData - Error: ' . $e->getMessage(), [
+                'user_id' => Auth::id() ?? 'unknown',
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'message' => 'Failed to fetch student data',
                 'error' => $e->getMessage()
@@ -295,9 +392,24 @@ class DashboardApiController extends Controller
      */
     public function getInstructorData(Request $request): JsonResponse
     {
+        \Log::info('DashboardApiController::getInstructorData called', [
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+            'user_id' => Auth::id(),
+            'session_id' => session()->getId(),
+            'csrf_token' => csrf_token(),
+        ]);
+        
         try {
             $user = Auth::user();
             $instructor = Instructor::where('user_id', $user->id)->first();
+            
+            \Log::info('DashboardApiController::getInstructorData - Instructor lookup', [
+                'user_id' => $user->id,
+                'instructor_found' => $instructor !== null,
+                'instructor_id' => $instructor->id ?? null,
+            ]);
+            
             // Get instructor's courses with student count
             $courses = Course::where('instructor_id', $instructor->id)
                 ->withCount('students')
@@ -314,6 +426,11 @@ class DashboardApiController extends Controller
             
             // Simplified schedules - placeholder for now
             $schedules = [];
+            
+            \Log::info('DashboardApiController::getInstructorData - Data prepared', [
+                'courses_count' => $courses->count(),
+                'schedules_count' => count($schedules),
+            ]);
             
             return response()->json([
                 'courses' => $courses,

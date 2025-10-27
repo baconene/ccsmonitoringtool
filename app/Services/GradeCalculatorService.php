@@ -8,7 +8,7 @@ use App\Models\Activity;
 use App\Models\ActivityType;
 use App\Models\Student;
 use App\Models\StudentActivity;
-use App\Models\StudentQuizProgress;
+use App\Models\StudentActivityProgress;
 use App\Models\ModuleCompletion;
 use App\Models\GradeSetting;
 use App\Models\CourseGradeSetting;
@@ -264,16 +264,14 @@ class GradeCalculatorService
                 ->first();
         }
 
-        // Get quiz progress if it's a quiz
-        $quizProgress = null;
-        if ($activity->activityType->name === 'Quiz') {
-            // Get the student record first to use the correct student_id
-            $student = \App\Models\User::find($userId)?->student;
-            if ($student) {
-                $quizProgress = StudentQuizProgress::where('student_id', $student->id)
-                    ->where('activity_id', $activity->id)
-                    ->first();
-            }
+        // Get activity progress (quiz, assignment, project, assessment)
+        $activityProgress = null;
+        // Get the student record first to use the correct student_id
+        $student = \App\Models\User::find($userId)?->student;
+        if ($student) {
+            $activityProgress = StudentActivityProgress::where('student_id', $student->id)
+                ->where('activity_id', $activity->id)
+                ->first();
         }
 
         $score = 0;
@@ -282,15 +280,15 @@ class GradeCalculatorService
         $submittedAt = null;
         $status = 'not_started';
 
-        // For quiz activities, prioritize StudentQuizProgress as the authoritative source
-        if ($quizProgress && $activity->activityType->name === 'Quiz') {
-            // Use the percentage_score directly from StudentQuizProgress as it's already calculated correctly
-            $percentageScore = $quizProgress->percentage_score ?? 0;
-            $score = $quizProgress->score ?? 0;
+        // For all activities with progress records, use StudentActivityProgress as the authoritative source
+        if ($activityProgress) {
+            // Use the percentage_score directly from StudentActivityProgress as it's already calculated correctly
+            $percentageScore = $activityProgress->percentage_score ?? 0;
+            $score = $activityProgress->score ?? 0;
             $maxScore = 100; // Use 100 as max since we have percentage_score
-            $isCompleted = $quizProgress->is_completed;
-            $submittedAt = $quizProgress->completed_at ?? $quizProgress->updated_at;
-            $status = $quizProgress->is_completed ? 'completed' : 'in_progress';
+            $isCompleted = $activityProgress->is_completed;
+            $submittedAt = $activityProgress->completed_at ?? $activityProgress->updated_at;
+            $status = $activityProgress->is_completed ? 'completed' : 'in_progress';
         } elseif ($studentActivity) {
             $score = $studentActivity->score ?? 0;
             $maxScore = $studentActivity->max_score ?? 100;

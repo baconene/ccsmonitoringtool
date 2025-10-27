@@ -343,9 +343,18 @@ const completedOtherActivities = computed(() => {
 const getActivityLink = (activity: Activity) => {
   if (activity.activity_type === 'Quiz') {
     if (activity.is_completed && activity.quiz_progress) {
-      return `/student/quiz/${activity.quiz_progress.id}/results`;
+      // Use student_activity_id from quiz_progress, not progress id
+      return `/student/quiz/${activity.quiz_progress.student_activity_id}/results`;
     } else {
       return `/student/quiz/start/${activity.id}`;
+    }
+  }
+  if (activity.activity_type === 'Assignment') {
+    if (activity.is_completed && activity.student_activity) {
+      // Use activity type and student_activity id
+      return `/student/assignment/${activity.student_activity.id}/results`;
+    } else {
+      return `/student/assignment/start/${activity.id}`;
     }
   }
   return `/student/activities/${activity.id}`;

@@ -21,6 +21,10 @@ class StudentAssignmentProgress extends Model
         'points_earned',
         'points_possible',
         'rubric_scores',
+        'total_questions',
+        'answered_questions',
+        'auto_graded_score',
+        'requires_grading',
     ];
 
     protected $casts = [
@@ -31,6 +35,10 @@ class StudentAssignmentProgress extends Model
         'points_earned' => 'decimal:2',
         'points_possible' => 'decimal:2',
         'rubric_scores' => 'array',
+        'total_questions' => 'integer',
+        'answered_questions' => 'integer',
+        'auto_graded_score' => 'decimal:2',
+        'requires_grading' => 'boolean',
     ];
 
     // Relationships
