@@ -75,7 +75,21 @@ class StudentQuizController extends Controller
         $progress = $statusData['progress'];
         
         if (!$progress) {
-            // Use updateOrCreate to prevent duplicates
+            // First, create or get StudentActivity record
+            $studentActivity = StudentActivity::firstOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'activity_id' => $activityId,
+                    'course_id' => $activity->modules->first()->course_id ?? null,
+                    'module_id' => $activity->modules->first()->id ?? null,
+                ],
+                [
+                    'status' => 'in_progress',
+                    'started_at' => now(),
+                ]
+            );
+            
+            // Then create progress record linked to StudentActivity
             $progress = StudentActivityProgress::updateOrCreate(
                 [
                     'student_id' => $student->id,
@@ -83,6 +97,7 @@ class StudentQuizController extends Controller
                     'activity_type' => 'quiz',
                 ],
                 [
+                    'student_activity_id' => $studentActivity->id,
                     'started_at' => now(),
                     'last_accessed_at' => now(),
                     'total_questions' => $activity->quiz->questions->count(),
@@ -266,8 +281,9 @@ class StudentQuizController extends Controller
                 'status' => 'completed',
                 'completed_at' => now(),
                 'submitted_at' => now(),
-                'score' => $progress->score,
-                'percentage_score' => $progress->percentage_score,
+                'score' => $totalPointsEarned,
+                'max_score' => $totalPointsPossible,
+                'percentage_score' => $percentageScore,
             ]);
             
             // Ensure progress record has the student_activity_id

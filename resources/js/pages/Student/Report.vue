@@ -157,18 +157,27 @@
                     </span>
                   </div>
                   <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm text-gray-600">Grade:</span>
-                    <span class="font-medium">{{ module.module_score || 'N/A' }}{{ module.module_score ? '%' : '' }} ({{ module.module_letter_grade || 'N/A' }})</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Grade:</span>
+                    <span class="font-medium text-gray-900 dark:text-gray-100">{{ module.module_score || 'N/A' }}{{ module.module_score ? '%' : '' }} ({{ module.module_letter_grade || 'N/A' }})</span>
                   </div>
-                  <div class="bg-gray-200 rounded-full h-2 mb-3">
+                  <div class="bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-3">
                     <div
                       class="bg-blue-600 h-2 rounded-full transition-all duration-300"
                       :style="{ width: `${module.module_score || 0}%` }"
                     ></div>
                   </div>
+                  
+                  <!-- Toggle Button for Calculation Details -->
+                  <button
+                    @click="toggleModuleDetails(module.module_id)"
+                    class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium mb-2 transition-colors"
+                  >
+                    <component :is="expandedModules[module.module_id] ? ChevronUpIcon : ChevronDownIcon" class="w-4 h-4" />
+                    {{ expandedModules[module.module_id] ? 'Hide' : 'Show' }} Calculation Details
+                  </button>
 
-                  <!-- Module Performance Calculation Details -->
-                  <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border dark:border-blue-800/30">
+                  <!-- Module Performance Calculation Details (Collapsible) -->
+                  <div v-show="expandedModules[module.module_id]" class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border dark:border-blue-800/30">
                     <h6 class="text-xs font-semibold text-blue-900 dark:text-blue-100 mb-3">Module Grade Calculation:</h6>
                     
                     <!-- Dynamic Weight Notice -->
@@ -450,6 +459,7 @@ import { ref, onMounted } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { DocumentArrowDownIcon } from '@heroicons/vue/24/outline'
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/24/solid'
 
 // Props
 const props = defineProps({
@@ -463,8 +473,13 @@ const props = defineProps({
 const selectedCourseId = ref(props.selectedCourse || null)
 const gradeData = ref(props.courseGrades || props.completeReport || null)
 const loading = ref(false)
+const expandedModules = ref({}) // Track which modules have calculation details expanded
 
 // Methods
+const toggleModuleDetails = (moduleId) => {
+  expandedModules.value[moduleId] = !expandedModules.value[moduleId]
+}
+
 const selectCourse = (courseId) => {
   if (selectedCourseId.value === courseId) return
   

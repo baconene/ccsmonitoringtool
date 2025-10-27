@@ -302,14 +302,14 @@ class DashboardApiController extends Controller
                 'courses' => $enrolledCourses->toArray()
             ]);
             
-            // Get in-progress activities for the student
+            // Get incomplete activities for the student (not_started, in_progress, pending)
             $activities = DB::table('student_activities as sa')
                 ->join('activities as a', 'sa.activity_id', '=', 'a.id')
                 ->join('modules as m', 'sa.module_id', '=', 'm.id')
                 ->join('courses as c', 'sa.course_id', '=', 'c.id')
                 ->join('activity_types as at', 'a.activity_type_id', '=', 'at.id')
                 ->where('sa.student_id', $student->id)
-                ->where('sa.status', 'in_progress')
+                ->whereIn('sa.status', ['not_started', 'in_progress', 'pending'])
                 ->select(
                     'sa.id',
                     'a.title',
