@@ -348,7 +348,7 @@ submit.post = (args: { progress: string | number } | [progress: string | number 
     submit.form = submitForm
 /**
 * @see \App\Http\Controllers\Student\StudentQuizController::progress
- * @see app/Http/Controllers/Student/StudentQuizController.php:312
+ * @see app/Http/Controllers/Student/StudentQuizController.php:311
  * @route '/student/quiz/{activity}/progress'
  */
 export const progress = (args: { activity: string | number } | [activity: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -363,7 +363,7 @@ progress.definition = {
 
 /**
 * @see \App\Http\Controllers\Student\StudentQuizController::progress
- * @see app/Http/Controllers/Student/StudentQuizController.php:312
+ * @see app/Http/Controllers/Student/StudentQuizController.php:311
  * @route '/student/quiz/{activity}/progress'
  */
 progress.url = (args: { activity: string | number } | [activity: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -391,7 +391,7 @@ progress.url = (args: { activity: string | number } | [activity: string | number
 
 /**
 * @see \App\Http\Controllers\Student\StudentQuizController::progress
- * @see app/Http/Controllers/Student/StudentQuizController.php:312
+ * @see app/Http/Controllers/Student/StudentQuizController.php:311
  * @route '/student/quiz/{activity}/progress'
  */
 progress.get = (args: { activity: string | number } | [activity: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -400,7 +400,7 @@ progress.get = (args: { activity: string | number } | [activity: string | number
 })
 /**
 * @see \App\Http\Controllers\Student\StudentQuizController::progress
- * @see app/Http/Controllers/Student/StudentQuizController.php:312
+ * @see app/Http/Controllers/Student/StudentQuizController.php:311
  * @route '/student/quiz/{activity}/progress'
  */
 progress.head = (args: { activity: string | number } | [activity: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -410,7 +410,7 @@ progress.head = (args: { activity: string | number } | [activity: string | numbe
 
     /**
 * @see \App\Http\Controllers\Student\StudentQuizController::progress
- * @see app/Http/Controllers/Student/StudentQuizController.php:312
+ * @see app/Http/Controllers/Student/StudentQuizController.php:311
  * @route '/student/quiz/{activity}/progress'
  */
     const progressForm = (args: { activity: string | number } | [activity: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -420,7 +420,7 @@ progress.head = (args: { activity: string | number } | [activity: string | numbe
 
             /**
 * @see \App\Http\Controllers\Student\StudentQuizController::progress
- * @see app/Http/Controllers/Student/StudentQuizController.php:312
+ * @see app/Http/Controllers/Student/StudentQuizController.php:311
  * @route '/student/quiz/{activity}/progress'
  */
         progressForm.get = (args: { activity: string | number } | [activity: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -429,7 +429,7 @@ progress.head = (args: { activity: string | number } | [activity: string | numbe
         })
             /**
 * @see \App\Http\Controllers\Student\StudentQuizController::progress
- * @see app/Http/Controllers/Student/StudentQuizController.php:312
+ * @see app/Http/Controllers/Student/StudentQuizController.php:311
  * @route '/student/quiz/{activity}/progress'
  */
         progressForm.head = (args: { activity: string | number } | [activity: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

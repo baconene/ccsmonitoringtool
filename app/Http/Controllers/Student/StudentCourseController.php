@@ -115,13 +115,13 @@ class StudentCourseController extends Controller
                     }
                     
                     // Get StudentActivity record (any status) to check completion and get scores
-                    $studentActivity = \App\Models\StudentActivity::where('student_id', $student->id)
+                    $studentActivity = \App\Models\StudentActivity::with('activity.activityType')
+                        ->where('student_id', $student->id)
                         ->where('activity_id', $activity->id)
                         ->first();
                     
                     // Auto-create StudentActivity record if it doesn't exist
                     if (!$studentActivity) {
-                        $activityTypeName = $activity->activityType ? $activity->activityType->name : 'Unknown';
                         $studentActivity = \App\Models\StudentActivity::create([
                             'student_id' => $student->id,
                             'module_id' => $module->id,
@@ -131,7 +131,6 @@ class StudentCourseController extends Controller
                             'score' => null,
                             'max_score' => 0,
                             'percentage_score' => null,
-                            'activity_type' => strtolower($activityTypeName),
                             'started_at' => null,
                             'completed_at' => null,
                             'submitted_at' => null,
@@ -168,7 +167,7 @@ class StudentCourseController extends Controller
                         'assignment_id' => $activity->assignment ? $activity->assignment->id : null,
                         'student_activity' => $studentActivity ? [
                             'id' => $studentActivity->id, // Add student_activity_id for unified results route
-                            'activity_type' => $studentActivity->activity_type, // Add activity_type for dynamic routing
+                            'activity_type' => $studentActivity->activity_type, // Dynamic accessor from relationship
                             'score' => $studentActivity->score,
                             'max_score' => $studentActivity->max_score,
                             'percentage_score' => $studentActivity->percentage_score,

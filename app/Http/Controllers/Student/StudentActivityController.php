@@ -94,7 +94,6 @@ class StudentActivityController extends Controller
                 'score' => null,
                 'max_score' => 0,
                 'percentage_score' => null,
-                'activity_type' => strtolower($activityTypeName),
                 'started_at' => null,
                 'completed_at' => null,
                 'submitted_at' => null,

@@ -259,7 +259,6 @@ class StudentQuizController extends Controller
         // Update StudentActivity status to completed
         $studentActivity = \App\Models\StudentActivity::where('student_id', $student->id)
             ->where('activity_id', $progress->activity_id)
-            ->where('activity_type', $progress->activity_type)
             ->first();
             
         if ($studentActivity) {

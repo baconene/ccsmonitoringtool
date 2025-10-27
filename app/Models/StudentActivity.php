@@ -32,7 +32,6 @@ class StudentActivity extends Model
         'activity_id',
         'module_id',
         'course_id',
-        'activity_type',
         'score',
         'max_score',
         'percentage_score',
@@ -44,6 +43,8 @@ class StudentActivity extends Model
         'progress_data',
         'feedback',
     ];
+
+    protected $appends = ['activity_type'];
 
     protected $casts = [
         'started_at' => 'datetime',
@@ -96,6 +97,14 @@ class StudentActivity extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
+    }
+
+    /**
+     * Get the activity type dynamically from the activity relationship.
+     */
+    public function getActivityTypeAttribute(): string
+    {
+        return strtolower($this->activity->activityType->name ?? 'unknown');
     }
 
     // Progress tracking relationships
@@ -197,6 +206,8 @@ class StudentActivity extends Model
 
     public function scopeByActivityType($query, $type)
     {
-        return $query->where('activity_type', $type);
+        return $query->whereHas('activity.activityType', function($q) use ($type) {
+            $q->where('name', '=', ucfirst(strtolower($type)));
+        });
     }
 }

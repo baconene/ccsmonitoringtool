@@ -47,7 +47,6 @@ class StudentActivityResultsController extends Controller
         // Try to find progress by student_activity_id first, then fall back to student_id + activity_id
         $progress = StudentActivityProgress::where('student_id', $studentActivity->student_id)
             ->where('activity_id', $activity->id)
-            ->where('activity_type', strtolower($activityType->name))
             ->first();
 
         if (!$progress) {

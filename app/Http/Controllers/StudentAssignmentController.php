@@ -78,7 +78,6 @@ class StudentAssignmentController extends Controller
                 'activity_id' => $activityId,
                 'module_id' => $moduleActivity->module_id,
                 'course_id' => $moduleActivity->module_course_id,
-                'activity_type' => 'assignment',
                 'status' => 'in_progress',
                 'started_at' => now(),
                 'max_score' => $assignment->total_points,
@@ -94,14 +93,16 @@ class StudentAssignmentController extends Controller
         }
 
         // Get or create progress record
-        $progress = StudentActivityProgress::firstOrCreate(
-            [
+        $progress = StudentActivityProgress::where('student_activity_id', $studentActivity->id)
+            ->where('activity_id', $activityId)
+            ->first();
+            
+        if (!$progress) {
+            $progress = StudentActivityProgress::create([
                 'student_activity_id' => $studentActivity->id,
-                'activity_type' => 'assignment'
-            ],
-            [
                 'student_id' => $student->id,
                 'activity_id' => $activityId,
+                'activity_type' => 'assignment',
                 'status' => 'in_progress',
                 'points_possible' => $assignment->total_points,
                 'total_questions' => $assignment->questions()->count(),
@@ -109,8 +110,8 @@ class StudentAssignmentController extends Controller
                 'requires_grading' => $assignment->acceptsFileUploads(),
                 'due_date' => $assignment->activity->due_date,
                 'assignment_data' => json_encode(['submission_status' => 'draft']),
-            ]
-        );
+            ]);
+        }
 
         // Load assignment with questions and options
         $assignmentData = Assignment::with([
@@ -334,7 +335,7 @@ class StudentAssignmentController extends Controller
                 ->firstOrFail();
 
             $progress = StudentActivityProgress::where('student_activity_id', $studentActivity->id)
-                ->where('activity_type', 'assignment')
+                ->where('activity_id', $assignment->activity_id)
                 ->first();
             
             // Count answered questions
@@ -453,7 +454,7 @@ class StudentAssignmentController extends Controller
                 ->firstOrFail();
 
             $progress = StudentActivityProgress::where('student_activity_id', $studentActivity->id)
-                ->where('activity_type', 'assignment')
+                ->where('activity_id', $assignment->activity_id)
                 ->firstOrFail();
 
             // Calculate final score
