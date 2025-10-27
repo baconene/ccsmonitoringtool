@@ -117,6 +117,14 @@ class StudentActivityResultsController extends Controller
         $progress->quiz = $quiz;
         $progress->activity = $activity;
 
+        // Use StudentActivity as the primary source of truth for scores
+        // Merge scores from StudentActivity into progress for display
+        $progress->score = $studentActivity->score ?? $progress->score;
+        $progress->max_score = $studentActivity->max_score ?? $progress->max_score;
+        $progress->percentage_score = $studentActivity->percentage_score ?? $progress->percentage_score;
+        $progress->points_earned = $studentActivity->score ?? $progress->points_earned;
+        $progress->points_possible = $studentActivity->max_score ?? $progress->points_possible;
+
         return Inertia::render('Student/ActivityResults', [
             'activityType' => $modelName, // 'Quiz'
             'progress' => $progress,
@@ -187,10 +195,11 @@ class StudentActivityResultsController extends Controller
         $totalPointsEarned = $answers->sum('points_earned');
         $totalPointsPossible = $assignment->total_points ?? $questions->sum('points');
         
-        // Use progress values if they exist, otherwise calculate from answers
-        $scoreToDisplay = $progress->score ?? $progress->points_earned ?? $totalPointsEarned;
-        $percentageToDisplay = $progress->percentage_score ?? 
-            ($totalPointsPossible > 0 ? round(($scoreToDisplay / $totalPointsPossible) * 100, 2) : 0);
+        // Use StudentActivity as primary source, then progress, then calculated from answers
+        $scoreToDisplay = $studentActivity->score ?? $progress->score ?? $progress->points_earned ?? $totalPointsEarned;
+        $maxScoreToDisplay = $studentActivity->max_score ?? $progress->max_score ?? $totalPointsPossible;
+        $percentageToDisplay = $studentActivity->percentage_score ?? $progress->percentage_score ?? 
+            ($maxScoreToDisplay > 0 ? round(($scoreToDisplay / $maxScoreToDisplay) * 100, 2) : 0);
 
         // Get file upload if exists
         $fileUpload = null;
@@ -209,7 +218,7 @@ class StudentActivityResultsController extends Controller
 
         // Build summary
         $summary = [
-            'total_points' => $totalPointsPossible,
+            'total_points' => $maxScoreToDisplay,
             'points_earned' => $scoreToDisplay,
             'percentage' => $percentageToDisplay,
             'grade_letter' => $this->calculateGradeLetter($percentageToDisplay),
@@ -219,10 +228,11 @@ class StudentActivityResultsController extends Controller
             'instructor_feedback' => $progress->feedback,
         ];
 
-        // Add calculated scores to progress object for frontend
+        // Add calculated scores to progress object for frontend (using StudentActivity as source of truth)
         $progress->score = $scoreToDisplay;
+        $progress->max_score = $maxScoreToDisplay;
         $progress->percentage_score = $percentageToDisplay;
-        $progress->total_points = $totalPointsPossible;
+        $progress->total_points = $maxScoreToDisplay;
         $progress->answers = $questionResults;
         $progress->assignment = $assignment;
 
