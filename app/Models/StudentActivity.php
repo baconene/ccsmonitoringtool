@@ -13,6 +13,42 @@ class StudentActivity extends Model
     {
         parent::boot();
 
+        // Update course progress when activity status changes
+        static::saved(function ($studentActivity) {
+            if ($studentActivity->status === 'completed' && $studentActivity->course_id && $studentActivity->student_id) {
+                // Find the enrollment and update progress
+                $enrollment = CourseEnrollment::where('course_id', $studentActivity->course_id)
+                    ->where('student_id', $studentActivity->student_id)
+                    ->first();
+                
+                if ($enrollment) {
+                    // Calculate progress based on completed activities
+                    $course = $enrollment->course;
+                    $totalActivities = 0;
+                    $completedActivities = 0;
+                    
+                    foreach ($course->modules as $module) {
+                        $moduleActivities = $module->activities;
+                        $totalActivities += $moduleActivities->count();
+                        
+                        // Count completed activities
+                        $completedActivities += StudentActivity::where('course_id', $course->id)
+                            ->where('student_id', $studentActivity->student_id)
+                            ->where('status', 'completed')
+                            ->whereIn('activity_id', $moduleActivities->pluck('id'))
+                            ->count();
+                    }
+                    
+                    // Update progress percentage
+                    $progressPercentage = $totalActivities > 0 
+                        ? round(($completedActivities / $totalActivities) * 100, 2) 
+                        : 0.0;
+                    
+                    $enrollment->update(['progress' => $progressPercentage]);
+                }
+            }
+        });
+
         static::deleting(function ($studentActivity) {
             // Delete related progress records
             if ($studentActivity->assignmentProgress) {

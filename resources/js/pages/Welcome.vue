@@ -1,38 +1,43 @@
 <script setup lang="ts">
 import { dashboard, login } from '@/routes';
 import { Head, Link } from '@inertiajs/vue3';
-import { Book, Rocket, Sparkles } from 'lucide-vue-next';
+import { Book, Rocket, Sparkles, Brain, GraduationCap } from 'lucide-vue-next';
 import ConstellationBackground from '@/components/ConstellationBackground.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 </script>
 
 <template>
-    <Head title="AstroLearn - Ignite Your Mind. Explore Universes.">
+    <Head title="Team LEMA Web Sci - STEM Career Learning Management System">
         <link rel="preconnect" href="https://rsms.me/" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     </Head>
     <div
-        class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-indigo-950 relative overflow-hidden"
+        class="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-pink-200 relative overflow-hidden"
     >
-        <!-- Constellation Background -->
-        <ConstellationBackground />
+        <!-- Animated Background Pattern -->
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-0 left-0 w-full h-full" style="background-image: radial-gradient(circle, #ec4899 1px, transparent 1px); background-size: 50px 50px;"></div>
+        </div>
         
-        <!-- Cosmic Gradient Overlay -->
-        <div class="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-pink-900/20"></div>
+        <!-- Colorful Gradient Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-br from-pink-300/30 via-purple-300/30 to-yellow-300/30"></div>
         
-        <!-- Animated Orbs -->
-        <div class="absolute top-20 left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute top-1/3 right-20 w-48 h-48 bg-pink-500/10 rounded-full blur-3xl" style="animation: float 8s ease-in-out infinite;"></div>
-        <div class="absolute bottom-32 left-1/4 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl" style="animation: float 6s ease-in-out infinite reverse;"></div>
+        <!-- Animated Elements -->
+        <div class="absolute top-20 left-10 w-32 h-32 bg-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute top-1/3 right-20 w-48 h-48 bg-purple-400/20 rounded-full blur-3xl" style="animation: float 8s ease-in-out infinite;"></div>
+        <div class="absolute bottom-32 left-1/4 w-40 h-40 bg-yellow-400/20 rounded-full blur-3xl" style="animation: float 6s ease-in-out infinite reverse;"></div>
+        
         <!-- Navigation Header -->
-        <header class="relative z-10 w-full px-6 py-6">
+        <header class="relative z-10 w-full px-6 py-6 bg-white/60 backdrop-blur-md shadow-lg">
             <nav class="max-w-7xl mx-auto flex items-center justify-between">
                 <!-- Logo -->
-                <div class="flex items-center space-x-3">
-                    <AppLogoIcon class="w-12 h-12" />
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 rounded-full overflow-hidden bg-white shadow-lg ring-2 ring-pink-300">
+                        <img src="/images/team-lema-logo.jpg" alt="Team LEMA Logo" class="w-full h-full object-cover" />
+                    </div>
                     <div class="flex flex-col">
-                        <span class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">AstroLearn</span>
-                        <span class="text-xs text-gray-400">Explore Universes</span>
+                        <span class="text-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">Team LEMA Web Sci</span>
+                        <span class="text-xs text-gray-700 font-medium">STEM Career Learning Platform</span>
                     </div>
                 </div>
                 
@@ -40,7 +45,7 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
                 <div class="flex items-center space-x-4">
                     <Link
                         :href="'/documentation'"
-                        class="flex items-center gap-2 text-white/90 hover:text-white px-4 py-2 rounded-full font-medium transition-colors duration-300"
+                        class="flex items-center gap-2 text-gray-700 hover:text-pink-600 px-4 py-2 rounded-full font-medium transition-colors duration-300"
                     >
                         <Book class="w-4 h-4" />
                         <span>Docs</span>
@@ -48,14 +53,14 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
                     <Link
                         v-if="$page.props.auth.user"
                         :href="'/dashboard'"
-                        class="bg-white/10 backdrop-blur-sm text-white px-6 py-2 rounded-full font-medium hover:bg-white/20 transition-all duration-300 border border-white/20"
+                        class="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-2 rounded-full font-medium hover:from-pink-600 hover:to-purple-600 transition-all duration-300 shadow-md"
                     >
                         Dashboard
                     </Link>
                     <Link
                         v-else
                         :href="login()"
-                        class="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-6 py-2 rounded-full font-medium hover:from-pink-600 hover:to-violet-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+                        class="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white px-6 py-2 rounded-full font-bold hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl"
                     >
                         Log in
                     </Link>
@@ -67,68 +72,68 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
             <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
                 <!-- Hero Content -->
                 <div class="text-center lg:text-left space-y-8">
-                    <div class="inline-flex items-center px-5 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm rounded-full text-white/90 text-sm font-medium border border-purple-400/30 shadow-lg">
-                        <Sparkles class="w-4 h-4 mr-2 text-pink-400" />
-                        Ignite Your Mind. Explore Universes.
+                    <div class="inline-flex items-center px-5 py-2 bg-white/80 backdrop-blur-sm rounded-full text-pink-600 text-sm font-bold border-2 border-pink-300 shadow-lg">
+                        <Brain class="w-5 h-5 mr-2 text-purple-600" />
+                        Learning • Mastery • Advancement
                     </div>
                     
-                    <h1 class="text-5xl lg:text-7xl font-extrabold text-white leading-tight">
-                        Journey Through
+                    <h1 class="text-5xl lg:text-7xl font-black leading-tight">
+                        <span class="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                            Ignite Your
+                        </span>
                         <br />
-                        <span class="bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
-                            Infinite Knowledge
+                        <span class="text-gray-800">
+                            STEM Career
                         </span>
                     </h1>
                     
-                    <p class="text-xl text-gray-300 leading-relaxed max-w-2xl">
-                        Embark on a cosmic learning adventure. AstroLearn transforms education into 
-                        an exploration of limitless possibilities, connecting minds across the universe of knowledge.
+                    <p class="text-xl text-gray-700 leading-relaxed max-w-2xl font-medium">
+                        Team LEMA Web Sci empowers students to explore Science, Technology, Engineering, and Mathematics 
+                        through an innovative learning platform designed for the future of STEM careers.
                     </p>
                     
                     <!-- CTA Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                         <Link
                             :href="$page.props.auth.user ? '/dashboard' : login()"
-                            class="group bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-purple-700 hover:via-pink-700 hover:to-indigo-700 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 text-center flex items-center justify-center gap-2"
+                            class="group bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white px-8 py-4 rounded-full font-black text-lg hover:from-pink-700 hover:via-purple-700 hover:to-blue-700 transition-all duration-300 shadow-2xl hover:shadow-3xl hover:scale-105 text-center flex items-center justify-center gap-3"
                         >
-                            <Rocket class="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                            {{ $page.props.auth.user ? 'Launch Dashboard' : 'Begin Journey' }}
+                            <GraduationCap class="w-6 h-6 group-hover:bounce transition-transform" />
+                            {{ $page.props.auth.user ? 'Enter Learning Hub' : 'Start Learning' }}
                         </Link>
                         <Link
                             :href="'/documentation'"
-                            class="bg-white/5 backdrop-blur-sm text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-all duration-300 border-2 border-purple-400/30 text-center flex items-center justify-center gap-2"
+                            class="bg-white/80 backdrop-blur-sm text-pink-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-white transition-all duration-300 border-2 border-pink-300 text-center flex items-center justify-center gap-2 shadow-lg"
                         >
                             <Book class="w-5 h-5" />
-                            <span>Documentation</span>
+                            <span>Explore Features</span>
                         </Link>
                     </div>
                 </div>
                 
-                <!-- Hero Visual -->
-                <div class="hidden lg:block relative">
-                    <div class="relative w-full h-96">
-                        <!-- Dashboard Preview Mockup -->
-                        <div class="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 shadow-2xl transform rotate-3 hover:rotate-6 transition-transform duration-500">
-                            <div class="p-6 space-y-4">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-red-400 rounded-full"></div>
-                                    <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                                    <div class="w-3 h-3 bg-green-400 rounded-full"></div>
-                                </div>
-                                <div class="space-y-3">
-                                    <div class="h-4 bg-white/20 rounded w-3/4"></div>
-                                    <div class="h-4 bg-white/15 rounded w-1/2"></div>
-                                    <div class="grid grid-cols-2 gap-4 mt-6">
-                                        <div class="h-20 bg-gradient-to-br from-pink-400/20 to-violet-400/20 rounded-xl"></div>
-                                        <div class="h-20 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-xl"></div>
-                                    </div>
-                                    <div class="space-y-2 mt-4">
-                                        <div class="h-3 bg-white/10 rounded w-full"></div>
-                                        <div class="h-3 bg-white/10 rounded w-4/5"></div>
-                                        <div class="h-3 bg-white/10 rounded w-3/5"></div>
-                                    </div>
-                                </div>
+                <!-- Hero Visual - Logo Display -->
+                <div class="hidden lg:flex relative items-center justify-center">
+                    <div class="relative w-full max-w-md">
+                        <!-- Main Logo with Glow Effect -->
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 rounded-full blur-3xl opacity-50 animate-pulse"></div>
+                            <div class="relative rounded-full overflow-hidden bg-white shadow-2xl ring-8 ring-white/50">
+                                <img 
+                                    src="/images/team-lema-logo.jpg" 
+                                    alt="Team LEMA Web Sci Logo" 
+                                    class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+                                />
                             </div>
+                        </div>
+                        <!-- Floating Icons -->
+                        <div class="absolute -top-10 -right-10 bg-white/90 p-4 rounded-2xl shadow-xl" style="animation: float 3s ease-in-out infinite;">
+                            <Brain class="w-8 h-8 text-pink-600" />
+                        </div>
+                        <div class="absolute -bottom-10 -left-10 bg-white/90 p-4 rounded-2xl shadow-xl" style="animation: float 4s ease-in-out infinite reverse;">
+                            <GraduationCap class="w-8 h-8 text-purple-600" />
+                        </div>
+                        <div class="absolute top-1/2 -right-16 bg-white/90 p-4 rounded-2xl shadow-xl" style="animation: float 5s ease-in-out infinite;">
+                            <Sparkles class="w-8 h-8 text-blue-600" />
                         </div>
                     </div>
                 </div>
@@ -136,50 +141,50 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
         </main>
         
         <!-- Features Section -->
-        <section class="relative z-10 py-20 px-6">
+        <section class="relative z-10 py-20 px-6 bg-white/40 backdrop-blur-sm">
             <div class="max-w-7xl mx-auto">
                 <div class="text-center mb-16">
-                    <h2 class="text-4xl font-bold text-white mb-4">
-                        Why Choose Astro Learn?
+                    <h2 class="text-4xl font-black text-gray-800 mb-4">
+                        Why Choose Team LEMA Web Sci?
                     </h2>
-                    <p class="text-white/80 text-xl max-w-3xl mx-auto">
-                        Experience the next generation of learning with features designed for success
+                    <p class="text-gray-700 text-xl max-w-3xl mx-auto font-medium">
+                        Experience the next generation of STEM education with features designed for student success
                     </p>
                 </div>
                 
                 <!-- Feature Grid -->
                 <div class="grid md:grid-cols-3 gap-8">
                     <!-- Feature 1 -->
-                    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                        <div class="w-12 h-12 bg-gradient-to-r from-pink-500 to-violet-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border-4 border-pink-300 hover:border-pink-400 hover:shadow-2xl transition-all duration-300 group">
+                        <div class="w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-4">Smart Course Management</h3>
-                        <p class="text-white/80">Create, organize, and deliver engaging courses with our intuitive content management system.</p>
+                        <h3 class="text-xl font-black text-gray-800 mb-4">STEM-Focused Curriculum</h3>
+                        <p class="text-gray-700 font-medium">Master Science, Technology, Engineering, and Mathematics with our comprehensive career-oriented courses.</p>
                     </div>
                     
                     <!-- Feature 2 -->
-                    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border-4 border-purple-300 hover:border-purple-400 hover:shadow-2xl transition-all duration-300 group">
+                        <div class="w-14 h-14 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-4">Real-time Analytics</h3>
-                        <p class="text-white/80">Track student progress, engagement, and performance with comprehensive analytics dashboards.</p>
+                        <h3 class="text-xl font-black text-gray-800 mb-4">Progress Tracking</h3>
+                        <p class="text-gray-700 font-medium">Monitor your learning journey with real-time analytics and personalized performance insights.</p>
                     </div>
                     
                     <!-- Feature 3 -->
-                    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:bg-white/15 transition-all duration-300 group">
-                        <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border-4 border-blue-300 hover:border-blue-400 hover:shadow-2xl transition-all duration-300 group">
+                        <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-4">Interactive Learning</h3>
-                        <p class="text-white/80">Engage students with interactive lessons, quizzes, and collaborative learning experiences.</p>
+                        <h3 class="text-xl font-black text-gray-800 mb-4">Interactive Learning</h3>
+                        <p class="text-gray-700 font-medium">Engage with hands-on projects, quizzes, and collaborative activities designed for STEM mastery.</p>
                     </div>
                 </div>
             </div>
@@ -187,23 +192,23 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
         
         <!-- CTA Section -->
         <section class="relative z-10 py-20 px-6">
-            <div class="max-w-4xl mx-auto text-center">
-                <h2 class="text-4xl font-bold text-white mb-6">
-                    Ready to Transform Education?
+            <div class="max-w-4xl mx-auto text-center bg-white/60 backdrop-blur-lg rounded-3xl p-12 shadow-2xl border-4 border-pink-300">
+                <h2 class="text-4xl font-black text-gray-800 mb-6">
+                    Ready to Ignite Your STEM Career?
                 </h2>
-                <p class="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-                    Join thousands of educators and students who are already experiencing the future of learning.
+                <p class="text-xl text-gray-700 mb-8 max-w-2xl mx-auto font-medium">
+                    Join Team LEMA Web Sci and unlock your potential in Science, Technology, Engineering, and Mathematics.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link
                         :href="$page.props.auth.user ? '/dashboard' : login()"
-                        class="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-pink-600 hover:to-violet-600 transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105"
+                        class="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white px-10 py-4 rounded-full font-black text-lg hover:from-pink-700 hover:via-purple-700 hover:to-blue-700 transition-all duration-300 shadow-2xl hover:shadow-3xl hover:scale-105"
                     >
-                        {{ $page.props.auth.user ? 'Access Your Dashboard' : 'Sign In Now' }}
+                        {{ $page.props.auth.user ? 'Go to Dashboard' : 'Start Your Journey' }}
                     </Link>
                     <Link
                         :href="'/documentation'"
-                        class="bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all duration-300 border-2 border-white/30 flex items-center justify-center gap-2"
+                        class="bg-white text-pink-600 px-10 py-4 rounded-full font-black text-lg hover:bg-gray-50 transition-all duration-300 border-3 border-pink-300 flex items-center justify-center gap-2 shadow-lg"
                     >
                         <Book class="w-5 h-5" />
                         <span>Learn More</span>

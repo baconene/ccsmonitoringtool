@@ -62,6 +62,12 @@ class StudentAssignmentController extends Controller
             ->where('activity_id', $activityId)
             ->first();
 
+        // If assignment is already completed, redirect to results page
+        if ($studentActivity && $studentActivity->status === 'completed') {
+            return redirect()->route('student.activities.results', $studentActivity->id)
+                ->with('info', 'Assignment already completed. Redirected to results.');
+        }
+
         // If not exists, create it with module_id and course_id from module_activities
         if (!$studentActivity) {
             // Get module_id and course_id from module_activities pivot table
@@ -338,6 +344,23 @@ class StudentAssignmentController extends Controller
                 ->where('activity_id', $assignment->activity_id)
                 ->first();
             
+            // Create progress if it doesn't exist (for legacy data or direct access)
+            if (!$progress) {
+                $progress = StudentActivityProgress::create([
+                    'student_activity_id' => $studentActivity->id,
+                    'student_id' => $student->id,
+                    'activity_id' => $assignment->activity_id,
+                    'activity_type' => 'assignment',
+                    'status' => 'in_progress',
+                    'points_possible' => $assignment->total_points,
+                    'total_questions' => $assignment->questions()->count(),
+                    'answered_questions' => 0,
+                    'requires_grading' => $assignment->acceptsFileUploads(),
+                    'due_date' => $assignment->activity->due_date,
+                    'assignment_data' => json_encode(['submission_status' => 'draft']),
+                ]);
+            }
+            
             // Count answered questions
             $answeredCount = StudentAssignmentAnswer::where('student_id', $student->id)
                 ->where('assignment_id', $assignment->id)
@@ -351,9 +374,19 @@ class StudentAssignmentController extends Controller
                 ->whereNotNull('is_correct')
                 ->sum('points_earned');
 
+            // Update progress and real-time scores in StudentActivity
             $progress->update([
                 'answered_questions' => $answeredCount,
-                'auto_graded_score' => $autoGradedScore,
+                'points_earned' => $autoGradedScore,
+                'score' => $autoGradedScore,
+                'percentage_score' => $assignment->total_points > 0 ? round(($autoGradedScore / $assignment->total_points) * 100, 2) : 0,
+            ]);
+
+            // Update StudentActivity with real-time scores
+            $studentActivity->update([
+                'score' => $autoGradedScore,
+                'max_score' => $assignment->total_points,
+                'percentage_score' => $assignment->total_points > 0 ? round(($autoGradedScore / $assignment->total_points) * 100, 2) : 0,
             ]);
 
             DB::commit();
@@ -494,18 +527,32 @@ class StudentAssignmentController extends Controller
 
             // Update student activity
             $updateData = [
-                'status' => $progress->requires_grading ? 'submitted' : 'graded',
+                'status' => $progress->requires_grading ? 'submitted' : 'completed', // Use 'completed' for auto-graded
                 'submitted_at' => now(),
                 'score' => $totalScore,
                 'percentage_score' => $percentage,
+                'max_score' => $assignment->total_points,
             ];
 
             if (!$progress->requires_grading) {
-                // Auto-graded only, mark as graded
+                // Auto-graded assignments are immediately completed
+                $updateData['completed_at'] = now();
                 $updateData['graded_at'] = now();
             }
 
             $studentActivity->update($updateData);
+
+            // Auto-complete modules if requirements met (only for auto-graded assignments)
+            if (!$progress->requires_grading) {
+                $enrollment = \App\Models\CourseEnrollment::where('student_id', $student->id)
+                    ->where('course_id', $studentActivity->course_id)
+                    ->first();
+                
+                if ($enrollment) {
+                    $enrollment->updateProgress();
+                    $enrollment->checkAndCompleteModules();
+                }
+            }
 
             // Create notification for instructor
             // Get course through modules

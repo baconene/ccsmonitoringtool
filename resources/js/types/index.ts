@@ -185,6 +185,7 @@ export type QuizAttemptFile = {
 export type StudentQuizProgress = { 
   id: number;
   student_id: number; // User ID of the student
+  student_activity_id: number; // Associated StudentActivity ID
   quiz_id: number; // Associated Quiz ID
   activity_id: number; // Associated Activity ID
   quiz: Quiz; // Full Quiz object with questions

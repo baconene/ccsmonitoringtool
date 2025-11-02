@@ -1,10 +1,10 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::question
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:149
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:152
  * @route '/instructor/assignments/{assignment}/grade/{progress}/question'
  */
-export const question = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const question = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: question.url(args, options),
     method: 'post',
 })
@@ -16,10 +16,10 @@ question.definition = {
 
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::question
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:149
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:152
  * @route '/instructor/assignments/{assignment}/grade/{progress}/question'
  */
-question.url = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions) => {
+question.url = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions) => {
     if (Array.isArray(args)) {
         args = {
                     assignment: args[0],
@@ -33,7 +33,9 @@ question.url = (args: { assignment: number | { id: number }, progress: string | 
                         assignment: typeof args.assignment === 'object'
                 ? args.assignment.id
                 : args.assignment,
-                                progress: args.progress,
+                                progress: typeof args.progress === 'object'
+                ? args.progress.id
+                : args.progress,
                 }
 
     return question.definition.url
@@ -44,30 +46,30 @@ question.url = (args: { assignment: number | { id: number }, progress: string | 
 
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::question
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:149
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:152
  * @route '/instructor/assignments/{assignment}/grade/{progress}/question'
  */
-question.post = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+question.post = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: question.url(args, options),
     method: 'post',
 })
 
     /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::question
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:149
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:152
  * @route '/instructor/assignments/{assignment}/grade/{progress}/question'
  */
-    const questionForm = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const questionForm = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: question.url(args, options),
         method: 'post',
     })
 
             /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::question
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:149
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:152
  * @route '/instructor/assignments/{assignment}/grade/{progress}/question'
  */
-        questionForm.post = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        questionForm.post = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: question.url(args, options),
             method: 'post',
         })
@@ -75,10 +77,10 @@ question.post = (args: { assignment: number | { id: number }, progress: string |
     question.form = questionForm
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submit
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:177
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:180
  * @route '/instructor/assignments/{assignment}/grade/{progress}/submit'
  */
-export const submit = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const submit = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: submit.url(args, options),
     method: 'post',
 })
@@ -90,10 +92,10 @@ submit.definition = {
 
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submit
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:177
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:180
  * @route '/instructor/assignments/{assignment}/grade/{progress}/submit'
  */
-submit.url = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions) => {
+submit.url = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions) => {
     if (Array.isArray(args)) {
         args = {
                     assignment: args[0],
@@ -107,7 +109,9 @@ submit.url = (args: { assignment: number | { id: number }, progress: string | nu
                         assignment: typeof args.assignment === 'object'
                 ? args.assignment.id
                 : args.assignment,
-                                progress: args.progress,
+                                progress: typeof args.progress === 'object'
+                ? args.progress.id
+                : args.progress,
                 }
 
     return submit.definition.url
@@ -118,30 +122,30 @@ submit.url = (args: { assignment: number | { id: number }, progress: string | nu
 
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submit
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:177
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:180
  * @route '/instructor/assignments/{assignment}/grade/{progress}/submit'
  */
-submit.post = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+submit.post = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: submit.url(args, options),
     method: 'post',
 })
 
     /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submit
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:177
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:180
  * @route '/instructor/assignments/{assignment}/grade/{progress}/submit'
  */
-    const submitForm = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const submitForm = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: submit.url(args, options),
         method: 'post',
     })
 
             /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submit
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:177
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:180
  * @route '/instructor/assignments/{assignment}/grade/{progress}/submit'
  */
-        submitForm.post = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        submitForm.post = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: submit.url(args, options),
             method: 'post',
         })

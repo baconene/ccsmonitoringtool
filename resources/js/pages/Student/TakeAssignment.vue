@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -98,7 +98,8 @@ const isSavingAnswer = ref(false);
 // Check if assignment is submitted or graded
 const isSubmitted = computed(() => props.progress.submission_status === 'submitted' || props.progress.submission_status === 'graded');
 const isGraded = computed(() => props.progress.submission_status === 'graded');
-const isReadOnly = computed(() => isSubmitted.value);
+const isCompleted = computed(() => props.studentActivity.status === 'completed');
+const isReadOnly = computed(() => isSubmitted.value || isCompleted.value);
 
 // Initialize answers from student_answer
 props.questions.forEach((question) => {
@@ -295,6 +296,25 @@ const getQuestionStatus = (question: AssignmentQuestion) => {
 const goBack = () => {
   window.history.back();
 };
+
+// Auto-save answer when it changes (like QuizTaking)
+watch(() => answers.value[currentQuestion.value.id], async (newValue, oldValue) => {
+  // Only save if there's a new value, it's different from old, not read-only, and not currently submitting
+  if (newValue !== undefined && newValue !== oldValue && !isReadOnly.value && !isSubmitting.value) {
+    // For text answers
+    if (typeof newValue === 'object' && newValue.answer_text !== undefined && newValue.answer_text !== oldValue?.answer_text) {
+      await saveAnswer(currentQuestion.value.id);
+    }
+    // For selected options
+    else if (typeof newValue === 'object' && newValue.selected_options !== undefined) {
+      const oldOptions = oldValue?.selected_options || [];
+      const newOptions = newValue.selected_options || [];
+      if (JSON.stringify(oldOptions.sort()) !== JSON.stringify(newOptions.sort())) {
+        await saveAnswer(currentQuestion.value.id);
+      }
+    }
+  }
+}, { deep: true });
 </script>
 
 <template>

@@ -19,6 +19,7 @@ class StudentQuizAnswer extends Model
     ];
 
     protected $casts = [
+        'is_correct' => 'boolean',
         'points_earned' => 'float',
         'answered_at' => 'datetime',
     ];

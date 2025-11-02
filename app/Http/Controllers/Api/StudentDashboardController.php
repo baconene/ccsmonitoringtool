@@ -21,17 +21,40 @@ class StudentDashboardController extends Controller
             $user = Auth::user();
             
             // Get enrolled courses with progress
-            $enrollments = CourseEnrollment::with(['course.lessons', 'course.modules'])
+            $enrollments = CourseEnrollment::with(['course.lessons', 'course.modules.activities'])
                 ->where('user_id', $user->id)
                 ->get()
                 ->map(function ($enrollment) use ($user) {
                     $course = $enrollment->course;
-                    $totalModules = $course->modules->count();
                     
-                    // Count completed modules
-                    $completedModules = \App\Models\ModuleCompletion::where('user_id', $user->id)
-                        ->where('course_id', $course->id)
-                        ->count();
+                    // Calculate progress based on completed activities
+                    $totalActivities = 0;
+                    $completedActivities = 0;
+                    
+                    foreach ($course->modules as $module) {
+                        $moduleActivities = $module->activities;
+                        $totalActivities += $moduleActivities->count();
+                        
+                        // Count completed activities in this module
+                        foreach ($moduleActivities as $activity) {
+                            $progress = \App\Models\StudentActivity::where('user_id', $user->id)
+                                ->where('activity_id', $activity->id)
+                                ->where('status', 'completed')
+                                ->exists();
+                            
+                            if ($progress) {
+                                $completedActivities++;
+                            }
+                        }
+                    }
+                    
+                    // Calculate progress percentage
+                    $progressPercentage = $totalActivities > 0 
+                        ? round(($completedActivities / $totalActivities) * 100, 2) 
+                        : 0.0;
+                    
+                    // Update enrollment progress in database
+                    $enrollment->update(['progress' => $progressPercentage]);
                     
                     // Get next class date (using created_at + 7 days as example)
                     $nextClass = $course->created_at->addDays(7);
@@ -40,7 +63,7 @@ class StudentDashboardController extends Controller
                         'id' => $course->id,
                         'title' => $course->title,
                         'instructor' => $course->instructor_name ?? 'Unknown',
-                        'progress' => (float) $enrollment->progress,
+                        'progress' => (float) $progressPercentage,
                         'nextClass' => $nextClass->format('Y-m-d H:i A'),
                     ];
                 });

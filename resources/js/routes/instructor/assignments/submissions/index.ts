@@ -1,10 +1,10 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::view
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:118
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:121
  * @route '/instructor/assignments/{assignment}/submissions/{progress}'
  */
-export const view = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const view = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: view.url(args, options),
     method: 'get',
 })
@@ -16,10 +16,10 @@ view.definition = {
 
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::view
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:118
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:121
  * @route '/instructor/assignments/{assignment}/submissions/{progress}'
  */
-view.url = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions) => {
+view.url = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions) => {
     if (Array.isArray(args)) {
         args = {
                     assignment: args[0],
@@ -33,7 +33,9 @@ view.url = (args: { assignment: number | { id: number }, progress: string | numb
                         assignment: typeof args.assignment === 'object'
                 ? args.assignment.id
                 : args.assignment,
-                                progress: args.progress,
+                                progress: typeof args.progress === 'object'
+                ? args.progress.id
+                : args.progress,
                 }
 
     return view.definition.url
@@ -44,48 +46,48 @@ view.url = (args: { assignment: number | { id: number }, progress: string | numb
 
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::view
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:118
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:121
  * @route '/instructor/assignments/{assignment}/submissions/{progress}'
  */
-view.get = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+view.get = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: view.url(args, options),
     method: 'get',
 })
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::view
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:118
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:121
  * @route '/instructor/assignments/{assignment}/submissions/{progress}'
  */
-view.head = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+view.head = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: view.url(args, options),
     method: 'head',
 })
 
     /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::view
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:118
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:121
  * @route '/instructor/assignments/{assignment}/submissions/{progress}'
  */
-    const viewForm = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const viewForm = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: view.url(args, options),
         method: 'get',
     })
 
             /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::view
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:118
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:121
  * @route '/instructor/assignments/{assignment}/submissions/{progress}'
  */
-        viewForm.get = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        viewForm.get = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: view.url(args, options),
             method: 'get',
         })
             /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::view
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:118
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:121
  * @route '/instructor/assignments/{assignment}/submissions/{progress}'
  */
-        viewForm.head = (args: { assignment: number | { id: number }, progress: string | number } | [assignment: number | { id: number }, progress: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        viewForm.head = (args: { assignment: number | { id: number }, progress: string | number | { id: string | number } } | [assignment: number | { id: number }, progress: string | number | { id: string | number } ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: view.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',

@@ -24,6 +24,7 @@ use App\Models\QuestionType;
 use App\Models\AssignmentType;
 use App\Models\StudentActivityProgress;
 use App\Models\StudentQuizAnswer;
+use App\Models\StudentAssignmentAnswer;
 use App\Models\StudentActivity;
 use App\Models\CourseEnrollment;
 use App\Models\GradeLevel;
@@ -92,6 +93,12 @@ class SingleComprehensiveSeeder extends Seeder
 
         $this->command->info('Seeding quiz progress and answers...');
         $this->seedQuizProgressAndAnswers();
+
+        $this->command->info('Seeding assignment progress and answers...');
+        $this->seedAssignmentProgressAndAnswers();
+
+        $this->command->info('Recalculating course completion statuses...');
+        $this->recalculateCourseCompletions();
 
         $this->command->info('🎉 Comprehensive database seeding completed successfully!');
     }
@@ -931,22 +938,22 @@ class SingleComprehensiveSeeder extends Seeder
     {
         for ($studentId = 1; $studentId <= 15; $studentId++) {
             // Math activities
-            $this->createStudentActivity($studentId, 1, 1, 1, 'quiz');
-            $this->createStudentActivity($studentId, 1, 1, 2, 'assignment');
-            $this->createStudentActivity($studentId, 1, 2, 3, 'quiz');
-            $this->createStudentActivity($studentId, 1, 3, 4, 'project');
+            $this->createStudentActivity($studentId, 1, 1, 1);
+            $this->createStudentActivity($studentId, 1, 1, 2);
+            $this->createStudentActivity($studentId, 1, 2, 3);
+            $this->createStudentActivity($studentId, 1, 3, 4);
             
             // Physics activities
-            $this->createStudentActivity($studentId, 2, 4, 5, 'quiz');
-            $this->createStudentActivity($studentId, 2, 5, 6, 'assignment');
+            $this->createStudentActivity($studentId, 2, 4, 5);
+            $this->createStudentActivity($studentId, 2, 5, 6);
             
             // Programming activities
-            $this->createStudentActivity($studentId, 3, 6, 7, 'quiz');
-            $this->createStudentActivity($studentId, 3, 7, 8, 'project');
+            $this->createStudentActivity($studentId, 3, 6, 7);
+            $this->createStudentActivity($studentId, 3, 7, 8);
         }
     }
 
-    private function createStudentActivity($studentId, $courseId, $moduleId, $activityId, $activityType): void
+    private function createStudentActivity($studentId, $courseId, $moduleId, $activityId): void
     {
         $statuses = ['not_started', 'in_progress', 'completed', 'submitted'];
         $status = $statuses[array_rand($statuses)];
@@ -957,6 +964,7 @@ class SingleComprehensiveSeeder extends Seeder
         $startedAt = null;
         $completedAt = null;
         $submittedAt = null;
+        $gradedAt = null;
         
         if ($status !== 'not_started') {
             $startedAt = $this->faker()->dateTimeBetween('-2 months', '-1 week');
@@ -967,6 +975,10 @@ class SingleComprehensiveSeeder extends Seeder
                 $completedAt = $this->faker()->dateTimeBetween($startedAt, 'now');
                 if ($status === 'submitted') {
                     $submittedAt = $completedAt;
+                } else {
+                    // Status is 'completed' - means it was graded
+                    $submittedAt = $this->faker()->dateTimeBetween($startedAt, $completedAt);
+                    $gradedAt = $this->faker()->dateTimeBetween($submittedAt, 'now');
                 }
             }
         }
@@ -976,7 +988,6 @@ class SingleComprehensiveSeeder extends Seeder
             'course_id' => $courseId,
             'module_id' => $moduleId,
             'activity_id' => $activityId,
-            'activity_type' => $activityType,
             'status' => $status,
             'score' => $score,
             'max_score' => $maxScore,
@@ -984,7 +995,7 @@ class SingleComprehensiveSeeder extends Seeder
             'started_at' => $startedAt,
             'completed_at' => $completedAt,
             'submitted_at' => $submittedAt,
-            'graded_at' => $submittedAt ? $this->faker()->dateTimeBetween($submittedAt, 'now') : null,
+            'graded_at' => $gradedAt,
             'progress_data' => json_encode(['progress' => rand(0, 100)]),
             'feedback' => rand(0, 1) ? $this->faker()->sentence(10) : null,
             'created_at' => now(),
@@ -1023,15 +1034,21 @@ class SingleComprehensiveSeeder extends Seeder
         // Create StudentActivityProgress record (consolidated model)
         $progress = StudentActivityProgress::updateOrCreate(
             [
-                'student_id' => $studentId,
+                'student_activity_id' => $studentActivity->id,
                 'activity_id' => $activityId,
-                'activity_type' => 'quiz',
             ],
             [
+                'student_id' => $studentId,
+                'activity_type' => 'quiz',
+                'status' => $studentActivity->status,
                 'started_at' => $startedAt,
+                'submitted_at' => $studentActivity->submitted_at,
+                'completed_at' => $studentActivity->completed_at,
+                'graded_at' => $studentActivity->graded_at,
                 'is_completed' => $isCompleted,
                 'is_submitted' => $isCompleted,
                 'completed_questions' => $isCompleted ? $questions->count() : rand(0, $questions->count()),
+                'answered_questions' => $isCompleted ? $questions->count() : rand(0, $questions->count()),
                 'total_questions' => $questions->count(),
                 'quiz_data' => json_encode([
                     'quiz_id' => $quiz->id,
@@ -1077,8 +1094,207 @@ class SingleComprehensiveSeeder extends Seeder
         $percentageScore = $totalPossible > 0 ? ($totalScore / $totalPossible) * 100 : 0;
         $progress->update([
             'score' => $totalScore,
+            'max_score' => $totalPossible,
+            'points_earned' => $totalScore,
+            'points_possible' => $totalPossible,
             'percentage_score' => $percentageScore,
         ]);
+        
+        // Update student activity to match (maintain consistency)
+        $studentActivity->update([
+            'score' => $totalScore,
+            'max_score' => $totalPossible,
+            'percentage_score' => $percentageScore,
+        ]);
+    }
+
+    private function seedAssignmentProgressAndAnswers(): void
+    {
+        $assignmentActivities = [2, 4, 6, 8]; // Assignment activity IDs
+        
+        for ($studentId = 1; $studentId <= 15; $studentId++) {
+            foreach ($assignmentActivities as $activityId) {
+                $studentActivity = StudentActivity::where('student_id', $studentId)
+                    ->where('activity_id', $activityId)
+                    ->first();
+                
+                if ($studentActivity && $studentActivity->status !== 'not_started') {
+                    $this->createAssignmentProgress($studentId, $activityId, $studentActivity);
+                }
+            }
+        }
+    }
+
+    private function createAssignmentProgress($studentId, $activityId, $studentActivity): void
+    {
+        $assignment = Assignment::where('activity_id', $activityId)->first();
+        if (!$assignment) return;
+
+        $questions = AssignmentQuestion::where('assignment_id', $assignment->id)->get();
+        if ($questions->isEmpty()) return;
+
+        $isCompleted = in_array($studentActivity->status, ['completed', 'submitted']);
+        $startedAt = $studentActivity->started_at ? Carbon::parse($studentActivity->started_at) : $this->faker()->dateTimeBetween('-1 month', '-1 week');
+        
+        // Determine if assignment requires grading (has essay or file upload questions)
+        $requiresGrading = $assignment->acceptsFileUploads();
+        
+        // Create StudentActivityProgress record
+        $progress = StudentActivityProgress::updateOrCreate(
+            [
+                'student_activity_id' => $studentActivity->id,
+                'activity_id' => $activityId,
+            ],
+            [
+                'student_id' => $studentId,
+                'activity_type' => 'assignment',
+                'status' => $studentActivity->status,
+                'started_at' => $startedAt,
+                'submitted_at' => $studentActivity->submitted_at,
+                'completed_at' => $studentActivity->completed_at,
+                'graded_at' => $studentActivity->graded_at,
+                'is_completed' => $isCompleted,
+                'is_submitted' => in_array($studentActivity->status, ['submitted', 'completed']),
+                'points_possible' => $assignment->total_points,
+                'total_questions' => $questions->count(),
+                'answered_questions' => $isCompleted ? $questions->count() : rand(0, $questions->count()),
+                'requires_grading' => $requiresGrading,
+                'due_date' => $assignment->activity->due_date,
+                'assignment_data' => json_encode([
+                    'assignment_id' => $assignment->id,
+                    'submission_status' => $isCompleted ? 'submitted' : 'draft',
+                    'last_accessed_at' => $isCompleted ? $this->faker()->dateTimeBetween($startedAt, 'now')->format('Y-m-d H:i:s') : $startedAt->format('Y-m-d H:i:s'),
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        $totalScore = 0;
+        $totalPossible = $assignment->total_points;
+
+        // Create answers for auto-gradable questions
+        $answeredQuestionsCount = $progress->answered_questions;
+        $questionsToAnswer = $questions->take($answeredQuestionsCount);
+        
+        foreach ($questionsToAnswer as $index => $question) {
+            $answerData = $this->generateAnswerForQuestion($question);
+            
+            // Auto-grade if possible
+            $isCorrect = false;
+            $pointsEarned = 0;
+            
+            if (in_array($question->question_type, ['multiple_choice', 'true_false', 'short_answer', 'enumeration'])) {
+                $isCorrect = $question->checkAnswer($answerData['answer']);
+                $pointsEarned = $isCorrect ? $question->points : 0;
+            }
+            
+            $totalScore += $pointsEarned;
+
+            StudentAssignmentAnswer::updateOrCreate(
+                [
+                    'student_id' => $studentId,
+                    'assignment_id' => $assignment->id,
+                    'assignment_question_id' => $question->id,
+                ],
+                [
+                    'answer_text' => $answerData['answer_text'] ?? null,
+                    'selected_options' => $answerData['selected_options'] ?? null,
+                    'is_correct' => $isCorrect,
+                    'points_earned' => $pointsEarned,
+                    'answered_at' => $this->faker()->dateTimeBetween($startedAt, $startedAt->copy()->addHours(2)),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        }
+
+        // Calculate percentage and update both progress and student activity
+        $percentageScore = $totalPossible > 0 ? round(($totalScore / $totalPossible) * 100, 2) : 0;
+        
+        // Update progress with scores
+        $progress->update([
+            'score' => $totalScore,
+            'max_score' => $totalPossible,
+            'percentage_score' => $percentageScore,
+            'points_earned' => $totalScore,
+        ]);
+        
+        // Update student activity to match (maintain consistency)
+        $studentActivity->update([
+            'score' => $totalScore,
+            'max_score' => $totalPossible,
+            'percentage_score' => $percentageScore,
+        ]);
+    }
+
+    private function generateAnswerForQuestion($question): array
+    {
+        $result = [
+            'answer_text' => null,
+            'selected_options' => null,
+            'answer' => null,
+        ];
+        
+        switch ($question->question_type) {
+            case 'multiple_choice':
+                $options = AssignmentQuestionOption::where('assignment_question_id', $question->id)->get();
+                if ($options->isNotEmpty()) {
+                    // 70% chance of correct answer
+                    $correctOptions = $options->where('is_correct', true);
+                    $selectedOption = (rand(1, 100) <= 70 && $correctOptions->isNotEmpty()) 
+                        ? $correctOptions->random() 
+                        : $options->random();
+                    
+                    $result['selected_options'] = [$selectedOption->id];
+                    $result['answer'] = $result['selected_options'];
+                }
+                break;
+                
+            case 'true_false':
+                // 70% chance of correct answer
+                if (rand(1, 100) <= 70) {
+                    $result['answer_text'] = $question->correct_answer;
+                } else {
+                    $result['answer_text'] = $question->correct_answer === 'true' ? 'false' : 'true';
+                }
+                $result['answer'] = $result['answer_text'];
+                break;
+                
+            case 'short_answer':
+                // 70% chance of correct answer
+                if (rand(1, 100) <= 70 && $question->correct_answer) {
+                    $result['answer_text'] = $question->correct_answer;
+                } else {
+                    $result['answer_text'] = 'Student answer ' . rand(1, 100);
+                }
+                $result['answer'] = $result['answer_text'];
+                break;
+                
+            case 'enumeration':
+                // 70% chance of correct answer
+                $options = AssignmentQuestionOption::where('assignment_question_id', $question->id)
+                    ->where('is_correct', true)
+                    ->get();
+                if ($options->isNotEmpty()) {
+                    if (rand(1, 100) <= 70) {
+                        $result['selected_options'] = $options->pluck('id')->toArray();
+                    } else {
+                        // Mix correct and incorrect
+                        $allOptions = AssignmentQuestionOption::where('assignment_question_id', $question->id)->get();
+                        $result['selected_options'] = $allOptions->random(min(2, $allOptions->count()))->pluck('id')->toArray();
+                    }
+                    $result['answer'] = $result['selected_options'];
+                }
+                break;
+                
+            case 'essay':
+                $result['answer_text'] = $this->faker()->paragraph(3);
+                $result['answer'] = $result['answer_text'];
+                break;
+        }
+        
+        return $result;
     }
 
     private function createCourseSchedule($course): void
@@ -1115,5 +1331,24 @@ class SingleComprehensiveSeeder extends Seeder
                 'participation_status' => 'accepted',
             ]);
         }
+    }
+
+    /**
+     * Recalculate course completion statuses for all enrollments
+     * This ensures that courses with all modules completed are marked as complete
+     */
+    private function recalculateCourseCompletions(): void
+    {
+        $enrollments = CourseEnrollment::all();
+        
+        foreach ($enrollments as $enrollment) {
+            // Check and auto-complete modules based on activity completion
+            $enrollment->checkAndCompleteModules();
+            
+            // Update progress and check for course completion
+            $enrollment->updateProgress();
+        }
+        
+        $this->command->info('✅ Recalculated ' . $enrollments->count() . ' course enrollments');
     }
 }

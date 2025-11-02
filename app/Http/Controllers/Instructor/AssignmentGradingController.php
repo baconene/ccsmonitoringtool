@@ -8,12 +8,15 @@ use App\Models\Student;
 use App\Models\StudentActivity;
 use App\Models\StudentActivityProgress;
 use App\Models\StudentAssignmentAnswer;
+use App\Models\StudentAssignmentProgress;
 use App\Models\User;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class AssignmentGradingController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Get submissions list for an assignment (API endpoint)
      */
@@ -204,7 +207,36 @@ class AssignmentGradingController extends Controller
             'instructor_feedback' => $validated['instructor_feedback'],
             'status' => 'graded',
             'graded_at' => now(),
+            'is_completed' => true,
+            'completed_at' => now(),
         ]);
+
+        // Update student activity
+        $studentActivity = $progress->studentActivity;
+        if ($studentActivity) {
+            // Calculate percentage if max_score exists
+            $percentageScore = $studentActivity->max_score > 0 
+                ? ($validated['total_score'] / $studentActivity->max_score) * 100 
+                : 0;
+
+            $studentActivity->update([
+                'status' => 'completed', // Mark as completed after grading
+                'graded_at' => now(),
+                'completed_at' => now(),
+                'score' => $validated['total_score'],
+                'percentage_score' => $percentageScore,
+            ]);
+
+            // Auto-complete modules if requirements met
+            $enrollment = \App\Models\CourseEnrollment::where('student_id', $studentActivity->student_id)
+                ->where('course_id', $studentActivity->course_id)
+                ->first();
+            
+            if ($enrollment) {
+                $enrollment->updateProgress();
+                $enrollment->checkAndCompleteModules();
+            }
+        }
 
         return redirect()
             ->route('activities.manage', $assignment->activity_id)

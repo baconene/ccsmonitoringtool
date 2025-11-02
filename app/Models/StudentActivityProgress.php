@@ -102,6 +102,26 @@ class StudentActivityProgress extends Model
         'requires_grading' => 'boolean',
     ];
 
+    protected $appends = [
+        'submission_status',
+    ];
+
+    // Accessors
+    protected function submissionStatus(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            get: function () {
+                // Map status to submission_status for frontend compatibility
+                if ($this->status === 'completed' || $this->graded_at !== null) {
+                    return 'graded';
+                } elseif ($this->status === 'submitted' || $this->is_submitted) {
+                    return 'submitted';
+                }
+                return 'draft';
+            }
+        );
+    }
+
     // Relationships
     public function student(): BelongsTo
     {

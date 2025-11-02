@@ -115,9 +115,9 @@ const activeContent = computed(() => {
 function getContentForSection(sectionId: string) {
   const contentMap: Record<string, any> = {
     'introduction': {
-      title: 'Welcome to AstroLearn Learning Management System',
+      title: 'Welcome to Team LEMA Web Sci Learning Management System',
       content: `
-        <p class="text-lg mb-6">AstroLearn is a comprehensive Learning Management System (LMS) designed to streamline educational processes for schools, colleges, and training institutions. Built with Laravel 11, Vue 3, TypeScript, and Inertia.js, it provides a modern, intuitive interface for managing courses, activities, and student progress.</p>
+        <p class="text-lg mb-6">Team LEMA Web Sci is a comprehensive Learning Management System (LMS) designed to streamline educational processes for schools, colleges, and training institutions. Built with Laravel 11, Vue 3, TypeScript, and Inertia.js, it provides a modern, intuitive interface for managing courses, activities, and student progress.</p>
         
         <h3 class="text-2xl font-bold mb-4">🎯 Key Features</h3>
         <ul class="list-disc pl-6 space-y-2 mb-6">
@@ -132,7 +132,7 @@ function getContentForSection(sectionId: string) {
         </ul>
 
         <h3 class="text-2xl font-bold mb-4">🎓 Who is this for?</h3>
-        <p class="mb-4">AstroLearn is perfect for:</p>
+        <p class="mb-4">Team LEMA Web Sci is perfect for:</p>
         <ul class="list-disc pl-6 space-y-2 mb-6">
           <li>K-12 schools and educational institutions</li>
           <li>Colleges and universities managing multiple courses</li>
@@ -167,7 +167,7 @@ function getContentForSection(sectionId: string) {
     'system-overview': {
       title: 'System Overview',
       content: `
-        <p class="text-lg mb-6">Understanding the core architecture and workflow of AstroLearn LMS.</p>
+        <p class="text-lg mb-6">Understanding the core architecture and workflow of Team LEMA Web Sci LMS.</p>
         
         <h3 class="text-2xl font-bold mb-4">📚 System Architecture</h3>
         
@@ -237,7 +237,7 @@ function getContentForSection(sectionId: string) {
     'system-requirements': {
       title: 'System Requirements',
       content: `
-        <p class="text-lg mb-6">Before installing AstroLearn, ensure your system meets the following requirements:</p>
+        <p class="text-lg mb-6">Before installing Team LEMA Web Sci, ensure your system meets the following requirements:</p>
         
         <h3 class="text-2xl font-bold mb-4">Server Requirements</h3>
         <ul class="list-disc pl-6 space-y-2 mb-6">
@@ -266,7 +266,7 @@ function getContentForSection(sectionId: string) {
     'roles-permissions': {
       title: 'Roles & Permissions Overview',
       content: `
-        <p class="text-lg mb-6">AstroLearn uses a role-based access control (RBAC) system with three primary roles, each designed for specific functions within the learning management ecosystem.</p>
+        <p class="text-lg mb-6">Team LEMA Web Sci uses a role-based access control (RBAC) system with three primary roles, each designed for specific functions within the learning management ecosystem.</p>
         
         <h3 class="text-2xl font-bold mb-4">👥 User Roles Summary</h3>
         
@@ -789,7 +789,7 @@ function getContentForSection(sectionId: string) {
     'adding-users': {
       title: 'Adding Users',
       content: `
-        <p class="text-lg mb-6">Learn how to add new users to your AstroLearn system.</p>
+        <p class="text-lg mb-6">Learn how to add new users to your Team LEMA Web Sci system.</p>
         
         <h3 class="text-2xl font-bold mb-4">Step-by-Step Guide</h3>
         
@@ -829,9 +829,9 @@ function getContentForSection(sectionId: string) {
       `
     },
     'activity-types': {
-      title: 'Activity Types in AstroLearn',
+      title: 'Activity Types in Team LEMA Web Sci',
       content: `
-        <p class="text-lg mb-6">AstroLearn supports multiple activity types that can be attached to course modules. Each activity type serves a different educational purpose.</p>
+        <p class="text-lg mb-6">Team LEMA Web Sci supports multiple activity types that can be attached to course modules. Each activity type serves a different educational purpose.</p>
         
         <h3 class="text-2xl font-bold mb-4">📝 Available Activity Types</h3>
         
@@ -1166,7 +1166,7 @@ function getContentForSection(sectionId: string) {
     'course-progress': {
       title: 'Course Progress Calculation',
       content: `
-        <p class="text-lg mb-6">AstroLearn calculates course progress based on completed module weights, providing an accurate representation of student achievement.</p>
+        <p class="text-lg mb-6">Team LEMA Web Sci calculates course progress based on completed module weights, providing an accurate representation of student achievement.</p>
         
         <h3 class="text-2xl font-bold mb-4">📊 How Progress is Calculated</h3>
         
@@ -1348,7 +1348,7 @@ function getContentForSection(sectionId: string) {
     'grade-levels': {
       title: 'Grade Levels',
       content: `
-        <p class="text-lg mb-6">AstroLearn uses grade levels to control which students can enroll in specific courses.</p>
+        <p class="text-lg mb-6">Team LEMA Web Sci uses grade levels to control which students can enroll in specific courses.</p>
         
         <h3 class="text-2xl font-bold mb-4">How Grade Levels Work</h3>
         
@@ -1432,7 +1432,7 @@ function getContentForSection(sectionId: string) {
     'quiz-system': {
       title: 'Quiz System Overview',
       content: `
-        <p class="text-lg mb-6">The quiz system in AstroLearn is a comprehensive assessment tool supporting multiple question types with automatic and manual grading capabilities.</p>
+        <p class="text-lg mb-6">The quiz system in Team LEMA Web Sci is a comprehensive assessment tool supporting multiple question types with automatic and manual grading capabilities.</p>
         
         <h3 class="text-2xl font-bold mb-4">🎯 Quiz Features</h3>
         
@@ -1729,7 +1729,7 @@ function getContentForSection(sectionId: string) {
     'quiz-taking': {
       title: 'Taking Quizzes - Student Guide',
       content: `
-        <p class="text-lg mb-6">A complete guide for students on how to take quizzes effectively in AstroLearn.</p>
+        <p class="text-lg mb-6">A complete guide for students on how to take quizzes effectively in Team LEMA Web Sci.</p>
         
         <h3 class="text-2xl font-bold mb-4">📝 Quiz Taking Process</h3>
         
@@ -2207,7 +2207,7 @@ function getContentForSection(sectionId: string) {
     'course-management-overview': {
       title: 'Course Management Overview',
       content: `
-        <p class="text-lg mb-6">The Course Management system is the backbone of AstroLearn, organizing educational content into a hierarchical structure with automated grade tracking.</p>
+        <p class="text-lg mb-6">The Course Management system is the backbone of Team LEMA Web Sci, organizing educational content into a hierarchical structure with automated grade tracking.</p>
         
         <h3 class="text-2xl font-bold mb-4">📊 Entity Relationship Diagram</h3>
         <div class="bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900/20 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-8 mb-8 font-mono text-sm overflow-x-auto">
@@ -2402,7 +2402,7 @@ function getContentForSection(sectionId: string) {
     'role-management': {
       title: 'Role Management System',
       content: `
-        <p class="text-lg mb-6">AstroLearn implements a robust Role-Based Access Control (RBAC) system to manage user permissions and ensure secure access to platform features.</p>
+        <p class="text-lg mb-6">Team LEMA Web Sci implements a robust Role-Based Access Control (RBAC) system to manage user permissions and ensure secure access to platform features.</p>
         
         <h3 class="text-2xl font-bold mb-4">📊 User & Role ERD</h3>
         <div class="bg-gradient-to-br from-slate-50 to-red-50 dark:from-slate-900 dark:to-red-900/20 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-8 mb-8">
@@ -2614,7 +2614,7 @@ function getContentForSection(sectionId: string) {
     'grade-calculation': {
       title: 'Grade Calculation System',
       content: `
-        <p class="text-lg mb-6">AstroLearn uses a sophisticated multi-level grade calculation system with dynamic weight adjustment to ensure accurate and fair assessment of student performance.</p>
+        <p class="text-lg mb-6">Team LEMA Web Sci uses a sophisticated multi-level grade calculation system with dynamic weight adjustment to ensure accurate and fair assessment of student performance.</p>
         
         <h3 class="text-2xl font-bold mb-4">🧮 Calculation Hierarchy</h3>
         <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
@@ -3245,7 +3245,7 @@ function selectSection(sectionId: string) {
 </script>
 
 <template>
-  <Head title="Documentation - AstroLearn" />
+  <Head title="Documentation - Team LEMA Web Sci" />
   
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Header -->
@@ -3257,7 +3257,7 @@ function selectSection(sectionId: string) {
             <div class="w-8 h-8 bg-gradient-to-r from-pink-500 to-violet-500 rounded-lg flex items-center justify-center">
               <Book class="w-5 h-5 text-white" />
             </div>
-            <span class="text-xl font-bold text-gray-900 dark:text-white">AstroLearn Docs</span>
+            <span class="text-xl font-bold text-gray-900 dark:text-white">Team LEMA Web Sci Docs</span>
           </Link>
 
           <!-- Mobile Menu Button -->

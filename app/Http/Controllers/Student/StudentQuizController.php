@@ -58,8 +58,15 @@ class StudentQuizController extends Controller
         
         // Check if quiz is already completed
         if ($statusData['status'] === 'completed' && $statusData['progress']) {
-            return redirect()->route('student.activities.results', $statusData['progress']->student_activity_id)
-                ->with('info', 'Quiz already completed. Redirected to results.');
+            // Get the StudentActivity record to get the proper ID for results route
+            $studentActivity = StudentActivity::where('student_id', $student->id)
+                ->where('activity_id', $activityId)
+                ->first();
+            
+            if ($studentActivity) {
+                return redirect()->route('student.activities.results', $studentActivity->id)
+                    ->with('info', 'Quiz already completed. Redirected to results.');
+            }
         }
 
         // Check if quiz is past due (get due date from activity model, fallback to created_at + 7 days)
@@ -109,8 +116,15 @@ class StudentQuizController extends Controller
         } else {
             // Double-check that the quiz is not completed (additional safety check)
             if ($progress->is_completed) {
-                return redirect()->route('student.activities.results', $progress->student_activity_id)
-                    ->with('info', 'Quiz already completed. Redirected to results.');
+                // Get the StudentActivity record
+                $studentActivity = StudentActivity::where('student_id', $student->id)
+                    ->where('activity_id', $activityId)
+                    ->first();
+                
+                if ($studentActivity) {
+                    return redirect()->route('student.activities.results', $studentActivity->id)
+                        ->with('info', 'Quiz already completed. Redirected to results.');
+                }
             }
             
             // Update last accessed time
@@ -299,6 +313,7 @@ class StudentQuizController extends Controller
                     ->first();
                 if ($enrollment) {
                     $enrollment->updateProgress();
+                    $enrollment->checkAndCompleteModules(); // Auto-complete modules when requirements met
                 }
             }
         }

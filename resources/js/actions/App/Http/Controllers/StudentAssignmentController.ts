@@ -200,7 +200,7 @@ start.head = (args: { activity: string | number } | [activity: string | number ]
     start.form = startForm
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::show
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
 export const show = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -215,7 +215,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::show
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
 show.url = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -248,7 +248,7 @@ show.url = (args: { assignment: number | { id: number } } | [assignment: number 
 
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::show
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
 show.get = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -257,7 +257,7 @@ show.get = (args: { assignment: number | { id: number } } | [assignment: number 
 })
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::show
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
 show.head = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -267,7 +267,7 @@ show.head = (args: { assignment: number | { id: number } } | [assignment: number
 
     /**
 * @see \App\Http\Controllers\StudentAssignmentController::show
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
     const showForm = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -277,7 +277,7 @@ show.head = (args: { assignment: number | { id: number } } | [assignment: number
 
             /**
 * @see \App\Http\Controllers\StudentAssignmentController::show
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
         showForm.get = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -286,7 +286,7 @@ show.head = (args: { assignment: number | { id: number } } | [assignment: number
         })
             /**
 * @see \App\Http\Controllers\StudentAssignmentController::show
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
         showForm.head = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -302,7 +302,7 @@ show.head = (args: { assignment: number | { id: number } } | [assignment: number
     show.form = showForm
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::saveAnswer
- * @see app/Http/Controllers/StudentAssignmentController.php:263
+ * @see app/Http/Controllers/StudentAssignmentController.php:269
  * @route '/student/assignments/{assignment}/answers'
  */
 export const saveAnswer = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -317,7 +317,7 @@ saveAnswer.definition = {
 
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::saveAnswer
- * @see app/Http/Controllers/StudentAssignmentController.php:263
+ * @see app/Http/Controllers/StudentAssignmentController.php:269
  * @route '/student/assignments/{assignment}/answers'
  */
 saveAnswer.url = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -350,7 +350,7 @@ saveAnswer.url = (args: { assignment: number | { id: number } } | [assignment: n
 
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::saveAnswer
- * @see app/Http/Controllers/StudentAssignmentController.php:263
+ * @see app/Http/Controllers/StudentAssignmentController.php:269
  * @route '/student/assignments/{assignment}/answers'
  */
 saveAnswer.post = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -360,7 +360,7 @@ saveAnswer.post = (args: { assignment: number | { id: number } } | [assignment: 
 
     /**
 * @see \App\Http\Controllers\StudentAssignmentController::saveAnswer
- * @see app/Http/Controllers/StudentAssignmentController.php:263
+ * @see app/Http/Controllers/StudentAssignmentController.php:269
  * @route '/student/assignments/{assignment}/answers'
  */
     const saveAnswerForm = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -370,7 +370,7 @@ saveAnswer.post = (args: { assignment: number | { id: number } } | [assignment: 
 
             /**
 * @see \App\Http\Controllers\StudentAssignmentController::saveAnswer
- * @see app/Http/Controllers/StudentAssignmentController.php:263
+ * @see app/Http/Controllers/StudentAssignmentController.php:269
  * @route '/student/assignments/{assignment}/answers'
  */
         saveAnswerForm.post = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -381,7 +381,7 @@ saveAnswer.post = (args: { assignment: number | { id: number } } | [assignment: 
     saveAnswer.form = saveAnswerForm
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::uploadFile
- * @see app/Http/Controllers/StudentAssignmentController.php:388
+ * @see app/Http/Controllers/StudentAssignmentController.php:421
  * @route '/student/assignments/{assignment}/upload'
  */
 export const uploadFile = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -396,7 +396,7 @@ uploadFile.definition = {
 
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::uploadFile
- * @see app/Http/Controllers/StudentAssignmentController.php:388
+ * @see app/Http/Controllers/StudentAssignmentController.php:421
  * @route '/student/assignments/{assignment}/upload'
  */
 uploadFile.url = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -429,7 +429,7 @@ uploadFile.url = (args: { assignment: number | { id: number } } | [assignment: n
 
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::uploadFile
- * @see app/Http/Controllers/StudentAssignmentController.php:388
+ * @see app/Http/Controllers/StudentAssignmentController.php:421
  * @route '/student/assignments/{assignment}/upload'
  */
 uploadFile.post = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -439,7 +439,7 @@ uploadFile.post = (args: { assignment: number | { id: number } } | [assignment: 
 
     /**
 * @see \App\Http\Controllers\StudentAssignmentController::uploadFile
- * @see app/Http/Controllers/StudentAssignmentController.php:388
+ * @see app/Http/Controllers/StudentAssignmentController.php:421
  * @route '/student/assignments/{assignment}/upload'
  */
     const uploadFileForm = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -449,7 +449,7 @@ uploadFile.post = (args: { assignment: number | { id: number } } | [assignment: 
 
             /**
 * @see \App\Http\Controllers\StudentAssignmentController::uploadFile
- * @see app/Http/Controllers/StudentAssignmentController.php:388
+ * @see app/Http/Controllers/StudentAssignmentController.php:421
  * @route '/student/assignments/{assignment}/upload'
  */
         uploadFileForm.post = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -460,7 +460,7 @@ uploadFile.post = (args: { assignment: number | { id: number } } | [assignment: 
     uploadFile.form = uploadFileForm
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::submit
- * @see app/Http/Controllers/StudentAssignmentController.php:445
+ * @see app/Http/Controllers/StudentAssignmentController.php:478
  * @route '/student/assignments/{assignment}/submit'
  */
 export const submit = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -475,7 +475,7 @@ submit.definition = {
 
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::submit
- * @see app/Http/Controllers/StudentAssignmentController.php:445
+ * @see app/Http/Controllers/StudentAssignmentController.php:478
  * @route '/student/assignments/{assignment}/submit'
  */
 submit.url = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -508,7 +508,7 @@ submit.url = (args: { assignment: number | { id: number } } | [assignment: numbe
 
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::submit
- * @see app/Http/Controllers/StudentAssignmentController.php:445
+ * @see app/Http/Controllers/StudentAssignmentController.php:478
  * @route '/student/assignments/{assignment}/submit'
  */
 submit.post = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -518,7 +518,7 @@ submit.post = (args: { assignment: number | { id: number } } | [assignment: numb
 
     /**
 * @see \App\Http\Controllers\StudentAssignmentController::submit
- * @see app/Http/Controllers/StudentAssignmentController.php:445
+ * @see app/Http/Controllers/StudentAssignmentController.php:478
  * @route '/student/assignments/{assignment}/submit'
  */
     const submitForm = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -528,7 +528,7 @@ submit.post = (args: { assignment: number | { id: number } } | [assignment: numb
 
             /**
 * @see \App\Http\Controllers\StudentAssignmentController::submit
- * @see app/Http/Controllers/StudentAssignmentController.php:445
+ * @see app/Http/Controllers/StudentAssignmentController.php:478
  * @route '/student/assignments/{assignment}/submit'
  */
         submitForm.post = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

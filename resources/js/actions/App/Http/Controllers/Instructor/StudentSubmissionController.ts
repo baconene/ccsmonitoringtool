@@ -4,7 +4,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:18
  * @route '/instructor/submissions/{submission}'
  */
-export const show = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const show = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -19,11 +19,14 @@ show.definition = {
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:18
  * @route '/instructor/submissions/{submission}'
  */
-show.url = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions) => {
+show.url = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { submission: args }
     }
 
+            if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+            args = { submission: args.id }
+        }
     
     if (Array.isArray(args)) {
         args = {
@@ -34,7 +37,9 @@ show.url = (args: { submission: string | number } | [submission: string | number
     args = applyUrlDefaults(args)
 
     const parsedArgs = {
-                        submission: args.submission,
+                        submission: typeof args.submission === 'object'
+                ? args.submission.id
+                : args.submission,
                 }
 
     return show.definition.url
@@ -47,7 +52,7 @@ show.url = (args: { submission: string | number } | [submission: string | number
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:18
  * @route '/instructor/submissions/{submission}'
  */
-show.get = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+show.get = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -56,7 +61,7 @@ show.get = (args: { submission: string | number } | [submission: string | number
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:18
  * @route '/instructor/submissions/{submission}'
  */
-show.head = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+show.head = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
     method: 'head',
 })
@@ -66,7 +71,7 @@ show.head = (args: { submission: string | number } | [submission: string | numbe
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:18
  * @route '/instructor/submissions/{submission}'
  */
-    const showForm = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const showForm = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: show.url(args, options),
         method: 'get',
     })
@@ -76,7 +81,7 @@ show.head = (args: { submission: string | number } | [submission: string | numbe
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:18
  * @route '/instructor/submissions/{submission}'
  */
-        showForm.get = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.get = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, options),
             method: 'get',
         })
@@ -85,7 +90,7 @@ show.head = (args: { submission: string | number } | [submission: string | numbe
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:18
  * @route '/instructor/submissions/{submission}'
  */
-        showForm.head = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.head = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
@@ -101,7 +106,7 @@ show.head = (args: { submission: string | number } | [submission: string | numbe
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:71
  * @route '/instructor/submissions/{submission}/grade'
  */
-export const grade = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const grade = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: grade.url(args, options),
     method: 'post',
 })
@@ -116,11 +121,14 @@ grade.definition = {
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:71
  * @route '/instructor/submissions/{submission}/grade'
  */
-grade.url = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions) => {
+grade.url = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { submission: args }
     }
 
+            if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+            args = { submission: args.id }
+        }
     
     if (Array.isArray(args)) {
         args = {
@@ -131,7 +139,9 @@ grade.url = (args: { submission: string | number } | [submission: string | numbe
     args = applyUrlDefaults(args)
 
     const parsedArgs = {
-                        submission: args.submission,
+                        submission: typeof args.submission === 'object'
+                ? args.submission.id
+                : args.submission,
                 }
 
     return grade.definition.url
@@ -144,7 +154,7 @@ grade.url = (args: { submission: string | number } | [submission: string | numbe
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:71
  * @route '/instructor/submissions/{submission}/grade'
  */
-grade.post = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+grade.post = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: grade.url(args, options),
     method: 'post',
 })
@@ -154,7 +164,7 @@ grade.post = (args: { submission: string | number } | [submission: string | numb
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:71
  * @route '/instructor/submissions/{submission}/grade'
  */
-    const gradeForm = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const gradeForm = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: grade.url(args, options),
         method: 'post',
     })
@@ -164,7 +174,7 @@ grade.post = (args: { submission: string | number } | [submission: string | numb
  * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:71
  * @route '/instructor/submissions/{submission}/grade'
  */
-        gradeForm.post = (args: { submission: string | number } | [submission: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        gradeForm.post = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: grade.url(args, options),
             method: 'post',
         })

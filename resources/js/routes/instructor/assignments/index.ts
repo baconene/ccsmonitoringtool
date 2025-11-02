@@ -3,7 +3,7 @@ import submissions3f87f7 from './submissions'
 import grade from './grade'
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submissions
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:20
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:23
  * @route '/instructor/assignments/{assignment}/submissions'
  */
 export const submissions = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -18,7 +18,7 @@ submissions.definition = {
 
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submissions
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:20
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:23
  * @route '/instructor/assignments/{assignment}/submissions'
  */
 submissions.url = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -51,7 +51,7 @@ submissions.url = (args: { assignment: number | { id: number } } | [assignment: 
 
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submissions
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:20
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:23
  * @route '/instructor/assignments/{assignment}/submissions'
  */
 submissions.get = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -60,7 +60,7 @@ submissions.get = (args: { assignment: number | { id: number } } | [assignment: 
 })
 /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submissions
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:20
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:23
  * @route '/instructor/assignments/{assignment}/submissions'
  */
 submissions.head = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -70,7 +70,7 @@ submissions.head = (args: { assignment: number | { id: number } } | [assignment:
 
     /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submissions
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:20
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:23
  * @route '/instructor/assignments/{assignment}/submissions'
  */
     const submissionsForm = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -80,7 +80,7 @@ submissions.head = (args: { assignment: number | { id: number } } | [assignment:
 
             /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submissions
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:20
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:23
  * @route '/instructor/assignments/{assignment}/submissions'
  */
         submissionsForm.get = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -89,7 +89,7 @@ submissions.head = (args: { assignment: number | { id: number } } | [assignment:
         })
             /**
 * @see \App\Http\Controllers\Instructor\AssignmentGradingController::submissions
- * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:20
+ * @see app/Http/Controllers/Instructor/AssignmentGradingController.php:23
  * @route '/instructor/assignments/{assignment}/submissions'
  */
         submissionsForm.head = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

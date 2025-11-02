@@ -116,6 +116,16 @@ class StudentActivityController extends Controller
         
         $studentActivity->update($updateData);
 
+        // Get enrollment and update progress + auto-complete modules
+        $enrollment = \App\Models\CourseEnrollment::where('student_id', $student->id)
+            ->where('course_id', $studentActivity->course_id)
+            ->first();
+        
+        if ($enrollment) {
+            $enrollment->updateProgress();
+            $enrollment->checkAndCompleteModules(); // Auto-complete modules when requirements met
+        }
+
         // Return back to preserve scroll position and show success in frontend
         return back()->with('success', 'Activity marked as complete successfully!');
     }

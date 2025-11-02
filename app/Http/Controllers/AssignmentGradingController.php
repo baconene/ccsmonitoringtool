@@ -264,12 +264,24 @@ class AssignmentGradingController extends Controller
 
             // Update student activity
             $studentActivity->update([
-                'status' => 'graded',
+                'status' => 'completed', // Mark as completed after grading
                 'score' => $totalScore,
+                'max_score' => $assignment->total_points,
                 'percentage_score' => $percentage,
+                'completed_at' => now(),
                 'graded_at' => now(),
                 'feedback' => $validated['overall_feedback'] ?? null,
             ]);
+
+            // Update course progress and auto-complete modules
+            $enrollment = \App\Models\CourseEnrollment::where('student_id', $student->id)
+                ->where('course_id', $studentActivity->course_id)
+                ->first();
+            
+            if ($enrollment) {
+                $enrollment->updateProgress();
+                $enrollment->checkAndCompleteModules();
+            }
 
             DB::commit();
 

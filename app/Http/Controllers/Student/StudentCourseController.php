@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\Lesson;
 use App\Models\LessonCompletion;
+use App\Models\StudentActivity;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,20 +20,21 @@ class StudentCourseController extends Controller
     public function index(): Response
     {
         $user = auth()->user();
+        $student = $user->student;
         
         $enrollments = CourseEnrollment::with(['course.lessons', 'course.modules'])
-            ->where('user_id', $user->id)
+            ->where('student_id', $student->id)
             ->get()
-            ->map(function ($enrollment) use ($user) {
+            ->map(function ($enrollment) use ($student) {
                 $course = $enrollment->course;
                 $totalModules = $course->modules->count();
                 
                 // Count completed modules
-                $completedModules = \App\Models\ModuleCompletion::where('user_id', $user->id)
+                $completedModules = \App\Models\ModuleCompletion::where('student_id', $student->id)
                     ->where('course_id', $course->id)
                     ->count();
                 
-                // Recalculate progress based on module weights
+                // Recalculate progress based on activity completion
                 $enrollment->updateProgress();
                 $enrollment->refresh();
                 
@@ -74,7 +76,7 @@ class StudentCourseController extends Controller
         }
         
         // Check if student is enrolled in this course
-        $enrollment = CourseEnrollment::where('user_id', $user->id)
+        $enrollment = CourseEnrollment::where('student_id', $student->id)
             ->where('course_id', $course->id)
             ->first();
             
@@ -98,7 +100,7 @@ class StudentCourseController extends Controller
             ->get()
             ->map(function ($module) use ($user, $student, $course) {
                 // Check if module is completed
-                $moduleCompletion = \App\Models\ModuleCompletion::where('user_id', $user->id)
+                $moduleCompletion = \App\Models\ModuleCompletion::where('student_id', $student->id)
                     ->where('module_id', $module->id)
                     ->where('course_id', $course->id)
                     ->first();
@@ -366,6 +368,7 @@ class StudentCourseController extends Controller
 
         // Update course enrollment progress
         $enrollment->updateProgress();
+        $enrollment->checkAndCompleteModules(); // Auto-complete modules when requirements met
         $enrollment->refresh();
         
         \Log::info('Progress updated', [
@@ -426,9 +429,14 @@ class StudentCourseController extends Controller
     public function completeModule(Course $course, $moduleId)
     {
         $user = auth()->user();
+        $student = $user->student;
+        
+        if (!$student) {
+            return redirect()->back()->with('error', 'Student record not found.');
+        }
         
         // Check enrollment
-        $enrollment = CourseEnrollment::where('user_id', $user->id)
+        $enrollment = CourseEnrollment::where('student_id', $student->id)
             ->where('course_id', $course->id)
             ->first();
             
@@ -436,32 +444,79 @@ class StudentCourseController extends Controller
             return redirect()->back()->with('error', "You are not enrolled in the '{$course->title}' course");
         }
 
-        // Get the module to check its weight
-        $module = $course->modules()->find($moduleId);
+        // Get the module with all its activities and lessons
+        $module = $course->modules()->with(['activities', 'lessons'])->find($moduleId);
         if (!$module) {
             return redirect()->back()->with('error', "Module not found in the '{$course->title}' course");
         }
 
-        // Create or update module completion
-        $completion = \App\Models\ModuleCompletion::updateOrCreate([
-            'user_id' => $user->id,
-            'module_id' => $moduleId,
-            'course_id' => $course->id,
-        ], [
-            'completed_at' => now(),
-            'completion_data' => json_encode([
-                'method' => 'manual',
-                'timestamp' => now()->toISOString(),
-                'module_weight' => $module->module_percentage,
-            ])
-        ]);
+        // Verify all lessons are completed
+        $incompleteLessons = [];
+        foreach ($module->lessons as $lesson) {
+            $lessonCompletion = LessonCompletion::where('user_id', $user->id)
+                ->where('lesson_id', $lesson->id)
+                ->where('course_id', $course->id)
+                ->exists();
+            
+            if (!$lessonCompletion) {
+                $incompleteLessons[] = $lesson->title;
+            }
+        }
 
-        // Update course enrollment progress based on module weights
+        // Verify all activities are completed
+        $incompleteActivities = [];
+        foreach ($module->activities as $activity) {
+            $activityCompleted = StudentActivity::where('student_id', $student->id)
+                ->where('activity_id', $activity->id)
+                ->where('status', 'completed')
+                ->exists();
+            
+            if (!$activityCompleted) {
+                $incompleteActivities[] = $activity->title;
+            }
+        }
+
+        // If there are incomplete items, don't allow module completion
+        if (!empty($incompleteLessons) || !empty($incompleteActivities)) {
+            $messages = [];
+            if (!empty($incompleteLessons)) {
+                $messages[] = "Incomplete lessons: " . implode(', ', $incompleteLessons);
+            }
+            if (!empty($incompleteActivities)) {
+                $messages[] = "Incomplete activities: " . implode(', ', $incompleteActivities);
+            }
+            
+            return redirect()->back()->with('error', "Cannot complete module. " . implode('. ', $messages));
+        }
+
+        // All requirements met - create or update module completion
+        // Use updateOrCreate with the correct unique constraint fields (student_id, module_id, course_id)
+        $completion = \App\Models\ModuleCompletion::updateOrCreate(
+            [
+                'student_id' => $student->id,
+                'module_id' => $moduleId,
+                'course_id' => $course->id,
+            ],
+            [
+                'user_id' => $user->id,
+                'is_completed' => true,
+                'completed_at' => now(),
+                'completion_data' => json_encode([
+                    'method' => 'manual',
+                    'timestamp' => now()->toISOString(),
+                    'module_weight' => $module->module_percentage,
+                    'total_lessons' => $module->lessons->count(),
+                    'total_activities' => $module->activities->count(),
+                ])
+            ]
+        );
+
+        // Update course enrollment progress based on activity completion
         $enrollment->updateProgress();
         $enrollment->refresh();
 
         return redirect()->back()->with([
-            'success' => "'{$module->description}' module marked as completed successfully",
+            'success' => "'{$module->description}' module marked as completed successfully!",
             'progress' => (float) $enrollment->progress,
         ]);
     }

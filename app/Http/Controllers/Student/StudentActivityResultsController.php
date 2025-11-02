@@ -45,12 +45,31 @@ class StudentActivityResultsController extends Controller
 
         // Get the activity progress
         // Try to find progress by student_activity_id first, then fall back to student_id + activity_id
-        $progress = StudentActivityProgress::where('student_id', $studentActivity->student_id)
+                $progress = StudentActivityProgress::where('student_activity_id', $studentActivity->id)
             ->where('activity_id', $activity->id)
             ->first();
 
+        // Create progress record if it doesn't exist (for legacy data or direct access)
         if (!$progress) {
-            abort(404, 'No progress found for this activity.');
+            // Determine if activity requires grading based on type
+            $requiresGrading = false;
+            
+            if ($activityType->name === 'Assignment') {
+                $assignment = \App\Models\Assignment::where('activity_id', $activity->id)->first();
+                $requiresGrading = $assignment ? $assignment->acceptsFileUploads() : false;
+            }
+            
+            $progress = StudentActivityProgress::create([
+                'student_activity_id' => $studentActivity->id,
+                'student_id' => $studentActivity->student_id,
+                'activity_id' => $activity->id,
+                'activity_type' => strtolower($activityType->name),
+                'status' => $studentActivity->status ?? 'in_progress',
+                'requires_grading' => $requiresGrading,
+                'submitted_at' => $studentActivity->submitted_at,
+                'completed_at' => $studentActivity->completed_at,
+                'graded_at' => $studentActivity->graded_at,
+            ]);
         }
 
         // Route to appropriate handler based on activity type
@@ -106,9 +125,18 @@ class StudentActivityResultsController extends Controller
             ->get()
             ->map(function ($answer) {
                 // Get selected option if multiple choice
-                if ($answer->selected_option_id) {
-                    $answer->selectedOption = $answer->question->options
-                        ->firstWhere('id', $answer->selected_option_id);
+                if ($answer->selected_option_id && isset($answer->question->options)) {
+                    $options = $answer->question->options;
+                    $selectedOption = $options->firstWhere('id', $answer->selected_option_id);
+                    
+                    if ($selectedOption) {
+                        // Add selected option data explicitly as array to ensure serialization
+                        $answer->selected_option = [
+                            'id' => $selectedOption->id,
+                            'option_text' => $selectedOption->option_text,
+                            'is_correct' => $selectedOption->is_correct,
+                        ];
+                    }
                 }
                 return $answer;
             });
@@ -204,7 +232,15 @@ class StudentActivityResultsController extends Controller
         // Get file upload if exists
         $fileUpload = null;
         if ($progress->attachment_files) {
-            $files = json_decode($progress->attachment_files, true);
+            // Handle both array and JSON string formats
+            if (is_array($progress->attachment_files)) {
+                $files = $progress->attachment_files;
+            } elseif (is_string($progress->attachment_files)) {
+                $files = json_decode($progress->attachment_files, true);
+            } else {
+                $files = [];
+            }
+            
             if (!empty($files) && is_array($files)) {
                 $firstFile = $files[0] ?? null;
                 if ($firstFile) {

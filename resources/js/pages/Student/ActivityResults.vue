@@ -125,7 +125,12 @@ const getGradeColor = (letter?: string) => {
 };
 
 const goBack = () => {
-  window.history.back();
+  // Go back to the course detail page
+  if (props.courseId) {
+    window.location.href = `/student/courses/${props.courseId}`;
+  } else {
+    window.history.back();
+  }
 };
 
 // Get correct answer text for quiz
@@ -144,10 +149,19 @@ const getCorrectAnswerText = (answer: any) => {
 // Get student answer text for quiz
 const getStudentAnswerText = (answer: any) => {
   const question = answer.question;
-  const selectedOption = answer.selectedOption || answer.selected_option;
   
   if (question.question_type === 'multiple_choice' || question.question_type === 'true_false') {
-    return selectedOption?.option_text || answer.answer_text || 'No answer';
+    // For multiple choice/true-false, find the selected option
+    const selectedOption = answer.selectedOption || answer.selected_option;
+    if (selectedOption) {
+      return selectedOption.option_text;
+    }
+    // Fallback: find the option by selected_option_id
+    if (answer.selected_option_id && question.options) {
+      const option = question.options.find((opt: any) => opt.id === answer.selected_option_id);
+      if (option) return option.option_text;
+    }
+    return answer.answer_text || 'No answer';
   } else if (question.question_type === 'enumeration' || question.question_type === 'short_answer') {
     return answer.answer_text || 'No answer';
   }
@@ -229,7 +243,7 @@ const formatTime = (seconds: number) => {
                 <div class="text-center p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-lg">
                   <div class="text-sm font-medium opacity-90 mb-1">Total Score</div>
                   <div class="text-4xl font-bold">
-                    {{ quizScore }}<span class="text-2xl">/{{ progress.quiz?.total_points || 0 }}</span>
+                    {{ quizScore }}<span class="text-2xl">/{{ progress.max_score || progress.points_possible || 0 }}</span>
                   </div>
                 </div>
 
@@ -316,13 +330,13 @@ const formatTime = (seconds: number) => {
               <div class="space-y-2 bg-gray-50 dark:bg-gray-800/50 p-3 rounded">
                 <div>
                   <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Your Answer:</span>
-                  <span class="ml-2" :class="answer.is_correct ? 'text-green-600' : 'text-red-600'">
+                  <span class="ml-2 font-semibold" :class="answer.is_correct ? 'text-green-600' : 'text-red-600'">
                     {{ getStudentAnswerText(answer) }}
                   </span>
                 </div>
-                <div v-if="answer.is_correct === false">
+                <div v-if="!answer.is_correct && answer.is_correct !== null">
                   <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Correct Answer:</span>
-                  <span class="ml-2 text-green-600">{{ getCorrectAnswerText(answer) }}</span>
+                  <span class="ml-2 font-semibold text-green-600">{{ getCorrectAnswerText(answer) }}</span>
                 </div>
               </div>
             </div>
@@ -463,14 +477,6 @@ const formatTime = (seconds: number) => {
           </CardContent>
         </Card>
       </template>
-
-      <!-- Back Button -->
-      <div class="flex justify-center mt-8">
-        <Button @click="goBack" variant="outline" class="gap-2">
-          <ArrowLeft class="w-4 h-4" />
-          Back to Course
-        </Button>
-      </div>
     </div>
   </AppLayout>
 </template>

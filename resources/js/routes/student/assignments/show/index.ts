@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::old
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
 export const old = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ old.definition = {
 
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::old
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
 old.url = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ old.url = (args: { assignment: number | { id: number } } | [assignment: number |
 
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::old
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
 old.get = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -58,7 +58,7 @@ old.get = (args: { assignment: number | { id: number } } | [assignment: number |
 })
 /**
 * @see \App\Http\Controllers\StudentAssignmentController::old
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
 old.head = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -68,7 +68,7 @@ old.head = (args: { assignment: number | { id: number } } | [assignment: number 
 
     /**
 * @see \App\Http\Controllers\StudentAssignmentController::old
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
     const oldForm = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -78,7 +78,7 @@ old.head = (args: { assignment: number | { id: number } } | [assignment: number 
 
             /**
 * @see \App\Http\Controllers\StudentAssignmentController::old
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
         oldForm.get = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -87,7 +87,7 @@ old.head = (args: { assignment: number | { id: number } } | [assignment: number 
         })
             /**
 * @see \App\Http\Controllers\StudentAssignmentController::old
- * @see app/Http/Controllers/StudentAssignmentController.php:162
+ * @see app/Http/Controllers/StudentAssignmentController.php:168
  * @route '/student/assignments/{assignment}/old'
  */
         oldForm.head = (args: { assignment: number | { id: number } } | [assignment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

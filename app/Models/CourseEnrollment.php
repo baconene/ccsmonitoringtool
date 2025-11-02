@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\ModuleCompletion;
+use App\Models\StudentActivity;
+use App\Models\LessonCompletion;
 
 class CourseEnrollment extends Model
 {
@@ -59,11 +62,12 @@ class CourseEnrollment extends Model
     }
 
     /**
-     * Update progress based on completed modules
+     * Update progress based on completed activities
      */
     public function updateProgress(): void
     {
-        $modules = $this->course->modules()->get();
+        $course = $this->course;
+        $modules = $course->modules()->with('activities')->get();
         
         if ($modules->isEmpty()) {
             $this->progress = 0.0;
@@ -71,28 +75,123 @@ class CourseEnrollment extends Model
             return;
         }
 
-        // Get completed modules
-        $completedModules = ModuleCompletion::where('user_id', $this->user_id)
-            ->whereIn('module_id', $modules->pluck('id'))
-            ->where('is_completed', true)
-            ->pluck('module_id')
-            ->toArray();
-
-        // Check if modules have percentages set
-        $totalWeight = $modules->sum('module_percentage');
+        // Calculate progress based on completed activities
+        $totalActivities = 0;
+        $completedActivities = 0;
         
-        if ($totalWeight > 0) {
-            // Use weighted calculation if percentages are set
-            $completedWeight = $modules->whereIn('id', $completedModules)->sum('module_percentage');
-            $progress = ($completedWeight / $totalWeight) * 100;
-        } else {
-            // Use equal weight for all modules if no percentages set
-            $totalModules = $modules->count();
-            $completedCount = count($completedModules);
-            $progress = $totalModules > 0 ? ($completedCount / $totalModules) * 100 : 0;
+        foreach ($modules as $module) {
+            $moduleActivities = $module->activities;
+            $totalActivities += $moduleActivities->count();
+            
+            // Count completed activities for this student
+            $completedActivities += StudentActivity::where('course_id', $course->id)
+                ->where('student_id', $this->student_id)
+                ->where('status', 'completed')
+                ->whereIn('activity_id', $moduleActivities->pluck('id'))
+                ->count();
         }
         
+        // Calculate progress percentage
+        $progress = $totalActivities > 0 
+            ? round(($completedActivities / $totalActivities) * 100, 2) 
+            : 0.0;
+        
         $this->progress = (float) $progress;
+        
+        // Check if course should be marked as complete or incomplete
+        // Course is complete when all modules are marked as complete
+        $totalModules = $modules->count();
+        $completedModules = ModuleCompletion::where('student_id', $this->student_id)
+            ->where('course_id', $course->id)
+            ->count();
+        
+        if ($totalModules > 0 && $completedModules >= $totalModules) {
+            // All modules complete - mark course as complete
+            if (!$this->is_completed) {
+                $this->is_completed = true;
+                $this->completed_at = now();
+            }
+        } else {
+            // Not all modules complete - ensure course is not marked as complete
+            if ($this->is_completed) {
+                $this->is_completed = false;
+                $this->completed_at = null;
+            }
+        }
+        
         $this->save();
+    }
+
+    /**
+     * Check and auto-complete modules when all their requirements are met
+     * This ensures modules are marked complete automatically without manual button clicks
+     */
+    public function checkAndCompleteModules(): void
+    {
+        $course = $this->course;
+        $modules = $course->modules()->with(['activities', 'lessons'])->get();
+        
+        foreach ($modules as $module) {
+            // Skip if module is already completed (use student_id to match unique constraint)
+            $existingCompletion = ModuleCompletion::where('student_id', $this->student_id)
+                ->where('module_id', $module->id)
+                ->where('course_id', $course->id)
+                ->first();
+            
+            if ($existingCompletion) {
+                continue; // Module already marked complete
+            }
+            
+            // Check if all activities in this module are completed
+            $moduleActivityIds = $module->activities->pluck('id');
+            
+            // Skip if no activities (prevents division by zero)
+            if ($moduleActivityIds->isEmpty()) {
+                $allActivitiesCompleted = true; // No activities = considered complete
+            } else {
+                $completedActivitiesCount = StudentActivity::where('course_id', $course->id)
+                    ->where('student_id', $this->student_id)
+                    ->where('status', 'completed')
+                    ->whereIn('activity_id', $moduleActivityIds)
+                    ->count();
+                
+                $allActivitiesCompleted = $completedActivitiesCount === $moduleActivityIds->count();
+            }
+            
+            // Check if all lessons in this module are completed
+            $moduleLessonIds = $module->lessons->pluck('id');
+            
+            // Skip if no lessons
+            if ($moduleLessonIds->isEmpty()) {
+                $allLessonsCompleted = true; // No lessons = considered complete
+            } else {
+                $completedLessonsCount = LessonCompletion::where('user_id', $this->student_id)
+                    ->where('course_id', $course->id)
+                    ->whereIn('lesson_id', $moduleLessonIds)
+                    ->count();
+                
+                $allLessonsCompleted = $completedLessonsCount === $moduleLessonIds->count();
+            }
+            
+            // If all requirements are met, auto-complete the module
+            // Use student_id in WHERE clause to match unique constraint (student_id, module_id, course_id)
+            if ($allActivitiesCompleted && $allLessonsCompleted) {
+                ModuleCompletion::updateOrCreate(
+                    [
+                        'student_id' => $this->student_id,
+                        'module_id' => $module->id,
+                        'course_id' => $course->id,
+                    ],
+                    [
+                        'user_id' => $this->student_id, // Keep for backward compatibility
+                        'completed_at' => now(),
+                        'completion_data' => json_encode([
+                            'method' => 'automatic',
+                            'timestamp' => now()->toISOString(),
+                        ]),
+                    ]
+                );
+            }
+        }
     }
 }

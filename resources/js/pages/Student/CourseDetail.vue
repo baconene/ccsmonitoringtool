@@ -10,6 +10,14 @@ import { BookOpen, CheckCircle2, Clock, Trophy, PlayCircle, FileText, ClipboardL
 import { useNotification } from '@/composables/useNotification';
 import Notification from '@/components/Notification.vue';
 import DocumentViewer from '@/components/DocumentViewer.vue';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 // Additional type interfaces
 interface Lesson {
@@ -95,6 +103,8 @@ const completingModule = ref<number | null>(null);
 const completingActivity = ref<number | null>(null);
 const viewingDocument = ref<ModuleDocument | null>(null);
 const isDocumentViewerOpen = ref(false);
+const showManualCompleteDialog = ref(false);
+const pendingActivityCompletion = ref<{ activity: any, module: any } | null>(null);
 
 // Computed properties
 const totalActivities = computed(() => {
@@ -397,11 +407,19 @@ const getActivityStatusText = (activity: any) => {
   return 'Completed';
 };
 
-// Mark activity as complete
-const markActivityComplete = async (activity: any, module: any) => {
-  if (completingActivity.value) return;
+// Mark activity as complete - show confirmation dialog first
+const markActivityComplete = (activity: any, module: any) => {
+  pendingActivityCompletion.value = { activity, module };
+  showManualCompleteDialog.value = true;
+};
+
+// Confirm manual activity completion
+const confirmManualCompletion = async () => {
+  if (!pendingActivityCompletion.value || completingActivity.value) return;
   
+  const { activity, module } = pendingActivityCompletion.value;
   completingActivity.value = activity.id;
+  showManualCompleteDialog.value = false;
   
   try {
     await router.post(`/student/activities/${activity.id}/mark-complete`, {
@@ -412,19 +430,28 @@ const markActivityComplete = async (activity: any, module: any) => {
         // Update the activity locally to reflect the completion
         activity.is_completed = true;
         completingActivity.value = null;
+        pendingActivityCompletion.value = null;
         showNotification('success', 'Activity marked as complete successfully!');
       },
       onError: (errors) => {
         console.error('Failed to mark activity as complete:', errors);
         showNotification('error', 'Failed to mark activity as complete. Please try again.');
         completingActivity.value = null;
+        pendingActivityCompletion.value = null;
       }
     });
   } catch (error) {
     console.error('Unexpected error:', error);
     showNotification('error', 'An unexpected error occurred. Please try again.');
     completingActivity.value = null;
+    pendingActivityCompletion.value = null;
   }
+};
+
+// Cancel manual completion
+const cancelManualCompletion = () => {
+  showManualCompleteDialog.value = false;
+  pendingActivityCompletion.value = null;
 };
 
 // Document viewer functions
@@ -970,6 +997,42 @@ const closeDocumentViewer = () => {
         </div>
       </div>
     </div>
+
+    <!-- Manual Activity Completion Confirmation Dialog -->
+    <Dialog :open="showManualCompleteDialog" @update:open="showManualCompleteDialog = $event">
+      <DialogContent class="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Mark Activity as Complete</DialogTitle>
+          <DialogDescription class="space-y-2">
+            <p>Are you sure you want to mark this activity as complete?</p>
+            <p v-if="pendingActivityCompletion" class="font-medium text-gray-900 dark:text-white">
+              "{{ pendingActivityCompletion.activity.title }}"
+            </p>
+            <p class="text-sm text-amber-600 dark:text-amber-400">
+              ⚠️ This action will count toward your module completion progress. Make sure you've finished all requirements for this activity.
+            </p>
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter class="flex gap-2 sm:gap-0">
+          <Button
+            type="button"
+            variant="outline"
+            @click="cancelManualCompletion"
+            class="flex-1 sm:flex-none"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            @click="confirmManualCompletion"
+            :disabled="completingActivity !== null"
+            class="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white"
+          >
+            {{ completingActivity ? 'Marking...' : 'Yes, Mark Complete' }}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
     <!-- Notifications -->
     <Notification :notification="notification" />

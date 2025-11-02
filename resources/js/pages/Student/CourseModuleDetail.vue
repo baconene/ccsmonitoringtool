@@ -2,40 +2,6 @@
   <AppLayout :title="`${module.title} - ${course.title}`">
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <!-- Breadcrumb -->
-        <nav class="flex mb-8" aria-label="Breadcrumb">
-          <ol class="inline-flex items-center space-x-1 md:space-x-3">
-            <li class="inline-flex items-center">
-              <Link 
-                :href="`/student/courses`"
-                class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-              >
-                <BookOpen class="w-3 h-3 mr-2.5" />
-                My Courses
-              </Link>
-            </li>
-            <li>
-              <div class="flex items-center">
-                <ChevronRight class="w-3 h-3 text-gray-400 mx-1" />
-                <Link 
-                  :href="`/student/courses/${course.id}`"
-                  class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white"
-                >
-                  {{ course.title }}
-                </Link>
-              </div>
-            </li>
-            <li aria-current="page">
-              <div class="flex items-center">
-                <ChevronRight class="w-3 h-3 text-gray-400 mx-1" />
-                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">
-                  {{ module.title }}
-                </span>
-              </div>
-            </li>
-          </ol>
-        </nav>
-
         <!-- Module Header -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
           <div class="p-6">
@@ -47,7 +13,7 @@
                   </div>
                   <div>
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      {{ module.title }}asdasdasd
+                      {{ module.title }}
                     </h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-1">
                       {{ course.title }} • Module {{ module.module_percentage }}% weight
@@ -119,21 +85,10 @@
                     Complete all lessons and activities to mark this module as complete
                   </div>
                 </div>
-                <!-- Module completed display with test button -->
-                <div v-else class="space-y-2">
-                  <div class="flex items-center text-green-600 dark:text-green-400 mb-2">
-                    <CheckCircle2 class="h-5 w-5 mr-2" />
-                    <span class="font-medium">Module Completed</span>
-                  </div>
-                  <!-- Test button for completed modules -->
-                  <button
-                    @click="markModuleComplete"
-                    :disabled="markingComplete"
-                    class="w-full flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors"
-                  >
-                    <CheckCircle2 class="h-4 w-4 mr-2" />
-                    {{ markingComplete ? 'Testing...' : 'Test Module Complete' }}
-                  </button>
+                <!-- Module completed display -->
+                <div v-else class="flex items-center text-green-600 dark:text-green-400">
+                  <CheckCircle2 class="h-5 w-5 mr-2" />
+                  <span class="font-medium">Module Completed</span>
                 </div>
               </div>
             </div>
@@ -168,14 +123,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import DocumentSection from '@/components/Student/DocumentSection.vue';
 import LessonSection from '@/components/Student/LessonSection.vue';
 import ActivitySection from '@/components/Student/ActivitySection.vue';
 import { 
-  BookOpen, 
-  ChevronRight, 
   FolderOpen, 
   CheckCircle2
 } from 'lucide-vue-next';
@@ -212,6 +165,7 @@ interface Activity {
   is_completed: boolean;
   quiz_progress?: {
     id: number;
+    student_activity_id: number;
     is_completed: boolean;
     is_submitted: boolean;
     score: number;

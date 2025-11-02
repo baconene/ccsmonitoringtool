@@ -127,10 +127,10 @@ const handleCourseModalRefresh = async (newCourseId?: number) => {
                 <div class="mb-8">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-                                Welcome to AstroLearn
+                            <h1 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                                Welcome to Team LEMA Web Sci
                             </h1>
-                            <p class="text-gray-600 dark:text-gray-300 mt-1">Your comprehensive learning management system</p>
+                            <p class="text-gray-600 dark:text-gray-300 mt-1">Your STEM Career Learning Management System</p>
                         </div>
    
                     </div>

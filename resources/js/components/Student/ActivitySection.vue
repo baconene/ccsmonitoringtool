@@ -104,13 +104,18 @@
                     {{ isMarkingComplete ? 'Marking...' : 'Mark as Complete' }}
                   </button>
                   
-                  <!-- View Activity button for completed activities or activities that can't be marked complete -->
+                  <!-- Show Results for completed, Take Activity for incomplete -->
                   <Link
                     v-else
-                    :href="`/student/activities/${activity.id}`"
-                    class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-center"
+                    :href="activity.is_completed && activity.student_activity 
+                      ? `/student/activities/${activity.student_activity.id}/results` 
+                      : `/student/activities/${activity.id}`"
+                    :class="activity.is_completed 
+                      ? 'bg-green-600 hover:bg-green-700' 
+                      : 'bg-blue-600 hover:bg-blue-700'"
+                    class="px-4 py-2 text-sm font-medium text-white rounded-md transition-colors text-center"
                   >
-                    {{ activity.is_completed ? 'View Activity' : 'View Activity' }}
+                    {{ activity.is_completed ? 'Show Results' : 'Take Activity' }}
                   </Link>
                 </div>
               </div>
@@ -182,13 +187,18 @@
                     {{ isMarkingComplete ? 'Marking...' : 'Mark as Complete' }}
                   </button>
                   
-                  <!-- View Activity button -->
+                  <!-- Show Results for completed, Take Activity for incomplete -->
                   <Link
                     v-else
-                    :href="`/student/activities/${activity.id}`"
-                    class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-center"
+                    :href="activity.is_completed && activity.student_activity 
+                      ? `/student/activities/${activity.student_activity.id}/results` 
+                      : `/student/assignment/start/${activity.id}`"
+                    :class="activity.is_completed 
+                      ? 'bg-green-600 hover:bg-green-700' 
+                      : 'bg-blue-600 hover:bg-blue-700'"
+                    class="px-4 py-2 text-sm font-medium text-white rounded-md transition-colors text-center"
                   >
-                    {{ activity.is_completed ? 'View Activity' : 'View Activity' }}
+                    {{ activity.is_completed ? 'Show Results' : 'Take Assignment' }}
                   </Link>
                 </div>
               </div>
@@ -252,13 +262,15 @@
                     {{ isMarkingComplete ? 'Marking...' : 'Mark as Complete' }}
                   </button>
                   
-                  <!-- View Activity button -->
+                  <!-- Show Results for completed activities -->
                   <Link
                     v-else
-                    :href="`/student/activities/${activity.id}`"
-                    class="px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors text-center"
+                    :href="activity.student_activity 
+                      ? `/student/activities/${activity.student_activity.id}/results` 
+                      : `/student/activities/${activity.id}`"
+                    class="px-4 py-2 text-sm font-medium bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors text-center"
                   >
-                    View Activity
+                    Show Results
                   </Link>
                 </div>
               </div>
@@ -297,12 +309,16 @@ interface Activity {
   is_completed: boolean;
   quiz_progress?: {
     id: number;
+    student_activity_id: number;
     is_completed: boolean;
     is_submitted: boolean;
     score: number;
     percentage_score: number;
     completed_questions: number;
     total_questions: number;
+  } | null;
+  student_activity?: {
+    id: number;
   } | null;
 }
 
@@ -342,17 +358,17 @@ const completedOtherActivities = computed(() => {
 
 const getActivityLink = (activity: Activity) => {
   if (activity.activity_type === 'Quiz') {
-    if (activity.is_completed && activity.quiz_progress) {
-      // Use student_activity_id from quiz_progress, not progress id
-      return `/student/quiz/${activity.quiz_progress.student_activity_id}/results`;
+    if (activity.is_completed && activity.student_activity) {
+      // Use unified results route with student_activity id
+      return `/student/activities/${activity.student_activity.id}/results`;
     } else {
       return `/student/quiz/start/${activity.id}`;
     }
   }
   if (activity.activity_type === 'Assignment') {
     if (activity.is_completed && activity.student_activity) {
-      // Use activity type and student_activity id
-      return `/student/assignment/${activity.student_activity.id}/results`;
+      // Use unified results route with student_activity id
+      return `/student/activities/${activity.student_activity.id}/results`;
     } else {
       return `/student/assignment/start/${activity.id}`;
     }
