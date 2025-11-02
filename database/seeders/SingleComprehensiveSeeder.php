@@ -140,6 +140,9 @@ class SingleComprehensiveSeeder extends Seeder
         DB::table('grade_levels')->delete();
         DB::table('roles')->delete();
 
+        // Reset auto-increment sequences for SQLite
+        DB::table('sqlite_sequence')->delete();
+
         DB::statement('PRAGMA foreign_keys=ON');
     }
 
