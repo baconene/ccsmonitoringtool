@@ -9,15 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up()
-{
-    Schema::create('lesson_document', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('lesson_id')->constrained()->cascadeOnDelete();
-        $table->foreignId('document_id')->constrained()->cascadeOnDelete();
-        $table->timestamps();
-    });
-}
+    public function up(): void
+    {
+        Schema::dropIfExists('lesson_document');
+        
+        Schema::create('lesson_document', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('lesson_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('document_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+        });
+    }
 
 
     /**
