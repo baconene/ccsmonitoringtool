@@ -7,7 +7,7 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
 </script>
 
 <template>
-    <Head title="Team LEMA Web Sci - STEM Career Learning Management System">
+    <Head title="Team LEMA - Online Learning Management System">
         <link rel="preconnect" href="https://rsms.me/" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     </Head>
@@ -36,8 +36,8 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
                         <img src="/images/team-lema-logo.jpg" alt="Team LEMA Logo" class="w-full h-full object-cover" />
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">Team LEMA Web Sci</span>
-                        <span class="text-xs text-gray-700 font-medium">STEM Career Learning Platform</span>
+                        <span class="text-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">Team LEMA</span>
+                        <span class="text-xs text-gray-700 font-medium">Online Learning Management System</span>
                     </div>
                 </div>
                 
@@ -79,17 +79,18 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
                     
                     <h1 class="text-5xl lg:text-7xl font-black leading-tight">
                         <span class="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                            Ignite Your
+                            Empowering
                         </span>
                         <br />
                         <span class="text-gray-800">
-                            STEM Career
+                            Online Education
                         </span>
                     </h1>
                     
                     <p class="text-xl text-gray-700 leading-relaxed max-w-2xl font-medium">
-                        Team LEMA Web Sci empowers students to explore Science, Technology, Engineering, and Mathematics 
-                        through an innovative learning platform designed for the future of STEM careers.
+                        Team LEMA bridges the distance in digital learning with a comprehensive platform that connects 
+                        instructors and students. Experience seamless online education with powerful tools for teaching, 
+                        learning, and collaboration—anywhere, anytime.
                     </p>
                     
                     <!-- CTA Buttons -->
@@ -145,46 +146,44 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
             <div class="max-w-7xl mx-auto">
                 <div class="text-center mb-16">
                     <h2 class="text-4xl font-black text-gray-800 mb-4">
-                        Why Choose Team LEMA Web Sci?
+                        Designed for Online Learning Excellence
                     </h2>
                     <p class="text-gray-700 text-xl max-w-3xl mx-auto font-medium">
-                        Experience the next generation of STEM education with features designed for student success
+                        Powerful features that make distance learning effective, engaging, and accessible for everyone
                     </p>
                 </div>
                 
                 <!-- Feature Grid -->
                 <div class="grid md:grid-cols-3 gap-8">
-                    <!-- Feature 1 -->
+                    <!-- Feature 1 - For Students -->
                     <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border-4 border-pink-300 hover:border-pink-400 hover:shadow-2xl transition-all duration-300 group">
                         <div class="w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                            </svg>
+                            <GraduationCap class="w-7 h-7 text-white" />
                         </div>
-                        <h3 class="text-xl font-black text-gray-800 mb-4">STEM-Focused Curriculum</h3>
-                        <p class="text-gray-700 font-medium">Master Science, Technology, Engineering, and Mathematics with our comprehensive career-oriented courses.</p>
+                        <h3 class="text-xl font-black text-gray-800 mb-4">For Students</h3>
+                        <p class="text-gray-700 font-medium">Access courses anytime, complete assignments, take quizzes, track your progress, and earn grades—all from the comfort of your home.</p>
                     </div>
                     
-                    <!-- Feature 2 -->
+                    <!-- Feature 2 - For Instructors -->
                     <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border-4 border-purple-300 hover:border-purple-400 hover:shadow-2xl transition-all duration-300 group">
                         <div class="w-14 h-14 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-black text-gray-800 mb-4">Progress Tracking</h3>
-                        <p class="text-gray-700 font-medium">Monitor your learning journey with real-time analytics and personalized performance insights.</p>
-                    </div>
-                    
-                    <!-- Feature 3 -->
-                    <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border-4 border-blue-300 hover:border-blue-400 hover:shadow-2xl transition-all duration-300 group">
-                        <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                             <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-black text-gray-800 mb-4">Interactive Learning</h3>
-                        <p class="text-gray-700 font-medium">Engage with hands-on projects, quizzes, and collaborative activities designed for STEM mastery.</p>
+                        <h3 class="text-xl font-black text-gray-800 mb-4">For Instructors</h3>
+                        <p class="text-gray-700 font-medium">Create courses, manage content, grade assignments, monitor student performance, and deliver engaging online lessons with ease.</p>
+                    </div>
+                    
+                    <!-- Feature 3 - Real-time Collaboration -->
+                    <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 border-4 border-blue-300 hover:border-blue-400 hover:shadow-2xl transition-all duration-300 group">
+                        <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-800 mb-4">Connected Learning</h3>
+                        <p class="text-gray-700 font-medium">Real-time updates, instant notifications, discussion forums, and seamless communication between students and instructors.</p>
                     </div>
                 </div>
             </div>
@@ -194,10 +193,10 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
         <section class="relative z-10 py-20 px-6">
             <div class="max-w-4xl mx-auto text-center bg-white/60 backdrop-blur-lg rounded-3xl p-12 shadow-2xl border-4 border-pink-300">
                 <h2 class="text-4xl font-black text-gray-800 mb-6">
-                    Ready to Ignite Your STEM Career?
+                    Join the Future of Online Education
                 </h2>
                 <p class="text-xl text-gray-700 mb-8 max-w-2xl mx-auto font-medium">
-                    Join Team LEMA Web Sci and unlock your potential in Science, Technology, Engineering, and Mathematics.
+                    Whether you're a student eager to learn or an instructor ready to inspire, Team LEMA provides the tools you need for successful online education.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link
