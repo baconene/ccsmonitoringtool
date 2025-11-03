@@ -116,6 +116,44 @@ class StudentActivityController extends Controller
         
         $studentActivity->update($updateData);
 
+        // Create or update student_activity_progress record
+        $activityType = $activity->activityType;
+        $activityTypeName = $activityType ? strtolower($activityType->name) : 'assessment';
+        
+        // Calculate actual question count based on activity type
+        $totalQuestions = 0;
+        if ($activityTypeName === 'quiz' && $activity->quiz) {
+            $totalQuestions = $activity->quiz->questions()->count();
+        } elseif ($activityTypeName === 'assignment' && $activity->assignment) {
+            $totalQuestions = $activity->assignment->questions()->count();
+        }
+        
+        StudentActivityProgress::updateOrCreate(
+            [
+                'student_activity_id' => $studentActivity->id,
+                'student_id' => $student->id,
+                'activity_id' => $activity->id,
+            ],
+            [
+                'activity_type' => $activityTypeName,
+                'status' => 'completed',
+                'is_completed' => true, // Set is_completed flag for grade reports
+                'is_submitted' => true, // Set is_submitted flag for frontend status display
+                'progress_percentage' => 100,
+                'score' => $studentActivity->score,
+                'percentage_score' => $studentActivity->percentage_score,
+                'points_earned' => $studentActivity->score,
+                'completed_questions' => $totalQuestions,
+                'total_questions' => $totalQuestions,
+                'answered_questions' => $totalQuestions,
+                'requires_grading' => false,
+                'started_at' => $studentActivity->started_at,
+                'completed_at' => now(),
+                'submitted_at' => now(),
+                'last_accessed_at' => now(),
+            ]
+        );
+
         // Get enrollment and update progress + auto-complete modules
         $enrollment = \App\Models\CourseEnrollment::where('student_id', $student->id)
             ->where('course_id', $studentActivity->course_id)

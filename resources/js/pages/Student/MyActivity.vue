@@ -76,92 +76,98 @@
                 : 'border border-gray-200 dark:border-gray-700'
             ]"
           >
-            <!-- Activity Header -->
-            <div class="p-6 flex-grow flex flex-col">
-              <div class="flex justify-between items-start mb-4">
-                <div class="flex-1">
-                  <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    <Link 
-                      :href="`/student/activities/${activity.id}`"
-                      class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                    >
-                      {{ activity.title }}
-                    </Link>
-                  </h3>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                    {{ activity.description }}
-                  </p>
-                </div>
-                
-                <!-- Status Badge -->
-                <span 
-                  :class="getStatusBadgeClass(activity)"
-                  class="px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 ml-3"
-                >
-                  {{ getStatusText(activity) }}
-                </span>
-              </div>
-
-              <!-- Metadata Links -->
-              <div class="space-y-2 mb-4">
-                <div class="flex items-center text-sm">
-                  <BookOpen class="h-4 w-4 text-gray-400 mr-2" />
-                  <Link 
-                    :href="`/student/courses/${activity.course_id}`"
-                    class="text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    {{ activity.course_name }}
-                  </Link>
-                </div>
-                
-                <div class="flex items-center text-sm">
-                  <Folder class="h-4 w-4 text-gray-400 mr-2" />
-                  <Link 
-                    :href="`/student/courses/${activity.course_id}#module-${activity.module_id}`"
-                    class="text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    {{ activity.module_name }}
-                  </Link>
-                </div>
-                
-                <div class="flex items-center text-sm">
-                  <Calendar class="h-4 w-4 text-gray-400 mr-2" />
-                  <span 
-                    :class="activity.is_past_due && activity.status !== 'completed' 
-                      ? 'text-red-600 dark:text-red-400 font-medium' 
-                      : 'text-gray-600 dark:text-gray-400'"
-                  >
-                    Due: {{ activity.due_date_formatted }}
-                    <span v-if="activity.is_past_due && activity.status !== 'completed'" class="ml-1">
-                      (Overdue)
-                    </span>
-                  </span>
-                </div>
-              </div>
-
-              <!-- Activity Details -->
-              <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
-                  <div class="flex items-center">
-                    <ClipboardList class="h-4 w-4 mr-1" />
-                    <span>{{ activity.activity_type }}</span>
+            <!-- Activity Content -->
+            <div class="p-6 flex flex-col h-full">
+              <!-- Top Section (grows to fill space) -->
+              <div class="flex-grow">
+                <div class="flex justify-between items-start mb-4">
+                  <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                      <Link 
+                        :href="`/student/activities/${activity.id}`"
+                        class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      >
+                        {{ activity.title }}
+                      </Link>
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      {{ activity.description }}
+                    </p>
                   </div>
                   
-                  <div class="flex items-center space-x-4">
-                    <div v-if="activity.question_count > 0" class="flex items-center">
-                      <HelpCircle class="h-4 w-4 mr-1" />
-                      <span>{{ activity.question_count }} questions</span>
-                    </div>
-                    
-                    <div v-if="activity.total_points > 0" class="flex items-center">
-                      <Star class="h-4 w-4 mr-1" />
-                      <span>{{ activity.total_points }} pts</span>
-                    </div>
+                  <!-- Status Badge -->
+                  <span 
+                    :class="getStatusBadgeClass(activity)"
+                    class="px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 ml-3"
+                  >
+                    {{ getStatusText(activity) }}
+                  </span>
+                </div>
+
+                <!-- Metadata Links -->
+                <div class="space-y-2 mb-4">
+                  <div class="flex items-center text-sm">
+                    <BookOpen class="h-4 w-4 text-gray-400 mr-2" />
+                    <Link 
+                      :href="`/student/courses/${activity.course_id}`"
+                      class="text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      {{ activity.course_name }}
+                    </Link>
+                  </div>
+                  
+                  <div class="flex items-center text-sm">
+                    <Folder class="h-4 w-4 text-gray-400 mr-2" />
+                    <Link 
+                      :href="`/student/courses/${activity.course_id}#module-${activity.module_id}`"
+                      class="text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      {{ activity.module_name }}
+                    </Link>
+                  </div>
+                  
+                  <div class="flex items-center text-sm">
+                    <Calendar class="h-4 w-4 text-gray-400 mr-2" />
+                    <span 
+                      :class="activity.is_past_due && activity.status !== 'completed' 
+                        ? 'text-red-600 dark:text-red-400 font-medium' 
+                        : 'text-gray-600 dark:text-gray-400'"
+                    >
+                      Due: {{ activity.due_date_formatted }}
+                      <span v-if="activity.is_past_due && activity.status !== 'completed'" class="ml-1">
+                        (Overdue)
+                      </span>
+                    </span>
                   </div>
                 </div>
 
+                <!-- Activity Details -->
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
+                    <div class="flex items-center">
+                      <ClipboardList class="h-4 w-4 mr-1" />
+                      <span>{{ activity.activity_type }}</span>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                      <div v-if="activity.question_count > 0" class="flex items-center">
+                        <HelpCircle class="h-4 w-4 mr-1" />
+                        <span>{{ activity.question_count }} questions</span>
+                      </div>
+                      
+                      <div v-if="activity.total_points > 0" class="flex items-center">
+                        <Star class="h-4 w-4 mr-1" />
+                        <span>{{ activity.total_points }} pts</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Section (Progress + Button - always at bottom) -->
+              <div class="mt-auto pt-4 space-y-3">
                 <!-- Progress Information -->
-                <div v-if="activity.progress && activity.status !== 'not-taken'" class="mt-3">
+                <div v-if="activity.progress && activity.status !== 'not-taken'" class="border-t border-gray-200 dark:border-gray-700 pt-3">
                   <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">
                     Progress: {{ activity.progress.completed_questions }}/{{ activity.progress.total_questions }} questions
                   </div>
@@ -171,16 +177,17 @@
                       :style="{ width: `${(activity.progress.completed_questions / activity.progress.total_questions) * 100}%` }"
                     ></div>
                   </div>
-                  <div v-if="activity.status === 'completed'" class="mt-2 text-sm">
-                    <span class="text-green-600 dark:text-green-400 font-medium">
-                      Score: {{ activity.progress.percentage_score }}%
+                  <div class="mt-2 text-sm">
+                    <span 
+                      :class="activity.status === 'completed' ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'"
+                      class="font-medium"
+                    >
+                      Score: {{ activity.progress.percentage_score ?? 0 }}%
                     </span>
                   </div>
                 </div>
-              </div>
 
-              <!-- Action Button -->
-              <div class="mt-auto pt-4">
+                <!-- Action Button -->
                 <button 
                   @click="handleActivityAction(activity)"
                   :class="getActionButtonClass(activity.status)"
