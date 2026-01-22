@@ -375,4 +375,101 @@ class UserController extends Controller
 
         return $enrollmentNumber;
     }
+
+    /**
+     * Download empty CSV template
+     */
+    public function downloadCsvTemplate()
+    {
+        $filePath = public_path('templates/users_bulk_upload_template.csv');
+        
+        if (!file_exists($filePath)) {
+            return response()->json(['message' => 'Template file not found'], 404);
+        }
+
+        return response()->download($filePath, 'users_bulk_upload_template.csv', [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    /**
+     * Download admin user CSV example
+     */
+    public function downloadAdminExample()
+    {
+        $filePath = public_path('templates/users_admin_example.csv');
+        
+        if (!file_exists($filePath)) {
+            return response()->json(['message' => 'Example file not found'], 404);
+        }
+
+        return response()->download($filePath, 'users_admin_example.csv', [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    /**
+     * Download instructor user CSV example
+     */
+    public function downloadInstructorExample()
+    {
+        $filePath = public_path('templates/users_instructor_example.csv');
+        
+        if (!file_exists($filePath)) {
+            return response()->json(['message' => 'Example file not found'], 404);
+        }
+
+        return response()->download($filePath, 'users_instructor_example.csv', [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    /**
+     * Download student user CSV example
+     */
+    public function downloadStudentExample()
+    {
+        $filePath = public_path('templates/users_student_example.csv');
+        
+        if (!file_exists($filePath)) {
+            return response()->json(['message' => 'Example file not found'], 404);
+        }
+
+        return response()->download($filePath, 'users_student_example.csv', [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    /**
+     * Get CSV format information
+     */
+    public function getCsvFormatInfo()
+    {
+        return response()->json([
+            'format' => [
+                'headers' => 'role_id,name,email,password,grade_level_id,section,program,department,title,specialization,bio,office_location,phone,office_hours,hire_date,employment_type,status,salary,education_level,certifications,years_experience',
+                'role_ids' => [
+                    1 => 'Admin',
+                    2 => 'Instructor',
+                    3 => 'Student'
+                ],
+                'required_fields' => [
+                    'all' => ['role_id', 'name', 'email', 'password'],
+                    'student' => ['grade_level_id']
+                ],
+                'optional_fields' => [
+                    'grade_level_id', 'section', 'program', 'department', 'title',
+                    'specialization', 'bio', 'office_location', 'phone', 'office_hours',
+                    'hire_date', 'employment_type', 'status', 'salary', 'education_level',
+                    'certifications', 'years_experience'
+                ]
+            ],
+            'template_urls' => [
+                'empty' => '/api/users/download-csv-template',
+                'admin_example' => '/api/users/download-admin-example',
+                'instructor_example' => '/api/users/download-instructor-example',
+                'student_example' => '/api/users/download-student-example'
+            ]
+        ]);
+    }
 }

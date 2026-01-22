@@ -55,6 +55,21 @@ class UserBulkUploadService
                     continue;
                 }
 
+                // Check if row has matching number of columns
+                if (count($row) !== count($headers)) {
+                    $results['failed']++;
+                    $results['errors'][] = [
+                        'line' => $rowNumber,
+                        'email' => isset($row[2]) ? $row[2] : 'N/A',
+                        'error' => "Column count mismatch. Expected " . count($headers) . " columns, got " . count($row)
+                    ];
+                    Log::warning("CSV Upload - Row {$rowNumber} has mismatched columns", [
+                        'expected_columns' => count($headers),
+                        'actual_columns' => count($row)
+                    ]);
+                    continue;
+                }
+
                 // Create associative array from headers and row data
                 $data = array_combine($headers, $row);
 

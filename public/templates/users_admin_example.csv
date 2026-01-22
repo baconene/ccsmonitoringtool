@@ -1,0 +1,2 @@
+role_id,name,email,password,grade_level_id,section,program,department,title,specialization,bio,office_location,phone,office_hours,hire_date,employment_type,status,salary,education_level,certifications,years_experience
+1,System Administrator,admin@lema.edu,SecurePass@2025,,,,,,"Administrator","System Management","Manages overall system operations","Room 101","555-0101","Mon-Fri 8AM-5PM","01/01/2020","Full-time","active","85000","Master's Degree","CompTIA Security+; ITIL Foundation","8"

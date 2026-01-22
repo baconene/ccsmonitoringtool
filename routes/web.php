@@ -277,6 +277,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::apiResource('users', \App\Http\Controllers\UserController::class);
         Route::get('/users/{id}/student-details', [\App\Http\Controllers\UserController::class, 'studentDetails']);
         Route::post('/users/bulk-upload', [\App\Http\Controllers\UserController::class, 'uploadCSV'])->name('users.bulk-upload');
+        
+        // CSV template download routes
+        Route::get('/users/download-csv-template', [\App\Http\Controllers\UserController::class, 'downloadCsvTemplate'])->name('users.download-csv-template');
+        Route::get('/users/download-admin-example', [\App\Http\Controllers\UserController::class, 'downloadAdminExample'])->name('users.download-admin-example');
+        Route::get('/users/download-instructor-example', [\App\Http\Controllers\UserController::class, 'downloadInstructorExample'])->name('users.download-instructor-example');
+        Route::get('/users/download-student-example', [\App\Http\Controllers\UserController::class, 'downloadStudentExample'])->name('users.download-student-example');
+        Route::get('/users/csv-format-info', [\App\Http\Controllers\UserController::class, 'getCsvFormatInfo'])->name('users.csv-format-info');
     });
 
     // Instructor Details Page

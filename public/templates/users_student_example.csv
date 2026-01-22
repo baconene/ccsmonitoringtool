@@ -1,0 +1,11 @@
+role_id,name,email,password,grade_level_id,section,program,department,title,specialization,bio,office_location,phone,office_hours,hire_date,employment_type,status,salary,education_level,certifications,years_experience
+3,"Alex Martinez","alex.martinez@lema.edu","StudentPass@2025","1","A","Computer Science","IT","","","","","","","","","","","","",""
+3,"Jordan Taylor","jordan.taylor@lema.edu","StudentPass@2025","1","A","Computer Science","IT","","","","","","","","","","","","",""
+3,"Casey Brown","casey.brown@lema.edu","StudentPass@2025","1","B","Information Technology","IT","","","","","","","","","","","","",""
+3,"Morgan Lee","morgan.lee@lema.edu","StudentPass@2025","1","B","Computer Science","IT","","","","","","","","","","","","",""
+3,"Riley Johnson","riley.johnson@lema.edu","StudentPass@2025","2","A","Data Science","IT","","","","","","","","","","","","",""
+3,"Avery White","avery.white@lema.edu","StudentPass@2025","2","B","Computer Science","IT","","","","","","","","","","","","",""
+3,"Taylor Davis","taylor.davis@lema.edu","StudentPass@2025","2","A","Information Technology","IT","","","","","","","","","","","","",""
+3,"Quinn Miller","quinn.miller@lema.edu","StudentPass@2025","2","B","Cybersecurity","IT","","","","","","","","","","","","",""
+3,"Parker Anderson","parker.anderson@lema.edu","StudentPass@2025","3","A","Computer Science","IT","","","","","","","","","","","","",""
+3,"Sage Thompson","sage.thompson@lema.edu","StudentPass@2025","3","A","Web Development","IT","","","","","","","","","","","","",""
