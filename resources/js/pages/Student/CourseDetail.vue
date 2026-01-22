@@ -361,7 +361,10 @@ const formatDuration = (minutes: number) => {
 
 // Activity helper functions
 const isActivityCompleted = (activity: any) => {
-  return activity.quiz_progress?.is_completed || activity.is_completed;
+  // Check multiple sources for completion status
+  return activity.quiz_progress?.is_completed || 
+         activity.is_completed || 
+         activity.student_activity?.status === 'completed';
 };
 
 const getActivitiesByType = (activities: any[], type: string) => {

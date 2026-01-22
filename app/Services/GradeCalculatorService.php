@@ -286,9 +286,11 @@ class GradeCalculatorService
             $percentageScore = $activityProgress->percentage_score ?? 0;
             $score = $activityProgress->score ?? 0;
             $maxScore = 100; // Use 100 as max since we have percentage_score
-            $isCompleted = $activityProgress->is_completed;
+            // Check both is_completed flag and status field for completion
+            $isCompleted = $activityProgress->is_completed || $activityProgress->status === 'completed';
             $submittedAt = $activityProgress->completed_at ?? $activityProgress->updated_at;
-            $status = $activityProgress->is_completed ? 'completed' : 'in_progress';
+            // Determine status from both is_completed flag and status field
+            $status = ($activityProgress->is_completed || $activityProgress->status === 'completed') ? 'completed' : 'in_progress';
         } elseif ($studentActivity) {
             $score = $studentActivity->score ?? 0;
             $maxScore = $studentActivity->max_score ?? 100;
