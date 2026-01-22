@@ -22,7 +22,8 @@ const formData = ref({
   grade_level: '',
   grade_level_id: null as number | null,
   section: '',
-  password: ''
+  password: '',
+  email_verified: false as boolean
 });
 
 // Grade levels data
@@ -59,17 +60,30 @@ watch(() => props.user, (newUser) => {
       grade_level: (newUser as any).grade_level || '',
       grade_level_id: (newUser as any).grade_level_id || null,
       section: (newUser as any).section || '',
-      password: '' // Password is optional for editing
+      password: '', // Password is optional for editing
+      email_verified: (newUser as any).email_verified_at !== null
     };
   }
 }, { immediate: true });
 
 const handleSubmit = () => {
+  // Only send necessary fields
+  const dataToSubmit = {
+    id: formData.value.id,
+    name: formData.value.name,
+    email: formData.value.email,
+    role: formData.value.role,
+    grade_level_id: formData.value.grade_level_id,
+    section: formData.value.section,
+    email_verified: formData.value.email_verified,
+  } as any;
+  
   // Only include password if it's provided
-  const dataToSubmit = { ...formData.value };
-  if (!dataToSubmit.password) {
-    delete (dataToSubmit as any).password;
+  if (formData.value.password) {
+    dataToSubmit.password = formData.value.password;
   }
+  
+  console.log('EditUserModal submitting:', dataToSubmit);
   emit('submit', dataToSubmit);
 };
 
@@ -141,6 +155,26 @@ const handleClose = () => {
               placeholder="Enter new password (optional)"
             />
             <p class="text-xs text-gray-500 dark:text-gray-400">Minimum 8 characters (only if changing password)</p>
+          </div>
+
+          <!-- Email Verification Status -->
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Email Verification
+            </label>
+            <div class="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                v-model="formData.email_verified"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              />
+              <span class="text-sm text-gray-600 dark:text-gray-400">
+                Mark email as {{ formData.email_verified ? 'verified' : 'unverified' }}
+              </span>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ formData.email_verified ? '✓ Email verified' : '✗ Email not verified' }}
+            </p>
           </div>
 
           <!-- Role -->

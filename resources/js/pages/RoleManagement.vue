@@ -139,8 +139,10 @@ const handleAddUser = async (userData: NewUserData) => {
   }
 };
 
-const handleEditUser = async (user: User & { password?: string; grade_level_id?: number | null }) => {
+const handleEditUser = async (user: User & { password?: string; grade_level_id?: number | null; email_verified?: boolean }) => {
   try {
+    console.log('handleEditUser received user:', user);
+    
     const updateData: UserUpdateData = {
       name: user.name,
       email: user.email,
@@ -160,6 +162,12 @@ const handleEditUser = async (user: User & { password?: string; grade_level_id?:
       updateData.section = user.section;
     }
     
+    // Include email_verified if it exists
+    if ('email_verified' in user) {
+      updateData.email_verified = user.email_verified;
+    }
+    
+    console.log('handleEditUser sending updateData:', updateData);
     await updateUser(user.id, updateData);
     success('User updated successfully');
   } catch (err: any) {

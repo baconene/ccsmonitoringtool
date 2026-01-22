@@ -43,6 +43,7 @@ export interface UserUpdateData {
   grade_level?: string;
   grade_level_id?: number | null;
   section?: string;
+  email_verified?: boolean;
 }
 //
 

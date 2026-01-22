@@ -78,21 +78,57 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
-            'role' => ['required', 'string', 'exists:roles,name'],
-            'grade_level' => ['nullable', 'string', 'max:50'],
-            'grade_level_id' => ['nullable', 'exists:grade_levels,id'],
-            'section' => ['nullable', 'string', 'max:50'],
+        \Log::info('UPDATE REQUEST RECEIVED:', [
+            'all_data' => $request->all(),
+            'email_verified_present' => $request->has('email_verified'),
+            'email_verified_value' => $request->input('email_verified'),
         ]);
+
+        try {
+            $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
+                'role' => ['required', 'string', 'exists:roles,name'],
+                'grade_level' => ['nullable', 'string', 'max:50'],
+                'grade_level_id' => ['nullable', 'exists:grade_levels,id'],
+                'section' => ['nullable', 'string', 'max:50'],
+                'email_verified' => ['nullable', 'boolean'],
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('VALIDATION ERROR:', ['error' => $e->getMessage()]);
+            throw $e;
+        }
 
         $role = Role::where('name', $request->role)->first();
 
-        $user->update([
+        $updateData = [
             'name' => $request->name,
             'email' => $request->email,
             'role_id' => $role->id,
+        ];
+
+        // Handle email verification status with boolean flag
+        if ($request->has('email_verified')) {
+            \Log::info('Setting email verification:', [
+                'user_id' => $user->id,
+                'email_verified_value' => $request->input('email_verified'),
+                'email_verified_boolean' => $request->boolean('email_verified'),
+            ]);
+            
+            if ($request->boolean('email_verified')) {
+                $updateData['email_verified_at'] = now();
+            } else {
+                $updateData['email_verified_at'] = null;
+            }
+        }
+
+        \Log::info('UPDATE DATA:', $updateData);
+        $user->update($updateData);
+        $user->refresh();
+        \Log::info('USER AFTER UPDATE:', [
+            'id' => $user->id,
+            'email_verified_at' => $user->email_verified_at,
+            'email_verified_at_raw' => $user->getAttributes()['email_verified_at'] ?? null,
         ]);
 
         // Update the associated Student record if this user is a student
