@@ -43,6 +43,10 @@ Route::middleware(['auth', 'verified'])->prefix('api')->group(function () {
         Route::get('/stats', [App\Http\Controllers\Api\DashboardApiController::class, 'getStats']);
         Route::get('/student-data', [App\Http\Controllers\Api\DashboardApiController::class, 'getStudentData']);
         Route::get('/instructor-data', [App\Http\Controllers\Api\DashboardApiController::class, 'getInstructorData']);
+        // Admin dashboard routes
+        Route::get('/admin-stats', [App\Http\Controllers\Api\DashboardApiController::class, 'getAdminStats']);
+        Route::get('/admin-courses', [App\Http\Controllers\Api\DashboardApiController::class, 'getAdminCourses']);
+        Route::get('/admin-activities', [App\Http\Controllers\Api\DashboardApiController::class, 'getAdminActivities']);
     });
     
     // Instructor API routes

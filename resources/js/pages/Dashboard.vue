@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import AdminDashboard from '@/dashboards/AdminDashboard.vue';
 import InstructorDashboard from '@/dashboards/InstructorDashboard.vue';
 import StudentDashboard from '@/dashboards/StudentDashboard.vue';
 import CourseModal from '@/course/CourseModal.vue';
@@ -141,7 +142,10 @@ const handleCourseModalRefresh = async (newCourseId?: number) => {
                     <!-- Main Content Area -->
                     <div class="lg:col-span-12">
                         <!-- Dynamic Dashboard Component -->
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors">
+                        <div v-if="user?.role === 'admin'" class="w-full">
+                            <AdminDashboard />
+                        </div>
+                        <div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors">
                             <StudentDashboard v-if="props.dashboardComponent === 'StudentDashboard' || user?.role === 'student'" />
                             <InstructorDashboard v-else />
                         </div>

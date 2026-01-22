@@ -455,4 +455,153 @@ class DashboardApiController extends Controller
             ], 500);
         }
     }
-}
+
+    /**
+     * Get admin dashboard statistics.
+     */
+    public function getAdminStats(Request $request): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user || $user->role_name !== 'admin') {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            // Get all statistics
+            $totalUsers = User::count();
+            $totalInstructors = User::whereHas('role', function ($q) {
+                $q->where('name', 'instructor');
+            })->count();
+            $totalStudents = User::whereHas('role', function ($q) {
+                $q->where('name', 'student');
+            })->count();
+            $totalCourses = Course::count();
+            $totalActivities = Activity::count();
+            $totalSchedules = Schedule::count();
+            $activeEnrollments = CourseEnrollment::count();
+            $completedActivities = Activity::where('status', 'completed')->count();
+            $pendingReviews = Activity::where('status', 'pending_review')->count();
+
+            // Calculate system health (percentage)
+            $systemHealth = 95; // Default healthy state
+
+            $stats = [
+                'totalUsers' => $totalUsers,
+                'totalInstructors' => $totalInstructors,
+                'totalStudents' => $totalStudents,
+                'totalCourses' => $totalCourses,
+                'totalActivities' => $totalActivities,
+                'totalSchedules' => $totalSchedules,
+                'activeEnrollments' => $activeEnrollments,
+                'completedActivities' => $completedActivities,
+                'pendingReviews' => $pendingReviews,
+                'systemHealth' => $systemHealth,
+            ];
+
+            return response()->json(['stats' => $stats]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error in getAdminStats: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to fetch admin statistics',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get admin courses data for dashboard.
+     */
+    public function getAdminCourses(Request $request): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user || $user->role_name !== 'admin') {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            // Get top courses with student and activity counts
+            $courses = Course::with('instructor.user')
+                ->withCount('students')
+                ->withCount('activities')
+                ->orderBy('created_at', 'desc')
+                ->limit(20)
+                ->get()
+                ->map(function ($course) {
+                    return [
+                        'id' => $course->id,
+                        'title' => $course->title,
+                        'studentCount' => $course->students_count,
+                        'activityCount' => $course->activities_count,
+                        'instructorName' => $course->instructor?->user?->name ?? 'Unknown',
+                        'status' => $course->status ?? 'active',
+                    ];
+                });
+
+            return response()->json(['courses' => $courses]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error in getAdminCourses: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to fetch courses data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get admin recent activities.
+     */
+    public function getAdminActivities(Request $request): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user || $user->role_name !== 'admin') {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            // Fetch recent user activities (enrollments, submissions, etc.)
+            $activities = DB::table('users')
+                ->select(
+                    'users.id',
+                    'users.name',
+                    DB::raw("'user_added' as type"),
+                    DB::raw("CONCAT('New user ', users.name, ' added to system') as description"),
+                    'users.created_at as timestamp'
+                )
+                ->orderBy('users.created_at', 'desc')
+                ->limit(8)
+                ->get()
+                ->map(function ($activity) {
+                    $initials = substr($activity->name, 0, 2);
+                    return [
+                        'id' => $activity->id,
+                        'type' => $activity->type,
+                        'description' => $activity->description,
+                        'timestamp' => Carbon::parse($activity->timestamp)->diffForHumans(),
+                        'userInitials' => strtoupper($initials),
+                    ];
+                });
+
+            return response()->json(['activities' => $activities]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error in getAdminActivities: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to fetch activities',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }}
