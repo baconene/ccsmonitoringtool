@@ -87,13 +87,11 @@ class DashboardApiController extends Controller
     {
         \Log::info('getInstructorStats called', ['user_id' => $user->id]);
 
-        // Get courses taught by instructor
+        // Get courses taught by instructor - auto-create if doesn't exist
         $instructor = Instructor::where('user_id', $user->id)->first();
         if (!$instructor) {
-            \Log::error('getInstructorStats: Instructor record not found', ['user_id' => $user->id]);
-            return response()->json([
-                'message' => 'Instructor record not found for user'
-            ], 404);
+            \Log::info('getInstructorStats: Creating instructor record', ['user_id' => $user->id]);
+            $instructor = $user->getOrCreateInstructorRecord();
         }
 
         \Log::info('getInstructorStats: Instructor found', ['instructor_id' => $instructor->id]);
@@ -403,6 +401,14 @@ class DashboardApiController extends Controller
         try {
             $user = Auth::user();
             $instructor = Instructor::where('user_id', $user->id)->first();
+            
+            // Auto-create instructor record if doesn't exist
+            if (!$instructor) {
+                \Log::info('DashboardApiController::getInstructorData - Creating instructor record', [
+                    'user_id' => $user->id,
+                ]);
+                $instructor = $user->getOrCreateInstructorRecord();
+            }
             
             \Log::info('DashboardApiController::getInstructorData - Instructor lookup', [
                 'user_id' => $user->id,
