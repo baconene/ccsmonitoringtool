@@ -1,58 +1,116 @@
 <template>
   <Head title="Grade Report" />
-  <AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbs">
     <template #header>
       <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
         Grade Report
       </h2>
     </template>
 
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-6">
-      <!-- Course Selection -->
-      <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg mb-6 border dark:border-gray-700">
-        <div class="p-6">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Select Course</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div class="h-[calc(100vh-140px)] flex gap-0 bg-gray-50 dark:bg-gray-900">
+      <!-- Left Sidebar -->
+      <div class="w-80 bg-white dark:bg-gray-800 border-r dark:border-gray-700 overflow-y-auto flex flex-col">
+        <!-- Sticky Header & Course Selector -->
+        <div class="sticky top-0 bg-white dark:bg-gray-800 z-20 border-b dark:border-gray-700 p-6 space-y-4">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Courses</h3>
+          
+          <!-- Selected Course Display / Search Input -->
+          <div class="relative">
+            <input
+              v-model="searchQuery"
+              @focus="showCourseList = true"
+              @blur="setTimeout(() => { if (!searchQuery) showCourseList = false }, 250)"
+              type="text"
+              :placeholder="getSelectedCourseName()"
+              :value="searchQuery || getSelectedCourseName()"
+              class="w-full px-4 py-2 border-2 border-blue-400 dark:border-blue-500 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            
+            <!-- Dropdown List -->
+            <div v-show="showCourseList || searchQuery" class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-30 max-h-96 overflow-y-auto">
+              <!-- Individual Courses -->
+              <button
+                v-for="course in filteredCourses"
+                :key="course.id"
+                @click="selectCourse(course.id); showCourseList = false; searchQuery = ''"
+                class="w-full text-left px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-b dark:border-gray-700 last:border-b-0 transition-colors flex justify-between items-center"
+              >
+                <div class="flex-1 min-w-0">
+                  <h4 class="font-medium text-gray-900 dark:text-gray-100 truncate text-sm">{{ course.title }}</h4>
+                </div>
+                <div class="ml-3 flex items-center gap-1 text-sm font-bold">
+                  <span class="text-gray-400 dark:text-gray-500">|</span>
+                  <span class="text-blue-600 dark:text-blue-400 w-8 text-right">{{ getCourseLetterGrade(course.id) }}</span>
+                  <span class="text-gray-400 dark:text-gray-500">|</span>
+                </div>
+              </button>
+
+              <!-- All Courses Option -->
+              <button
+                @click="selectCourse('all'); showCourseList = false; searchQuery = ''"
+                class="w-full text-left px-4 py-3 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors flex justify-between items-center bg-gray-50 dark:bg-gray-700/50"
+              >
+                <div class="flex-1">
+                  <h4 class="font-medium text-gray-900 dark:text-gray-100 text-sm">All Courses</h4>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">Complete summary</p>
+                </div>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Export Buttons -->
+          <div class="space-y-2">
             <button
-              v-for="course in availableCourses"
-              :key="course.id"
-              @click="selectCourse(course.id)"
-              :class="[
-                'course-button p-4 border rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
-                selectedCourseId === course.id
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-400 shadow-md'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
-              ]"
+              @click="exportPDF"
+              class="w-full px-3 py-2 text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
             >
-              <h4 class="font-medium text-gray-900 dark:text-gray-100 truncate">{{ course.title }}</h4>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{ course.description }}</p>
+              <DocumentArrowDownIcon class="h-3 w-3 inline mr-1" />PDF
             </button>
             <button
-              @click="selectCourse('all')"
-              :class="[
-                'course-button p-4 border rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50',
-                selectedCourseId === 'all'
-                  ? 'border-green-500 bg-green-50 dark:bg-green-900/30 dark:border-green-400 shadow-md'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-green-400 dark:hover:border-green-500 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
-              ]"
+              @click="exportCSV"
+              class="w-full px-3 py-2 text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700"
             >
-              <h4 class="font-medium text-gray-900 dark:text-gray-100">Complete Report</h4>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">All courses summary</p>
+              <DocumentArrowDownIcon class="h-3 w-3 inline mr-1" />CSV
             </button>
+          </div>
+        </div>
+
+        <!-- Scrollable Summary Section -->
+        <div class="flex-1 overflow-y-auto px-6 py-6">
+          <!-- Summary -->
+          <div v-if="gradeData" class="space-y-3">
+            <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Summary</h4>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">{{ selectedCourseId === 'all' ? 'GPA' : 'Grade' }}:</span>
+                <span class="font-bold text-gray-900 dark:text-gray-100">
+                  {{ selectedCourseId === 'all' ? gradeData.overall_gpa : gradeData.overall_grade }}{{ selectedCourseId !== 'all' ? '%' : '' }}
+                </span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400">Modules:</span>
+                <span class="font-bold text-gray-900 dark:text-gray-100">
+                  {{ selectedCourseId === 'all' ? (gradeData.total_courses || 0) : getCompletedModules(gradeData.modules) }}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="loading" class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border dark:border-gray-700">
-        <div class="p-6 text-center">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
-          <p class="mt-2 text-gray-600 dark:text-gray-300">Loading grade report...</p>
-        </div>
-      </div>
+      <!-- Main Content -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="max-w-6xl mx-auto px-6 py-6">
+          <!-- Loading -->
+          <div v-if="loading" class="flex items-center justify-center h-64">
+            <div class="text-center">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-2"></div>
+              <p class="text-gray-600 dark:text-gray-300 text-sm">Loading report...</p>
+            </div>
+          </div>
 
-      <!-- Grade Report Content -->
-      <div v-else-if="gradeData" class="space-y-6">
+          <!-- Content -->
+          <div v-else-if="gradeData" class="space-y-6">
         <!-- Overall Grade Summary -->
         <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border dark:border-gray-700">
           <div class="p-6">
@@ -347,28 +405,23 @@
 
         <!-- Complete Report View -->
         <div v-else class="space-y-6">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div
               v-for="course in (gradeData.courses || [])"
               :key="course.course?.id"
-              class="bg-white shadow-lg rounded-xl border border-gray-200 hover:shadow-xl transition-shadow duration-300"
+              class="bg-white shadow-lg rounded-xl border border-gray-200 hover:shadow-xl transition-shadow duration-300 flex flex-col"
             >
               <!-- Course Header -->
-              <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-t-xl">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h4 class="text-xl font-bold mb-2">{{ course.course?.title || 'Unknown Course' }}</h4>
-                    <p class="text-blue-100 text-sm">{{ course.course?.description || 'No description available' }}</p>
-                  </div>
-                  <div class="text-right">
-                    <div class="text-3xl font-bold">{{ course.overall_grade || 0 }}%</div>
-                    <div class="text-lg font-medium">{{ course.overall_letter_grade || 'N/A' }}</div>
-                  </div>
+              <div :class="[getCourseColorClasses(course.course?.id).gradient, 'text-white p-4 rounded-t-xl h-28 flex items-center justify-between']">
+                <h4 class="text-lg font-bold line-clamp-2 flex-1 pr-4">{{ course.course?.title || 'Unknown Course' }}</h4>
+                <div class="text-right flex-shrink-0">
+                  <div class="text-3xl font-bold">{{ course.overall_grade || 0 }}%</div>
+                  <div class="text-sm font-medium">{{ course.overall_letter_grade || 'N/A' }}</div>
                 </div>
               </div>
 
               <!-- Course Stats -->
-              <div class="p-6">
+              <div class="p-6 flex-1 overflow-y-auto">
                 <div class="grid grid-cols-3 gap-4 mb-6">
                   <div class="text-center">
                     <div class="bg-green-50 rounded-lg p-3">
@@ -421,32 +474,24 @@
                           :style="{ width: `${module.module_score || 0}%` }"
                         ></div>
                       </div>
-                      <!-- Module Calculation Details -->
-                      <div class="text-xs text-gray-600">
-                        <div class="flex justify-between mb-1">
-                          <span>📚 Lessons: {{ module.lesson_score || 100 }}% × 20%</span>
-                          <span>📝 Activities: {{ module.activity_score || 0 }}% × 80%</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span>Module Weight: {{ module.module_weight || (100 / (course.modules?.length || 1)).toFixed(1) }}%</span>
-                          <span v-if="module.activities">Progress: {{ module.activities.filter(a => a.is_completed).length }}/{{ module.activities.length }}</span>
-                        </div>
-                      </div>
+                      <!-- Module Calculation Details (Hidden) -->
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <!-- Course Action -->
-                <div class="mt-6 pt-4 border-t border-gray-200">
-                  <button
-                    @click="selectCourse(course.course?.id)"
-                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
-                  >
-                    View Detailed Report
-                  </button>
-                </div>
+              <!-- Course Action - Fixed at Bottom -->
+              <div class="border-t border-gray-200 p-4">
+                <button
+                  @click="selectCourse(course.course?.id)"
+                  :class="[getCourseColorClasses(course.course?.id).button, 'w-full text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200']"
+                >
+                  View Detailed Report
+                </button>
               </div>
             </div>
+          </div>
+        </div>
           </div>
         </div>
       </div>
@@ -455,7 +500,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { DocumentArrowDownIcon } from '@heroicons/vue/24/outline'
@@ -469,11 +514,42 @@ const props = defineProps({
   selectedCourse: String
 })
 
-// Reactive data
-const selectedCourseId = ref(props.selectedCourse || null)
+// State
+const selectedCourseId = ref(props.selectedCourse || 'all')
 const gradeData = ref(props.courseGrades || props.completeReport || null)
 const loading = ref(false)
-const expandedModules = ref({}) // Track which modules have calculation details expanded
+const expandedModules = ref({})
+const searchQuery = ref('')
+const showCourseList = ref(false)
+
+// Computed
+const filteredCourses = computed(() => {
+  if (!searchQuery.value.trim()) {
+    return props.availableCourses || []
+  }
+  const query = searchQuery.value.toLowerCase()
+  return (props.availableCourses || []).filter(course =>
+    course.title.toLowerCase().includes(query) ||
+    (course.description && course.description.toLowerCase().includes(query))
+  )
+})
+
+const breadcrumbs = computed(() => {
+  const items = [
+    { title: 'Home', href: '/' },
+    { title: 'Dashboard', href: '/student-dashboard' },
+    { title: 'Grade Report', href: '/student/report' }
+  ]
+  
+  if (selectedCourseId.value !== 'all') {
+    const selectedCourse = props.availableCourses?.find(c => c.id === selectedCourseId.value)
+    if (selectedCourse) {
+      items.push({ title: selectedCourse.title, href: undefined })
+    }
+  }
+  
+  return items
+}) // Track which modules have calculation details expanded
 
 // Methods
 const toggleModuleDetails = (moduleId) => {
@@ -566,6 +642,40 @@ const getCompletedModules = (modules) => {
   return modules.filter(module => module.is_completed).length
 }
 
+// Color palettes for course headers
+const colorPalettes = [
+  { gradient: 'bg-gradient-to-r from-blue-500 to-blue-600', button: 'bg-blue-600 hover:bg-blue-700' },
+  { gradient: 'bg-gradient-to-r from-purple-500 to-purple-600', button: 'bg-purple-600 hover:bg-purple-700' },
+  { gradient: 'bg-gradient-to-r from-indigo-500 to-indigo-600', button: 'bg-indigo-600 hover:bg-indigo-700' },
+  { gradient: 'bg-gradient-to-r from-pink-500 to-pink-600', button: 'bg-pink-600 hover:bg-pink-700' },
+  { gradient: 'bg-gradient-to-r from-teal-500 to-teal-600', button: 'bg-teal-600 hover:bg-teal-700' },
+  { gradient: 'bg-gradient-to-r from-cyan-500 to-cyan-600', button: 'bg-cyan-600 hover:bg-cyan-700' },
+  { gradient: 'bg-gradient-to-r from-emerald-500 to-emerald-600', button: 'bg-emerald-600 hover:bg-emerald-700' },
+  { gradient: 'bg-gradient-to-r from-rose-500 to-rose-600', button: 'bg-rose-600 hover:bg-rose-700' }
+]
+
+const getCourseColorClasses = (courseId) => {
+  if (!courseId) return colorPalettes[0]
+  const hash = courseId.toString().split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+  const index = hash % colorPalettes.length
+  return colorPalettes[index]
+}
+
+const getCourseLetterGrade = (courseId) => {
+  if (selectedCourseId.value === courseId && gradeData.value) {
+    return gradeData.value.overall_letter_grade || 'N/A'
+  }
+  return 'N/A'
+}
+
+const getSelectedCourseName = () => {
+  if (selectedCourseId.value === 'all') {
+    return 'All Courses'
+  }
+  const course = props.availableCourses.find(c => c.id === selectedCourseId.value)
+  return course?.title || 'Select a course'
+}
+
 const calculateModuleAverageScore = (activities) => {
   if (!activities || activities.length === 0) return 0
   const completedActivities = activities.filter(a => a.percentage_score !== null && a.percentage_score !== undefined)
@@ -585,9 +695,9 @@ const getActivityTypeCount = (activities, type) => {
 }
 
 onMounted(() => {
-  // If no course is selected and we have available courses, select the first one
-  if (!selectedCourseId.value && props.availableCourses.length > 0) {
-    selectCourse(props.availableCourses[0].id)
+  // If 'all' is selected (default), load the complete report
+  if (selectedCourseId.value === 'all') {
+    selectCourse('all')
   }
 })
 </script>
