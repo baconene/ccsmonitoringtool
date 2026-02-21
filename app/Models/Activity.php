@@ -140,4 +140,14 @@ class Activity extends Model
         return $this->morphOne(Schedule::class, 'schedulable')
             ->where('schedule_type_id', 1); // Activity type
     }
+
+    /**
+     * Get skills associated with this activity
+     */
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'skill_activities')
+            ->withPivot('weight')
+            ->withTimestamps();
+    }
 }

@@ -4,6 +4,11 @@ import { X } from 'lucide-vue-next';
 import type { User } from '@/types';
 import axios from 'axios';
 
+type GradeLevel = {
+  id: number;
+  display_name: string;
+};
+
 const props = defineProps<{
   showModal: boolean;
   user: User | null;
@@ -27,7 +32,7 @@ const formData = ref({
 });
 
 // Grade levels data
-const gradeLevels = ref([])
+const gradeLevels = ref<GradeLevel[]>([])
 const loadingGradeLevels = ref(false)
 
 // Fetch grade levels from API

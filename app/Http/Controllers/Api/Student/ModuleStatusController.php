@@ -258,8 +258,13 @@ class ModuleStatusController extends Controller
         }
 
         // Create module completion record
+        // Note: We store BOTH user_id and student_id so that
+        // CourseEnrollment and course/module dashboards (which
+        // rely on student_id) stay in sync with the module
+        // status API (which uses user_id).
         $completion = ModuleCompletion::create([
             'user_id' => $user->id,
+            'student_id' => $student->id,
             'module_id' => $moduleId,
             'course_id' => $module->course_id,
             'completed_at' => Carbon::now(),

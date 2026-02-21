@@ -128,4 +128,10 @@ class Module extends Model
             ->with(['activity', 'quizProgress', 'assignmentProgress', 'projectProgress', 'assessmentProgress'])
             ->get();
     }
+
+    // Skills defined for this module
+    public function skills()
+    {
+        return $this->hasMany(Skill::class);
+    }
 }

@@ -19,16 +19,35 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with(['role', 'student.gradeLevel'])->get()->map(function ($user) {
-            // Add grade_level and section to user object for frontend compatibility
-            if ($user->student) {
-                $user->grade_level = $user->student->gradeLevel?->display_name;
-                $user->grade_level_id = $user->student->grade_level_id;
-                $user->section = $user->student->section;
-            }
-            return $user;
-        });
-        return response()->json($users);
+        $users = User::with(['role', 'student.gradeLevel'])->get();
+        
+        $formattedUsers = $users->map(function ($user) {
+            // Helper function to safely handle UTF-8 encoding
+            $safeString = function($value) {
+                if ($value === null) return null;
+                $str = (string) $value;
+                // Use iconv to handle malformed UTF-8 sequences
+                // //IGNORE removes malformed characters, //TRANSLIT replaces them
+                $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $str);
+                return $converted !== false ? $converted : $str;
+            };
+            
+            return [
+                'id' => (int) $user->id,
+                'name' => $safeString($user->name),
+                'email' => $safeString($user->email),
+                'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->toIso8601String() : null,
+                'role_name' => $safeString($user->role?->name),
+                'role_display_name' => $safeString($user->role?->display_name),
+                'grade_level' => $safeString($user->student?->gradeLevel?->display_name),
+                'grade_level_id' => $user->student?->grade_level_id ? (int) $user->student->grade_level_id : null,
+                'section' => $safeString($user->student?->section),
+                'created_at' => $safeString($user->created_at),
+                'updated_at' => $safeString($user->updated_at),
+            ];
+        })->toArray();
+        
+        return response()->json($formattedUsers);
     }
 
     public function store(Request $request)
@@ -63,17 +82,44 @@ class UserController extends Controller
                 'academic_year' => date('Y') . '-' . (date('Y') + 1),
                 'status' => 'active',
             ]);
+        } elseif ($request->role === 'instructor') {
+            // Create Instructor profile for instructors
+            \App\Models\Instructor::create([
+                'instructor_id' => $this->generateInstructorId(),
+                'user_id' => $user->id,
+                'employee_id' => $this->generateEmployeeId(),
+                'department' => 'General',
+                'status' => 'active',
+            ]);
         }
 
-        // Load relationships and add student data to user object
-        $user->load(['role', 'student.gradeLevel']);
-        if ($user->student) {
-            $user->grade_level = $user->student->gradeLevel?->display_name;
-            $user->grade_level_id = $user->student->grade_level_id;
-            $user->section = $user->student->section;
-        }
+        // Load relationships and format response same as index()
+        $user->load(['role', 'student.gradeLevel', 'instructor']);
         
-        return response()->json($user);
+        // Helper function to safely handle UTF-8 encoding
+        $safeString = function($value) {
+            if ($value === null) return null;
+            $str = (string) $value;
+            $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $str);
+            return $converted !== false ? $converted : $str;
+        };
+        
+        // Format response with flat role fields for consistency with index()
+        $response = [
+            'id' => (int) $user->id,
+            'name' => $safeString($user->name),
+            'email' => $safeString($user->email),
+            'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->toIso8601String() : null,
+            'role_name' => $safeString($user->role?->name),
+            'role_display_name' => $safeString($user->role?->display_name),
+            'grade_level' => $safeString($user->student?->gradeLevel?->display_name),
+            'grade_level_id' => $user->student?->grade_level_id ? (int) $user->student->grade_level_id : null,
+            'section' => $safeString($user->student?->section),
+            'created_at' => $safeString($user->created_at),
+            'updated_at' => $safeString($user->updated_at),
+        ];
+        
+        return response()->json($response);
     }
 
     public function update(Request $request, User $user)
@@ -139,6 +185,28 @@ class UserController extends Controller
                     'grade_level_id' => $request->grade_level_id ?? $student->grade_level_id,
                     'section' => $request->section ?? $student->section,
                 ]);
+            } else {
+                // Create student record if it doesn't exist (role change from non-student to student)
+                Student::create([
+                    'student_id_text' => Student::generateStudentIdText(),
+                    'user_id' => $user->id,
+                    'grade_level_id' => $request->grade_level_id ?? null,
+                    'section' => $request->section ?? null,
+                    'enrollment_number' => $this->generateEnrollmentNumber(),
+                    'academic_year' => date('Y') . '-' . (date('Y') + 1),
+                    'status' => 'active',
+                ]);
+            }
+        } elseif ($request->role === 'instructor') {
+            // Create Instructor profile if it doesn't exist (role change to instructor)
+            if (!$user->instructor) {
+                \App\Models\Instructor::create([
+                    'instructor_id' => $this->generateInstructorId(),
+                    'user_id' => $user->id,
+                    'employee_id' => $this->generateEmployeeId(),
+                    'department' => 'General',
+                    'status' => 'active',
+                ]);
             }
         }
 
@@ -152,15 +220,33 @@ class UserController extends Controller
             ]);
         }
 
-        // Load relationships and add student data to user object
-        $user->load(['role', 'student.gradeLevel']);
-        if ($user->student) {
-            $user->grade_level = $user->student->gradeLevel?->display_name;
-            $user->grade_level_id = $user->student->grade_level_id;
-            $user->section = $user->student->section;
-        }
+        // Load relationships
+        $user->load(['role', 'student.gradeLevel', 'instructor']);
+        
+        // Helper function to safely handle UTF-8 encoding
+        $safeString = function($value) {
+            if ($value === null) return null;
+            $str = (string) $value;
+            $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $str);
+            return $converted !== false ? $converted : $str;
+        };
+        
+        // Format response with flat role fields for consistency with index() and store()
+        $response = [
+            'id' => (int) $user->id,
+            'name' => $safeString($user->name),
+            'email' => $safeString($user->email),
+            'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->toIso8601String() : null,
+            'role_name' => $safeString($user->role?->name),
+            'role_display_name' => $safeString($user->role?->display_name),
+            'grade_level' => $safeString($user->student?->gradeLevel?->display_name),
+            'grade_level_id' => $user->student?->grade_level_id ? (int) $user->student->grade_level_id : null,
+            'section' => $safeString($user->student?->section),
+            'created_at' => $safeString($user->created_at),
+            'updated_at' => $safeString($user->updated_at),
+        ];
 
-        return response()->json($user);
+        return response()->json($response);
     }
 
     public function destroy(User $user)
@@ -322,42 +408,72 @@ class UserController extends Controller
             'title' => ['sometimes', 'nullable', 'string', 'max:100'],
             'department' => ['sometimes', 'nullable', 'string', 'max:100'],
             'specialization' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'bio' => ['sometimes', 'nullable', 'string'],
             'office_location' => ['sometimes', 'nullable', 'string', 'max:100'],
             'office_hours' => ['sometimes', 'nullable', 'string'],
             'hire_date' => ['sometimes', 'nullable', 'date'],
             'employment_type' => ['sometimes', 'nullable', 'string', 'max:50'],
             'education_level' => ['sometimes', 'nullable', 'string', 'max:100'],
-            'years_of_experience' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'years_experience' => ['sometimes', 'nullable', 'integer', 'min:0'],
+            'status' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'salary' => ['sometimes', 'nullable', 'numeric'],
+            'certifications' => ['sometimes', 'nullable', 'array'],
+            'employee_id' => ['sometimes', 'nullable', 'string', 'max:100'],
         ]);
 
-        // Update the user
-        $user->update($validated);
+        // Separate user fields from instructor fields
+        $userFields = array_intersect_key($validated, array_flip(['name', 'email']));
+        $instructorFields = array_intersect_key($validated, array_flip([
+            'phone',
+            'title',
+            'department',
+            'specialization',
+            'bio',
+            'office_location',
+            'office_hours',
+            'hire_date',
+            'employment_type',
+            'education_level',
+            'years_experience',
+            'status',
+            'salary',
+            'certifications',
+            'employee_id'
+        ]));
 
-        // Update the instructor record if it exists
-        if ($user->instructor) {
-            $instructorFields = array_intersect_key($validated, array_flip([
-                'department',
-                'specialization',
-                'hire_date',
-                'employment_type',
-                'office_location',
-                'office_hours',
-                'education_level',
-                'years_of_experience'
-            ]));
-            
-            if (!empty($instructorFields)) {
-                $user->instructor->update($instructorFields);
-            }
+        // Update the user if there are user fields
+        if (!empty($userFields)) {
+            $user->update($userFields);
         }
 
-        // Reload relationships
-        $user->load(['role', 'instructor']);
+        // Update the instructor record if it exists and there are instructor fields
+        if ($user->instructor && !empty($instructorFields)) {
+            $user->instructor->update($instructorFields);
+        }
 
-        return response()->json([
-            'message' => 'Instructor details updated successfully',
-            'user' => $user
-        ]);
+        // Reload relationships and return formatted response
+        $user->load(['role', 'student.gradeLevel', 'instructor']);
+        
+        // Helper function to safely handle UTF-8 encoding
+        $safeString = function($value) {
+            if ($value === null) return null;
+            $str = (string) $value;
+            $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $str);
+            return $converted !== false ? $converted : $str;
+        };
+        
+        // Format response with flat role fields for consistency
+        $response = [
+            'id' => (int) $user->id,
+            'name' => $safeString($user->name),
+            'email' => $safeString($user->email),
+            'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->toIso8601String() : null,
+            'role_name' => $safeString($user->role?->name),
+            'role_display_name' => $safeString($user->role?->display_name),
+            'message' => 'Instructor details updated successfully'
+        ];
+
+        return response()->json($response);
     }
 
     /**
@@ -366,14 +482,40 @@ class UserController extends Controller
     private function generateEnrollmentNumber(): string
     {
         $year = date('Y');
-        $prefix = $year . '-';
-        
-        do {
-            $number = str_pad(rand(1000, 9999), 4, '0', STR_PAD_LEFT);
-            $enrollmentNumber = $prefix . $number;
-        } while (\App\Models\Student::where('enrollment_number', $enrollmentNumber)->exists());
+        $lastStudent = \App\Models\Student::whereYear('created_at', $year)
+            ->orderBy('id', 'desc')
+            ->first();
 
-        return $enrollmentNumber;
+        $sequence = $lastStudent ? ((int) substr($lastStudent->enrollment_number, -4)) + 1 : 1;
+        
+        return $year . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Generate a unique instructor ID.
+     */
+    private function generateInstructorId(): string
+    {
+        $prefix = 'INS-';
+        do {
+            $id = $prefix . str_pad(rand(100000, 999999), 6, '0', STR_PAD_LEFT);
+        } while (\App\Models\Instructor::where('instructor_id', $id)->exists());
+        return $id;
+    }
+
+    /**
+     * Generate a unique employee ID for instructor records.
+     */
+    private function generateEmployeeId(): string
+    {
+        $year = date('Y');
+        $lastInstructor = \App\Models\Instructor::whereYear('created_at', $year)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $sequence = $lastInstructor ? ((int) substr($lastInstructor->employee_id, -4)) + 1 : 1;
+        
+        return 'EMP-' . $year . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     /**

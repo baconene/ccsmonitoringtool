@@ -37,13 +37,67 @@ const uploadResults = ref<{
 } | null>(null);
 const showUploadModal = ref(false);
 
+// Debug response state
+const debugResponse = ref<any>(null);
+const debugError = ref<string | null>(null);
+
 // Load all data
 const loadData = async () => {
+  mainError.value = null;
+  debugResponse.value = null;
+  debugError.value = null;
+  
   try {
-    await Promise.all([fetchUsers(), fetchRoles()]);
-  } catch (err) {
-    mainError.value = 'Failed to load role management data';
-    console.error('Error loading data:', err);
+    // Load both users and roles in parallel, but handle failures independently
+    const userPromise = fetchUsers().catch(err => {
+      console.error('Failed to load users:', err);
+      debugError.value = 'User fetch error: ' + JSON.stringify({
+        message: err.message,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+      }, null, 2);
+      throw err; // Re-throw to make Promise.allSettled see it as rejected
+    });
+    
+    const rolePromise = fetchRoles().catch(err => {
+      console.error('Failed to load roles:', err);
+      throw err;
+    });
+    
+    const [usersResult, rolesResult] = await Promise.allSettled([userPromise, rolePromise]);
+    
+    // Log the results for debugging
+    console.log('Users Result:', usersResult);
+    console.log('Users value:', users.value);
+    debugResponse.value = {
+      usersResult,
+      users: users.value,
+      rolesResult,
+      roles: roles.value
+    };
+    
+    // Check if both failed
+    if (usersResult.status === 'rejected' && rolesResult.status === 'rejected') {
+      mainError.value = 'Failed to load role management data. Please check your connection and try again.';
+    } else if (usersResult.status === 'rejected') {
+      // Users failed but roles might have loaded - show warning but allow partial display
+      const errorMsg = usersResult.reason?.response?.data?.message || 'Failed to load users';
+      console.warn('Users load failed:', errorMsg);
+      // Don't block the UI, just warn
+      if (roles.value.length === 0) {
+        showError('Failed to load users: ' + errorMsg);
+      }
+    } else if (rolesResult.status === 'rejected') {
+      // Roles failed but users loaded - show warning
+      console.warn('Roles load failed');
+      if (users.value.length > 0) {
+        showError('Some role data may be incomplete or unavailable.');
+      }
+    }
+  } catch (e) {
+    console.error('Unexpected error in loadData:', e);
+    debugError.value = JSON.stringify(e, null, 2);
   }
 };
 
@@ -245,8 +299,22 @@ onMounted(() => {
           </button>
         </div>
 
+        <!-- DEBUG: Display API Response -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+          <h3 class="font-bold text-blue-900 dark:text-blue-200 mb-2">DEBUG INFO</h3>
+          <div class="text-sm font-mono bg-white dark:bg-gray-800 p-3 rounded border border-blue-200 dark:border-blue-800 max-h-64 overflow-auto">
+            <pre v-if="debugResponse">{{ JSON.stringify(debugResponse, null, 2) }}</pre>
+            <pre v-else-if="debugError" class="text-red-600">{{ debugError }}</pre>
+            <p v-else class="text-gray-500">Loading...</p>
+          </div>
+          <div class="mt-2 text-sm">
+            <p>Users Count: {{ users.length }}</p>
+            <p>Roles Count: {{ roles.length }}</p>
+          </div>
+        </div>
+
         <!-- Content -->
-        <div v-else class="space-y-8">
+        <div class="space-y-8">
           <!-- Roles Section -->
           <RolesSection :roles="roles" :get-role-badge-color="getRoleBadgeColor" />
 

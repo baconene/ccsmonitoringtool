@@ -12,6 +12,8 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
   (e: 'update-field', field: string, value: string | number): void;
+  (e: 'edit-start', field: string): void;
+  (e: 'edit-end', field: string): void;
 }>();
 
 const certificationsArray = computed(() => {
@@ -50,7 +52,9 @@ const certificationsArray = computed(() => {
           :value="educationLevel"
           field="education_level"
           type="text"
-          @update="emit('update-field', $event, $event)"
+          @update="(field, value) => emit('update-field', field, value)"
+          @edit-start="(field) => emit('edit-start', field)"
+          @edit-end="(field) => emit('edit-end', field)"
         />
       </div>
 

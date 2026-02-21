@@ -255,10 +255,16 @@ class AssignmentGradingController extends Controller
 
             $percentage = $assignment->total_points > 0 ? ($totalScore / $assignment->total_points) * 100 : 0;
 
-            // Update progress
+            // Update progress with final graded scores so unified progress table stays authoritative
             $progress->update([
                 'points_earned' => $totalScore,
+                'score' => $totalScore,
+                'max_score' => $assignment->total_points,
+                'points_possible' => $assignment->total_points,
+                'percentage_score' => $percentage,
                 'grading_date' => now(),
+                'graded_at' => now(),
+                'status' => 'graded',
                 'instructor_comments' => $validated['overall_feedback'] ?? $progress->instructor_comments,
             ]);
 

@@ -183,7 +183,7 @@ class Student extends Model
     public function courses(): BelongsToMany
     {
         return $this->belongsToMany(Course::class, 'course_enrollments')
-                    ->withPivot(['progress', 'is_completed', 'enrolled_at', 'completed_at', 'status'])
+                    ->withPivot(['progress', 'is_completed', 'enrolled_at', 'completed_at'])
                     ->withTimestamps();
     }
 
@@ -314,5 +314,23 @@ class Student extends Model
         }
         
         return ($this->completed_activities_count / $total) * 100;
+    }
+
+    /**
+     * Get student skill assessments.
+     */
+    public function skillAssessments(): HasMany
+    {
+        return $this->hasMany(StudentSkillAssessment::class, 'student_id', 'id');
+    }
+
+    /**
+     * Get a student's skill assessment for a specific skill.
+     */
+    public function getSkillAssessment(int $skillId): ?StudentSkillAssessment
+    {
+        return $this->skillAssessments()
+            ->where('skill_id', $skillId)
+            ->first();
     }
 }

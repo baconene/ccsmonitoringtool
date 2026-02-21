@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
- * @see routes/web.php:539
+ * @see routes/web.php:582
  * @route '/student/projects/{studentActivity}'
  */
 export const show = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ show.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:539
+ * @see routes/web.php:582
  * @route '/student/projects/{studentActivity}'
  */
 show.url = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -46,7 +46,7 @@ show.url = (args: { studentActivity: number | { id: number } } | [studentActivit
 }
 
 /**
- * @see routes/web.php:539
+ * @see routes/web.php:582
  * @route '/student/projects/{studentActivity}'
  */
 show.get = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -54,7 +54,7 @@ show.get = (args: { studentActivity: number | { id: number } } | [studentActivit
     method: 'get',
 })
 /**
- * @see routes/web.php:539
+ * @see routes/web.php:582
  * @route '/student/projects/{studentActivity}'
  */
 show.head = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -63,7 +63,7 @@ show.head = (args: { studentActivity: number | { id: number } } | [studentActivi
 })
 
     /**
- * @see routes/web.php:539
+ * @see routes/web.php:582
  * @route '/student/projects/{studentActivity}'
  */
     const showForm = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -72,7 +72,7 @@ show.head = (args: { studentActivity: number | { id: number } } | [studentActivi
     })
 
             /**
- * @see routes/web.php:539
+ * @see routes/web.php:582
  * @route '/student/projects/{studentActivity}'
  */
         showForm.get = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -80,7 +80,7 @@ show.head = (args: { studentActivity: number | { id: number } } | [studentActivi
             method: 'get',
         })
             /**
- * @see routes/web.php:539
+ * @see routes/web.php:582
  * @route '/student/projects/{studentActivity}'
  */
         showForm.head = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

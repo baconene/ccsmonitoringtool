@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
- * @see routes/web.php:599
+ * @see routes/web.php:642
  * @route '/instructor/notifications/test'
  */
 export const test = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ test.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:599
+ * @see routes/web.php:642
  * @route '/instructor/notifications/test'
  */
 test.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ test.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web.php:599
+ * @see routes/web.php:642
  * @route '/instructor/notifications/test'
  */
 test.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -30,7 +30,7 @@ test.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web.php:599
+ * @see routes/web.php:642
  * @route '/instructor/notifications/test'
  */
 test.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -39,7 +39,7 @@ test.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web.php:599
+ * @see routes/web.php:642
  * @route '/instructor/notifications/test'
  */
     const testForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -48,7 +48,7 @@ test.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web.php:599
+ * @see routes/web.php:642
  * @route '/instructor/notifications/test'
  */
         testForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -56,7 +56,7 @@ test.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web.php:599
+ * @see routes/web.php:642
  * @route '/instructor/notifications/test'
  */
         testForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

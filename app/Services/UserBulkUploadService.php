@@ -112,6 +112,7 @@ class UserBulkUploadService
 
     /**
      * Process a single row based on user role
+     * Uses same logic as UserController::store() method
      *
      * @param array $data
      * @param int $rowNumber
@@ -120,17 +121,32 @@ class UserBulkUploadService
      */
     protected function processRow(array $data, int $rowNumber): void
     {
-        // Support both role_id and user_role columns
+        // Support both role_id and user_role columns, or role name
         $roleId = null;
+        $roleName = null;
+        
         if (!empty($data['role_id'])) {
             $roleId = (int) trim($data['role_id']);
         } elseif (!empty($data['user_role'])) {
             $roleId = (int) trim($data['user_role']);
+        } elseif (!empty($data['role'])) {
+            $roleName = trim($data['role']);
         }
 
         // Validate required fields
-        if (empty($roleId) || empty($data['name']) || empty($data['email']) || empty($data['password'])) {
-            throw new Exception('Missing required fields: role_id (or user_role), name, email, or password');
+        if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
+            throw new Exception('Missing required fields: name, email, or password');
+        }
+
+        // If we have a role name, convert it to role_id
+        if ($roleName && !$roleId) {
+            $role = \App\Models\Role::where('name', $roleName)->first();
+            if (!$role) {
+                throw new Exception("Invalid role: {$roleName}");
+            }
+            $roleId = $role->id;
+        } elseif (!$roleId) {
+            throw new Exception('Missing required fields: role_id or role');
         }
 
         DB::beginTransaction();
@@ -139,7 +155,6 @@ class UserBulkUploadService
             // Check if email already exists - skip instead of throwing error
             if (User::where('email', trim($data['email']))->exists()) {
                 DB::rollBack();
-                // Return special message that will be handled as info instead of error
                 throw new Exception("User already exists - skipped");
             }
 
@@ -170,6 +185,7 @@ class UserBulkUploadService
 
     /**
      * Create Admin user
+     * Uses same logic as UserController::store() method
      *
      * @param array $data
      * @return User
@@ -186,6 +202,8 @@ class UserBulkUploadService
 
     /**
      * Create Instructor user and profile
+     * Uses same logic as UserController::store() method
+     * For bulk upload, optionally creates Instructor record if provided
      *
      * @param array $data
      * @return User
@@ -193,7 +211,7 @@ class UserBulkUploadService
      */
     protected function createInstructor(array $data): User
     {
-        // Create user
+        // Create user - same as UserController::store()
         $user = User::create([
             'name' => trim($data['name']),
             'email' => trim($data['email']),
@@ -201,48 +219,55 @@ class UserBulkUploadService
             'role_id' => 2,
         ]);
 
-        // Parse certifications JSON if provided
-        $certifications = null;
-        if (!empty($data['certifications'])) {
-            try {
-                // Clean up the certification string and parse it
-                $certString = trim($data['certifications']);
-                $certifications = json_decode($certString, true);
-                
-                // If JSON decode fails, try to parse the custom format
-                if ($certifications === null && $certString !== '') {
-                    $certifications = $this->parseCertifications($certString);
+        // Optionally create Instructor profile if data is provided in CSV
+        // This is different from newUserModal which doesn't create the Instructor record
+        if (!empty($data['phone']) || !empty($data['title']) || !empty($data['department']) ||
+            !empty($data['specialization']) || !empty($data['bio']) || !empty($data['office_location']) ||
+            !empty($data['office_hours']) || !empty($data['hire_date']) || !empty($data['employment_type']) ||
+            !empty($data['education_level']) || !empty($data['years_experience']) || !empty($data['salary'])) {
+            
+            // Parse certifications JSON if provided
+            $certifications = null;
+            if (!empty($data['certifications'])) {
+                try {
+                    $certString = trim($data['certifications']);
+                    $certifications = json_decode($certString, true);
+                    
+                    if ($certifications === null && $certString !== '') {
+                        $certifications = $this->parseCertifications($certString);
+                    }
+                } catch (Exception $e) {
+                    Log::warning("Failed to parse certifications", ['data' => $data['certifications']]);
                 }
-            } catch (Exception $e) {
-                Log::warning("Failed to parse certifications", ['data' => $data['certifications']]);
             }
-        }
 
-        // Create instructor profile
-        Instructor::create([
-            'user_id' => $user->id,
-            'employee_id' => $this->generateEmployeeId(),
-            'title' => !empty($data['title']) ? trim($data['title']) : null,
-            'department' => !empty($data['department']) ? trim($data['department']) : null,
-            'specialization' => !empty($data['specialization']) ? trim($data['specialization']) : null,
-            'bio' => !empty($data['bio']) ? trim($data['bio']) : null,
-            'office_location' => !empty($data['office_location']) ? trim($data['office_location']) : null,
-            'phone' => !empty($data['phone']) ? trim($data['phone']) : null,
-            'office_hours' => !empty($data['office_hours']) ? trim($data['office_hours']) : null,
-            'hire_date' => !empty($data['hire_date']) ? $this->parseDate($data['hire_date']) : null,
-            'employment_type' => !empty($data['employment_type']) ? trim($data['employment_type']) : null,
-            'status' => !empty($data['status']) ? trim($data['status']) : 'active',
-            'salary' => !empty($data['salary']) ? floatval($data['salary']) : 0,
-            'education_level' => !empty($data['education_level']) ? trim($data['education_level']) : null,
-            'certifications' => $certifications,
-            'years_experience' => !empty($data['years_experience']) ? intval($data['years_experience']) : 0,
-        ]);
+            Instructor::create([
+                'instructor_id' => $this->generateInstructorId(),
+                'user_id' => $user->id,
+                'employee_id' => $this->generateEmployeeId(),
+                'title' => !empty($data['title']) ? trim($data['title']) : null,
+                'department' => !empty($data['department']) ? trim($data['department']) : 'General',
+                'specialization' => !empty($data['specialization']) ? trim($data['specialization']) : null,
+                'bio' => !empty($data['bio']) ? trim($data['bio']) : null,
+                'office_location' => !empty($data['office_location']) ? trim($data['office_location']) : null,
+                'phone' => !empty($data['phone']) ? trim($data['phone']) : null,
+                'office_hours' => !empty($data['office_hours']) ? trim($data['office_hours']) : null,
+                'hire_date' => !empty($data['hire_date']) ? $this->parseDate($data['hire_date']) : null,
+                'employment_type' => !empty($data['employment_type']) ? trim($data['employment_type']) : null,
+                'status' => !empty($data['status']) ? trim($data['status']) : 'active',
+                'salary' => !empty($data['salary']) ? floatval($data['salary']) : 0,
+                'education_level' => !empty($data['education_level']) ? trim($data['education_level']) : null,
+                'certifications' => $certifications,
+                'years_experience' => !empty($data['years_experience']) ? intval($data['years_experience']) : 0,
+            ]);
+        }
 
         return $user;
     }
 
     /**
      * Create Student user and profile
+     * Uses the same logic as UserController::store() method
      *
      * @param array $data
      * @return User
@@ -275,7 +300,7 @@ class UserBulkUploadService
             $gradeLevelId = $gradeLevel->id;
         }
 
-        // Create user
+        // Create user - same as UserController::store()
         $user = User::create([
             'name' => trim($data['name']),
             'email' => trim($data['email']),
@@ -283,7 +308,7 @@ class UserBulkUploadService
             'role_id' => 3,
         ]);
 
-        // Create student profile
+        // Create student profile - same as UserController::store()
         Student::create([
             'student_id_text' => Student::generateStudentIdText(),
             'user_id' => $user->id,
@@ -291,8 +316,6 @@ class UserBulkUploadService
             'section' => !empty($data['section']) ? trim($data['section']) : null,
             'enrollment_number' => $this->generateEnrollmentNumber(),
             'academic_year' => date('Y') . '-' . (date('Y') + 1),
-            'program' => !empty($data['program']) ? trim($data['program']) : null,
-            'department' => !empty($data['department']) ? trim($data['department']) : null,
             'status' => 'active',
         ]);
 
@@ -351,6 +374,20 @@ class UserBulkUploadService
         }
         
         return !empty($result) ? $result : null;
+    }
+
+    /**
+     * Generate unique instructor ID
+     *
+     * @return string
+     */
+    protected function generateInstructorId(): string
+    {
+        $prefix = 'INS-';
+        do {
+            $id = $prefix . str_pad(rand(100000, 999999), 6, '0', STR_PAD_LEFT);
+        } while (Instructor::where('instructor_id', $id)->exists());
+        return $id;
     }
 
     /**

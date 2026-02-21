@@ -98,6 +98,13 @@ const assignmentIncorrectCount = computed(() => {
   return props.questionResults.filter(r => r.is_correct === false).length;
 });
 
+const assignmentPercentage = computed(() => {
+  if (!isAssignment.value || !props.summary || !isGraded.value) return null;
+  const raw = props.summary.percentage;
+  const num = typeof raw === 'number' ? raw : parseFloat(String(raw ?? 0));
+  return Number.isNaN(num) ? null : num;
+});
+
 // Common computed
 const pageTitle = computed(() => {
   if (isQuiz.value) return `Quiz Results: ${props.progress?.activity?.title}`;
@@ -312,7 +319,7 @@ const formatTime = (seconds: number) => {
             >
               <div class="flex items-start justify-between mb-3">
                 <div class="flex items-center gap-2">
-                  <span class="font-semibold text-gray-900 dark:text-white">Question {{ index + 1 }}</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">Question {{ Number(index) + 1 }}</span>
                   <Badge :variant="answer.question.question_type === 'multiple_choice' ? 'default' : 'secondary'">
                     {{ answer.question.question_type }}
                   </Badge>
@@ -367,7 +374,7 @@ const formatTime = (seconds: number) => {
                 <div class="text-center p-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-lg">
                   <div class="text-sm font-medium opacity-90 mb-1">Percentage</div>
                   <div class="text-4xl font-bold">
-                    {{ isGraded ? summary?.percentage?.toFixed(1) : '—' }}<span class="text-2xl">%</span>
+                    {{ isGraded && assignmentPercentage != null ? assignmentPercentage.toFixed(1) : '—' }}<span class="text-2xl">%</span>
                   </div>
                 </div>
 
@@ -443,7 +450,7 @@ const formatTime = (seconds: number) => {
             >
               <div class="flex items-start justify-between mb-3">
                 <div class="flex items-center gap-2">
-                  <span class="font-semibold text-gray-900 dark:text-white">Question {{ index + 1 }}</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">Question {{ Number(index) + 1 }}</span>
                   <Badge :variant="result.question.question_type === 'multiple_choice' ? 'default' : 'secondary'">
                     {{ result.question.question_type }}
                   </Badge>

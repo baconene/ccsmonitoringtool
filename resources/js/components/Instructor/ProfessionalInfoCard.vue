@@ -16,6 +16,8 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
   (e: 'update-field', field: string, value: string | number): void;
+  (e: 'edit-start', field: string): void;
+  (e: 'edit-end', field: string): void;
 }>();
 
 const formattedHireDate = computed(() => {
@@ -49,7 +51,9 @@ const formattedHireDate = computed(() => {
           :value="department"
           field="department"
           type="text"
-          @update="emit('update-field', $event, $event)"
+          @update="(field, value) => emit('update-field', field, value)"
+          @edit-start="(field) => emit('edit-start', field)"
+          @edit-end="(field) => emit('edit-end', field)"
         />
       </div>
 
@@ -64,7 +68,9 @@ const formattedHireDate = computed(() => {
           :value="specialization"
           field="specialization"
           type="text"
-          @update="emit('update-field', $event, $event)"
+          @update="(field, value) => emit('update-field', field, value)"
+          @edit-start="(field) => emit('edit-start', field)"
+          @edit-end="(field) => emit('edit-end', field)"
         />
       </div>
 
@@ -79,7 +85,9 @@ const formattedHireDate = computed(() => {
           :value="employmentType"
           field="employment_type"
           type="text"
-          @update="emit('update-field', $event, $event)"
+          @update="(field, value) => emit('update-field', field, value)"
+          @edit-start="(field) => emit('edit-start', field)"
+          @edit-end="(field) => emit('edit-end', field)"
         />
       </div>
 
@@ -94,7 +102,9 @@ const formattedHireDate = computed(() => {
           :value="hireDate"
           field="hire_date"
           type="date"
-          @update="emit('update-field', $event, $event)"
+          @update="(field, value) => emit('update-field', field, value)"
+          @edit-start="(field) => emit('edit-start', field)"
+          @edit-end="(field) => emit('edit-end', field)"
         />
         <p v-if="formattedHireDate" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
           {{ formattedHireDate }}
@@ -110,9 +120,11 @@ const formattedHireDate = computed(() => {
         <EditableField
           label=""
           :value="yearsOfExperience"
-          field="years_of_experience"
+          field="years_experience"
           type="number"
-          @update="emit('update-field', $event, $event)"
+          @update="(field, value) => emit('update-field', field, value)"
+          @edit-start="(field) => emit('edit-start', field)"
+          @edit-end="(field) => emit('edit-end', field)"
         />
       </div>
 
@@ -127,7 +139,9 @@ const formattedHireDate = computed(() => {
           :value="officeHours"
           field="office_hours"
           type="textarea"
-          @update="emit('update-field', $event, $event)"
+          @update="(field, value) => emit('update-field', field, value)"
+          @edit-start="(field) => emit('edit-start', field)"
+          @edit-end="(field) => emit('edit-end', field)"
         />
       </div>
     </div>

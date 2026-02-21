@@ -16,6 +16,8 @@ defineProps<Props>();
 
 const emit = defineEmits<{
   (e: 'update-field', field: string, value: string | number): void;
+  (e: 'edit-start', field: string): void;
+  (e: 'edit-end', field: string): void;
 }>();
 
 const getStatusBadgeColor = (status: string | null) => {
@@ -51,7 +53,9 @@ const getStatusBadgeColor = (status: string | null) => {
               :value="name"
               field="name"
               type="text"
-              @update="emit('update-field', $event, $event)"
+              @update="(field, value) => emit('update-field', field, value)"
+              @edit-start="(field) => emit('edit-start', field)"
+              @edit-end="(field) => emit('edit-end', field)"
               class="text-3xl font-bold"
             />
           </div>
@@ -62,7 +66,9 @@ const getStatusBadgeColor = (status: string | null) => {
               :value="title"
               field="title"
               type="text"
-              @update="emit('update-field', $event, $event)"
+              @update="(field, value) => emit('update-field', field, value)"
+              @edit-start="(field) => emit('edit-start', field)"
+              @edit-end="(field) => emit('edit-end', field)"
               class="text-lg"
             />
           </div>
@@ -75,7 +81,9 @@ const getStatusBadgeColor = (status: string | null) => {
                 :value="email"
                 field="email"
                 type="email"
-                @update="emit('update-field', $event, $event)"
+                @update="(field, value) => emit('update-field', field, value)"
+                @edit-start="(field) => emit('edit-start', field)"
+                @edit-end="(field) => emit('edit-end', field)"
               />
             </div>
             
@@ -86,7 +94,9 @@ const getStatusBadgeColor = (status: string | null) => {
                 :value="phone"
                 field="phone"
                 type="tel"
-                @update="emit('update-field', $event, $event)"
+                @update="(field, value) => emit('update-field', field, value)"
+                @edit-start="(field) => emit('edit-start', field)"
+                @edit-end="(field) => emit('edit-end', field)"
               />
             </div>
             
@@ -97,7 +107,9 @@ const getStatusBadgeColor = (status: string | null) => {
                 :value="officeLocation"
                 field="office_location"
                 type="text"
-                @update="emit('update-field', $event, $event)"
+                @update="(field, value) => emit('update-field', field, value)"
+                @edit-start="(field) => emit('edit-start', field)"
+                @edit-end="(field) => emit('edit-end', field)"
               />
             </div>
           </div>

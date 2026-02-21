@@ -141,9 +141,45 @@ class StudentActivityResultsController extends Controller
                 return $answer;
             });
 
-        $progress->answers = $answers;
-        $progress->quiz = $quiz;
-        $progress->activity = $activity;
+        // Ensure score fields are correctly populated based on answers
+        $totalQuestions = $quiz->questions->count();
+        $totalPointsPossible = $quiz->questions->sum('points');
+        $correctAnswers = $answers->where('is_correct', true)->count();
+        $totalPointsEarned = $answers->sum('points_earned');
+
+        // If there are correct answers but no points recorded (legacy or mismatched data),
+        // backfill points based on equal weight per question.
+        if ($totalQuestions > 0 && $totalPointsPossible > 0 && $correctAnswers > 0 && ($totalPointsEarned === 0 || $totalPointsEarned === null)) {
+            $pointsPerQuestion = $totalPointsPossible / $totalQuestions;
+
+            foreach ($answers as $answer) {
+                if ($answer->is_correct && (empty($answer->points_earned) || $answer->points_earned == 0)) {
+                    $answer->points_earned = $pointsPerQuestion;
+                    $answer->save();
+                }
+            }
+
+            $totalPointsEarned = $pointsPerQuestion * $correctAnswers;
+        }
+
+        // If we have a valid possible score, compute percentage and sync with progress & student activity
+        if ($totalPointsPossible > 0) {
+            $percentageScore = $totalPointsPossible > 0
+                ? round(($totalPointsEarned / $totalPointsPossible) * 100, 2)
+                : 0;
+
+            $progress->score = $totalPointsEarned;
+            $progress->max_score = $totalPointsPossible;
+            $progress->points_earned = $totalPointsEarned;
+            $progress->points_possible = $totalPointsPossible;
+            $progress->percentage_score = $percentageScore;
+            $progress->save();
+
+            $studentActivity->score = $totalPointsEarned;
+            $studentActivity->max_score = $totalPointsPossible;
+            $studentActivity->percentage_score = $percentageScore;
+            $studentActivity->save();
+        }
 
         // Use StudentActivity as the primary source of truth for scores
         // Merge scores from StudentActivity into progress for display
@@ -152,6 +188,11 @@ class StudentActivityResultsController extends Controller
         $progress->percentage_score = $studentActivity->percentage_score ?? $progress->percentage_score;
         $progress->points_earned = $studentActivity->score ?? $progress->points_earned;
         $progress->points_possible = $studentActivity->max_score ?? $progress->points_possible;
+
+        // Attach non-persisted relations for frontend display without affecting database columns
+        $progress->setRelation('answers', $answers);
+        $progress->setRelation('quiz', $quiz);
+        $progress->setRelation('activity', $activity);
 
         return Inertia::render('Student/ActivityResults', [
             'activityType' => $modelName, // 'Quiz'
@@ -269,8 +310,8 @@ class StudentActivityResultsController extends Controller
         $progress->max_score = $maxScoreToDisplay;
         $progress->percentage_score = $percentageToDisplay;
         $progress->total_points = $maxScoreToDisplay;
-        $progress->answers = $questionResults;
-        $progress->assignment = $assignment;
+        $progress->setRelation('answers', $questionResults);
+        $progress->setRelation('assignment', $assignment);
 
         return Inertia::render('Student/ActivityResults', [
             'activityType' => 'Assignment',

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::show
- * @see app/Http/Controllers/Student/StudentCourseController.php:669
+ * @see app/Http/Controllers/Student/StudentCourseController.php:680
  * @route '/student/courses/{course}/modules/{moduleId}'
  */
 export const show = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::show
- * @see app/Http/Controllers/Student/StudentCourseController.php:669
+ * @see app/Http/Controllers/Student/StudentCourseController.php:680
  * @route '/student/courses/{course}/modules/{moduleId}'
  */
 show.url = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions) => {
@@ -44,7 +44,7 @@ show.url = (args: { course: number | { id: number }, moduleId: string | number }
 
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::show
- * @see app/Http/Controllers/Student/StudentCourseController.php:669
+ * @see app/Http/Controllers/Student/StudentCourseController.php:680
  * @route '/student/courses/{course}/modules/{moduleId}'
  */
 show.get = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -53,7 +53,7 @@ show.get = (args: { course: number | { id: number }, moduleId: string | number }
 })
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::show
- * @see app/Http/Controllers/Student/StudentCourseController.php:669
+ * @see app/Http/Controllers/Student/StudentCourseController.php:680
  * @route '/student/courses/{course}/modules/{moduleId}'
  */
 show.head = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -63,7 +63,7 @@ show.head = (args: { course: number | { id: number }, moduleId: string | number 
 
     /**
 * @see \App\Http\Controllers\Student\StudentCourseController::show
- * @see app/Http/Controllers/Student/StudentCourseController.php:669
+ * @see app/Http/Controllers/Student/StudentCourseController.php:680
  * @route '/student/courses/{course}/modules/{moduleId}'
  */
     const showForm = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -73,7 +73,7 @@ show.head = (args: { course: number | { id: number }, moduleId: string | number 
 
             /**
 * @see \App\Http\Controllers\Student\StudentCourseController::show
- * @see app/Http/Controllers/Student/StudentCourseController.php:669
+ * @see app/Http/Controllers/Student/StudentCourseController.php:680
  * @route '/student/courses/{course}/modules/{moduleId}'
  */
         showForm.get = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ show.head = (args: { course: number | { id: number }, moduleId: string | number 
         })
             /**
 * @see \App\Http\Controllers\Student\StudentCourseController::show
- * @see app/Http/Controllers/Student/StudentCourseController.php:669
+ * @see app/Http/Controllers/Student/StudentCourseController.php:680
  * @route '/student/courses/{course}/modules/{moduleId}'
  */
         showForm.head = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -98,7 +98,7 @@ show.head = (args: { course: number | { id: number }, moduleId: string | number 
     show.form = showForm
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::complete
- * @see app/Http/Controllers/Student/StudentCourseController.php:429
+ * @see app/Http/Controllers/Student/StudentCourseController.php:439
  * @route '/student/courses/{course}/modules/{moduleId}/complete'
  */
 export const complete = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ complete.definition = {
 
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::complete
- * @see app/Http/Controllers/Student/StudentCourseController.php:429
+ * @see app/Http/Controllers/Student/StudentCourseController.php:439
  * @route '/student/courses/{course}/modules/{moduleId}/complete'
  */
 complete.url = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions) => {
@@ -141,7 +141,7 @@ complete.url = (args: { course: number | { id: number }, moduleId: string | numb
 
 /**
 * @see \App\Http\Controllers\Student\StudentCourseController::complete
- * @see app/Http/Controllers/Student/StudentCourseController.php:429
+ * @see app/Http/Controllers/Student/StudentCourseController.php:439
  * @route '/student/courses/{course}/modules/{moduleId}/complete'
  */
 complete.post = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -151,7 +151,7 @@ complete.post = (args: { course: number | { id: number }, moduleId: string | num
 
     /**
 * @see \App\Http\Controllers\Student\StudentCourseController::complete
- * @see app/Http/Controllers/Student/StudentCourseController.php:429
+ * @see app/Http/Controllers/Student/StudentCourseController.php:439
  * @route '/student/courses/{course}/modules/{moduleId}/complete'
  */
     const completeForm = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -161,7 +161,7 @@ complete.post = (args: { course: number | { id: number }, moduleId: string | num
 
             /**
 * @see \App\Http\Controllers\Student\StudentCourseController::complete
- * @see app/Http/Controllers/Student/StudentCourseController.php:429
+ * @see app/Http/Controllers/Student/StudentCourseController.php:439
  * @route '/student/courses/{course}/modules/{moduleId}/complete'
  */
         completeForm.post = (args: { course: number | { id: number }, moduleId: string | number } | [course: number | { id: number }, moduleId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

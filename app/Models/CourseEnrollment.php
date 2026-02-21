@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\ModuleCompletion;
 use App\Models\StudentActivity;
+use App\Models\StudentActivityProgress;
 use App\Models\LessonCompletion;
 
 class CourseEnrollment extends Model
@@ -81,13 +82,22 @@ class CourseEnrollment extends Model
         
         foreach ($modules as $module) {
             $moduleActivities = $module->activities;
+            $activityIds = $moduleActivities->pluck('id');
             $totalActivities += $moduleActivities->count();
             
-            // Count completed activities for this student
-            $completedActivities += StudentActivity::where('course_id', $course->id)
-                ->where('student_id', $this->student_id)
-                ->where('status', 'completed')
-                ->whereIn('activity_id', $moduleActivities->pluck('id'))
+            if ($activityIds->isEmpty()) {
+                continue;
+            }
+
+            // Count completed activities for this student using unified
+            // StudentActivityProgress as the source of truth. This
+            // matches how reports and module views determine completion.
+            $completedActivities += StudentActivityProgress::where('student_id', $this->student_id)
+                ->whereIn('activity_id', $activityIds)
+                ->where(function ($query) {
+                    $query->where('is_completed', true)
+                          ->orWhere('status', 'completed');
+                })
                 ->count();
         }
         
@@ -132,8 +142,13 @@ class CourseEnrollment extends Model
         $modules = $course->modules()->with(['activities', 'lessons'])->get();
         
         foreach ($modules as $module) {
-            // Skip if module is already completed (use student_id to match unique constraint)
-            $existingCompletion = ModuleCompletion::where('student_id', $this->student_id)
+            // Skip if module is already completed.
+            // A completion may have been created either with a student_id
+            // or only a user_id (from older logic), so check for both.
+            $existingCompletion = ModuleCompletion::where(function ($query) {
+                    $query->where('student_id', $this->student_id)
+                          ->orWhere('user_id', $this->user_id);
+                })
                 ->where('module_id', $module->id)
                 ->where('course_id', $course->id)
                 ->first();
@@ -149,10 +164,15 @@ class CourseEnrollment extends Model
             if ($moduleActivityIds->isEmpty()) {
                 $allActivitiesCompleted = true; // No activities = considered complete
             } else {
-                $completedActivitiesCount = StudentActivity::where('course_id', $course->id)
-                    ->where('student_id', $this->student_id)
-                    ->where('status', 'completed')
+                // Use StudentActivityProgress as the single source of truth
+                // for activity completion, consistent with reports and
+                // frontend helpers.
+                $completedActivitiesCount = StudentActivityProgress::where('student_id', $this->student_id)
                     ->whereIn('activity_id', $moduleActivityIds)
+                    ->where(function ($query) {
+                        $query->where('is_completed', true)
+                              ->orWhere('status', 'completed');
+                    })
                     ->count();
                 
                 $allActivitiesCompleted = $completedActivitiesCount === $moduleActivityIds->count();
@@ -165,7 +185,10 @@ class CourseEnrollment extends Model
             if ($moduleLessonIds->isEmpty()) {
                 $allLessonsCompleted = true; // No lessons = considered complete
             } else {
-                $completedLessonsCount = LessonCompletion::where('user_id', $this->student_id)
+                // LessonCompletion stores the user_id (backed by users table),
+                // while CourseEnrollment tracks both user_id and student_id.
+                // Use user_id here so lesson completions are detected correctly.
+                $completedLessonsCount = LessonCompletion::where('user_id', $this->user_id)
                     ->where('course_id', $course->id)
                     ->whereIn('lesson_id', $moduleLessonIds)
                     ->count();
@@ -173,17 +196,19 @@ class CourseEnrollment extends Model
                 $allLessonsCompleted = $completedLessonsCount === $moduleLessonIds->count();
             }
             
-            // If all requirements are met, auto-complete the module
-            // Use student_id in WHERE clause to match unique constraint (student_id, module_id, course_id)
+            // If all requirements are met, auto-complete the module.
+            // The database unique constraint is on (user_id, module_id, course_id),
+            // so we must use those fields as the identifying key and store
+            // student_id in the update payload.
             if ($allActivitiesCompleted && $allLessonsCompleted) {
                 ModuleCompletion::updateOrCreate(
                     [
-                        'student_id' => $this->student_id,
+                        'user_id' => $this->user_id,
                         'module_id' => $module->id,
                         'course_id' => $course->id,
                     ],
                     [
-                        'user_id' => $this->student_id, // Keep for backward compatibility
+                        'student_id' => $this->student_id,
                         'completed_at' => now(),
                         'completion_data' => json_encode([
                             'method' => 'automatic',

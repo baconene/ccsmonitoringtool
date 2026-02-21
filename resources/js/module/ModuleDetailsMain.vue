@@ -87,6 +87,11 @@
         class="mb-6"
       />
 
+      <!-- Skills Section: configure skill assessment parameters for this module -->
+      <ModuleSkillsSection
+        :module-id="module.id"
+      />
+
       <!-- Documents Section (Available for all module types) -->
       <ModuleDocumentsSection
         :documents="module.documents || []"
@@ -128,6 +133,7 @@ import { useModuleType } from "@/composables/useModuleType";
 import ModuleLessonsSection from "@/module/components/ModuleLessonsSection.vue";
 import ModuleActivitiesSection from "@/module/components/ModuleActivitiesSection.vue";
 import ModuleDocumentsSection from "@/module/components/ModuleDocumentsSection.vue";
+import ModuleSkillsSection from "@/module/components/ModuleSkillsSection.vue";
 import type { Module, Activity } from "@/types";
 
 const props = defineProps<{

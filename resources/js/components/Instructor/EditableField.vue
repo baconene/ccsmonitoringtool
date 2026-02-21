@@ -16,6 +16,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   (e: 'update', field: string, value: string | number): void;
+  (e: 'edit-start', field: string): void;
+  (e: 'edit-end', field: string): void;
 }>();
 
 const isEditing = ref(false);
@@ -31,6 +33,7 @@ const displayValue = computed(() => {
 const startEditing = () => {
   editValue.value = props.value || '';
   isEditing.value = true;
+  emit('edit-start', props.field);
 };
 
 const saveEdit = () => {
@@ -38,11 +41,13 @@ const saveEdit = () => {
     emit('update', props.field, editValue.value);
   }
   isEditing.value = false;
+  emit('edit-end', props.field);
 };
 
 const cancelEdit = () => {
   isEditing.value = false;
   editValue.value = '';
+  emit('edit-end', props.field);
 };
 </script>
 

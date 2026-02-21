@@ -65,6 +65,22 @@ Route::middleware(['auth', 'verified'])->prefix('api')->group(function () {
         Route::get('/', [App\Http\Controllers\Api\ScheduleApiController::class, 'index']);
         Route::get('/upcoming', [App\Http\Controllers\Api\ScheduleApiController::class, 'upcoming']);
     });
+
+    // Student Assessment & Competency Evaluation routes (session-authenticated)
+    Route::prefix('student')->middleware('role:student')->group(function () {
+        Route::get('/assessment', [App\Http\Controllers\Api\Student\AssessmentController::class, 'show']);
+        Route::get('/skills/assessments', [App\Http\Controllers\Api\Student\AssessmentController::class, 'getSkillAssessments']);
+        Route::get('/strengths', [App\Http\Controllers\Api\Student\AssessmentController::class, 'getStrengths']);
+        Route::get('/weaknesses', [App\Http\Controllers\Api\Student\AssessmentController::class, 'getWeaknesses']);
+        Route::get('/assessment/radar', [App\Http\Controllers\Api\Student\AssessmentController::class, 'getRadarData']);
+    });
+
+    // Admin assessment routes (session-authenticated)
+    Route::prefix('admin')->middleware('role:admin,instructor')->group(function () {
+        Route::get('/student/{studentId}/assessment', [App\Http\Controllers\Api\Student\AssessmentController::class, 'getStudentAssessment']);
+        Route::post('/course/{courseId}/recalculate-assessments', [App\Http\Controllers\Api\Student\AssessmentController::class, 'recalculateCourseAssessments']);
+        Route::post('/assessment/compare', [App\Http\Controllers\Api\Student\AssessmentController::class, 'compareAssessments']);
+    });
     
     // Debug authentication status
     Route::get('/debug/auth', function (Illuminate\Http\Request $request) {
@@ -451,6 +467,17 @@ Route::middleware(['auth'])->group(function () {
         
         // Assignment Management
         Route::resource('assignments', AssignmentController::class);
+
+        // Skill & competency configuration (instructors/admins)
+        Route::get('/modules/{module}/skills', [\App\Http\Controllers\Instructor\SkillManagementController::class, 'index']);
+        Route::post('/modules/{module}/skills', [\App\Http\Controllers\Instructor\SkillManagementController::class, 'store']);
+        Route::put('/skills/{skill}', [\App\Http\Controllers\Instructor\SkillManagementController::class, 'update']);
+        Route::delete('/skills/{skill}', [\App\Http\Controllers\Instructor\SkillManagementController::class, 'destroy']);
+
+        Route::get('/activities/{activity}/skills', [\App\Http\Controllers\Instructor\ActivitySkillController::class, 'index']);
+        Route::post('/activities/{activity}/skills', [\App\Http\Controllers\Instructor\ActivitySkillController::class, 'store']);
+        Route::put('/activities/{activity}/skills/{skill}', [\App\Http\Controllers\Instructor\ActivitySkillController::class, 'update']);
+        Route::delete('/activities/{activity}/skills/{skill}', [\App\Http\Controllers\Instructor\ActivitySkillController::class, 'destroy']);
         
         // Course Management (Instructor and Admin)
         Route::get('/course-management', [CourseController::class, 'index'])->name('course.index');
@@ -530,6 +557,11 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     
     // Student Activities
     Route::get('/activities', [App\Http\Controllers\Student\StudentCourseController::class, 'activities'])->name('activities');
+
+    // Student Assessment & Competency Evaluation page
+    Route::get('/assessment', function () {
+        return Inertia::render('Student/MyAssessment');
+    })->name('assessment.index');
     
     // Unified Activity Results Route (works for all activity types: Quiz, Assignment, Assessment, Exercise)
     Route::get('/activities/{studentActivity}/results', [App\Http\Controllers\Student\StudentActivityResultsController::class, 'show'])->name('activities.results');

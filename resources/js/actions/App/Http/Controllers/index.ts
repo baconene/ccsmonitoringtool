@@ -7,8 +7,8 @@ import ActivityController from './ActivityController'
 import QuizController from './QuizController'
 import QuestionController from './QuestionController'
 import AssignmentController from './AssignmentController'
-import ModuleController from './ModuleController'
 import Instructor from './Instructor'
+import ModuleController from './ModuleController'
 import CourseStudentController from './CourseStudentController'
 import CourseScheduleController from './CourseScheduleController'
 import LessonController from './LessonController'
@@ -28,8 +28,8 @@ ActivityController: Object.assign(ActivityController, ActivityController),
 QuizController: Object.assign(QuizController, QuizController),
 QuestionController: Object.assign(QuestionController, QuestionController),
 AssignmentController: Object.assign(AssignmentController, AssignmentController),
-ModuleController: Object.assign(ModuleController, ModuleController),
 Instructor: Object.assign(Instructor, Instructor),
+ModuleController: Object.assign(ModuleController, ModuleController),
 CourseStudentController: Object.assign(CourseStudentController, CourseStudentController),
 CourseScheduleController: Object.assign(CourseScheduleController, CourseScheduleController),
 LessonController: Object.assign(LessonController, LessonController),

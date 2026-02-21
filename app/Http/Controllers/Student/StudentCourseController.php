@@ -84,6 +84,11 @@ class StudentCourseController extends Controller
             abort(404, 'You are not enrolled in this course.');
         }
 
+        // On each course view, auto-validate module completion based on
+        // current lessons and activities so modules that are fully
+        // completed get marked as such without requiring a manual click.
+        $enrollment->checkAndCompleteModules();
+
         // Load modules with activities and quiz progress
         $modules = $course->modules()
             ->with([
@@ -99,10 +104,15 @@ class StudentCourseController extends Controller
             ])
             ->get()
             ->map(function ($module) use ($user, $student, $course) {
-                // Check if module is completed
-                $moduleCompletion = \App\Models\ModuleCompletion::where('student_id', $student->id)
-                    ->where('module_id', $module->id)
+                // Check if module is completed. A completion record may be
+                // keyed by either student_id or user_id (older records), so
+                // look for both.
+                $moduleCompletion = \App\Models\ModuleCompletion::where('module_id', $module->id)
                     ->where('course_id', $course->id)
+                    ->where(function ($query) use ($student, $user) {
+                        $query->where('student_id', $student->id)
+                              ->orWhere('user_id', $user->id);
+                    })
                     ->first();
                 // Map activities with quiz progress and completion status
                 $activities = $module->activities->map(function ($activity) use ($student, $module, $course) {
@@ -489,17 +499,18 @@ class StudentCourseController extends Controller
             return redirect()->back()->with('error', "Cannot complete module. " . implode('. ', $messages));
         }
 
-        // All requirements met - create or update module completion
-        // Use updateOrCreate with the correct unique constraint fields (student_id, module_id, course_id)
+        // All requirements met - create or update module completion.
+        // The database unique constraint is on (user_id, module_id, course_id),
+        // so we use those as the identifying key and store student_id in the
+        // update payload.
         $completion = \App\Models\ModuleCompletion::updateOrCreate(
             [
-                'student_id' => $student->id,
+                'user_id' => $user->id,
                 'module_id' => $moduleId,
                 'course_id' => $course->id,
             ],
             [
-                'user_id' => $user->id,
-                'is_completed' => true,
+                'student_id' => $student->id,
                 'completed_at' => now(),
                 'completion_data' => json_encode([
                     'method' => 'manual',
@@ -683,6 +694,11 @@ class StudentCourseController extends Controller
         if (!$enrollment) {
             abort(403, 'You are not enrolled in this course.');
         }
+
+        // Auto-validate module completion on module view so that
+        // any module whose lessons and activities are all finished
+        // is marked complete without requiring a manual action.
+        $enrollment->checkAndCompleteModules();
 
         // Get the specific module with all relationships
         $module = $course->modules()

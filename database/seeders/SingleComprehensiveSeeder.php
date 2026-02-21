@@ -30,6 +30,8 @@ use App\Models\CourseEnrollment;
 use App\Models\GradeLevel;
 use App\Enums\ScheduleTypeEnum;
 use Carbon\Carbon;
+use Database\Seeders\SkillSeeder;
+use Database\Seeders\StudentSkillAssessmentSeeder;
 
 class SingleComprehensiveSeeder extends Seeder
 {
@@ -78,6 +80,9 @@ class SingleComprehensiveSeeder extends Seeder
         $this->command->info('Seeding activities...');
         $this->seedActivities();
 
+        $this->command->info('Seeding skills and linking activities to skills...');
+        $this->call(SkillSeeder::class);
+
         $this->command->info('Seeding quizzes and questions...');
         $this->seedQuizzesAndQuestions();
 
@@ -100,6 +105,10 @@ class SingleComprehensiveSeeder extends Seeder
         $this->command->info('Recalculating course completion statuses...');
         $this->recalculateCourseCompletions();
 
+        // 5. Skill Assessments
+        $this->command->info('Seeding student skill assessments...');
+        $this->call(StudentSkillAssessmentSeeder::class);
+
         $this->command->info('🎉 Comprehensive database seeding completed successfully!');
     }
 
@@ -112,6 +121,7 @@ class SingleComprehensiveSeeder extends Seeder
         DB::table('student_quiz_answers')->delete();
         DB::table('student_activity_progress')->delete();
         DB::table('student_activities')->delete();
+        DB::table('student_skill_assessments')->delete();
         DB::table('schedule_participants')->delete();
         DB::table('schedules')->delete();
         DB::table('course_student')->delete();
@@ -122,8 +132,10 @@ class SingleComprehensiveSeeder extends Seeder
         DB::table('question_options')->delete();
         DB::table('questions')->delete();
         DB::table('quizzes')->delete();
+        DB::table('skill_activities')->delete();
         DB::table('module_activities')->delete();
         DB::table('lesson_module')->delete();
+        DB::table('skills')->delete();
         DB::table('activities')->delete();
         DB::table('lessons')->delete();
         DB::table('modules')->delete();

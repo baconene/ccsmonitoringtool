@@ -193,8 +193,18 @@ class GradeCalculatorService
         $moduleScore = $lessonContribution + $activityContribution;
 
         // Check if module is completed
-        $moduleCompletion = ModuleCompletion::where('user_id', $userId)
-            ->where('module_id', $module->id)
+        // Align completion detection with student-facing views which
+        // rely on ModuleCompletion using either user_id or student_id
+        // (via CourseEnrollment and StudentCourseController).
+        $student = \App\Models\User::find($userId)?->student;
+        $moduleCompletion = ModuleCompletion::where('module_id', $module->id)
+            ->where('course_id', $module->course_id)
+            ->where(function ($query) use ($userId, $student) {
+                $query->where('user_id', $userId);
+                if ($student) {
+                    $query->orWhere('student_id', $student->id);
+                }
+            })
             ->first();
 
         return [

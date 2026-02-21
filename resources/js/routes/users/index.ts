@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\UserController::store
- * @see app/Http/Controllers/UserController.php:34
+ * @see app/Http/Controllers/UserController.php:53
  * @route '/api/users'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::store
- * @see app/Http/Controllers/UserController.php:34
+ * @see app/Http/Controllers/UserController.php:53
  * @route '/api/users'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\UserController::store
- * @see app/Http/Controllers/UserController.php:34
+ * @see app/Http/Controllers/UserController.php:53
  * @route '/api/users'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\UserController::store
- * @see app/Http/Controllers/UserController.php:34
+ * @see app/Http/Controllers/UserController.php:53
  * @route '/api/users'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\UserController::store
- * @see app/Http/Controllers/UserController.php:34
+ * @see app/Http/Controllers/UserController.php:53
  * @route '/api/users'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -231,7 +231,7 @@ show.head = (args: { user: string | number } | [user: string | number ] | string
     show.form = showForm
 /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:79
+ * @see app/Http/Controllers/UserController.php:125
  * @route '/api/users/{user}'
  */
 export const update = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -246,7 +246,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:79
+ * @see app/Http/Controllers/UserController.php:125
  * @route '/api/users/{user}'
  */
 update.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -279,7 +279,7 @@ update.url = (args: { user: number | { id: number } } | [user: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:79
+ * @see app/Http/Controllers/UserController.php:125
  * @route '/api/users/{user}'
  */
 update.put = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -288,7 +288,7 @@ update.put = (args: { user: number | { id: number } } | [user: number | { id: nu
 })
 /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:79
+ * @see app/Http/Controllers/UserController.php:125
  * @route '/api/users/{user}'
  */
 update.patch = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -298,7 +298,7 @@ update.patch = (args: { user: number | { id: number } } | [user: number | { id: 
 
     /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:79
+ * @see app/Http/Controllers/UserController.php:125
  * @route '/api/users/{user}'
  */
     const updateForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -313,7 +313,7 @@ update.patch = (args: { user: number | { id: number } } | [user: number | { id: 
 
             /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:79
+ * @see app/Http/Controllers/UserController.php:125
  * @route '/api/users/{user}'
  */
         updateForm.put = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -327,7 +327,7 @@ update.patch = (args: { user: number | { id: number } } | [user: number | { id: 
         })
             /**
 * @see \App\Http\Controllers\UserController::update
- * @see app/Http/Controllers/UserController.php:79
+ * @see app/Http/Controllers/UserController.php:125
  * @route '/api/users/{user}'
  */
         updateForm.patch = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -343,7 +343,7 @@ update.patch = (args: { user: number | { id: number } } | [user: number | { id: 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\UserController::destroy
- * @see app/Http/Controllers/UserController.php:130
+ * @see app/Http/Controllers/UserController.php:252
  * @route '/api/users/{user}'
  */
 export const destroy = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -358,7 +358,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::destroy
- * @see app/Http/Controllers/UserController.php:130
+ * @see app/Http/Controllers/UserController.php:252
  * @route '/api/users/{user}'
  */
 destroy.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -391,7 +391,7 @@ destroy.url = (args: { user: number | { id: number } } | [user: number | { id: n
 
 /**
 * @see \App\Http\Controllers\UserController::destroy
- * @see app/Http/Controllers/UserController.php:130
+ * @see app/Http/Controllers/UserController.php:252
  * @route '/api/users/{user}'
  */
 destroy.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -401,7 +401,7 @@ destroy.delete = (args: { user: number | { id: number } } | [user: number | { id
 
     /**
 * @see \App\Http\Controllers\UserController::destroy
- * @see app/Http/Controllers/UserController.php:130
+ * @see app/Http/Controllers/UserController.php:252
  * @route '/api/users/{user}'
  */
     const destroyForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -416,7 +416,7 @@ destroy.delete = (args: { user: number | { id: number } } | [user: number | { id
 
             /**
 * @see \App\Http\Controllers\UserController::destroy
- * @see app/Http/Controllers/UserController.php:130
+ * @see app/Http/Controllers/UserController.php:252
  * @route '/api/users/{user}'
  */
         destroyForm.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -432,7 +432,7 @@ destroy.delete = (args: { user: number | { id: number } } | [user: number | { id
     destroy.form = destroyForm
 /**
 * @see \App\Http\Controllers\UserController::bulkUpload
- * @see app/Http/Controllers/UserController.php:243
+ * @see app/Http/Controllers/UserController.php:365
  * @route '/api/users/bulk-upload'
  */
 export const bulkUpload = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -447,7 +447,7 @@ bulkUpload.definition = {
 
 /**
 * @see \App\Http\Controllers\UserController::bulkUpload
- * @see app/Http/Controllers/UserController.php:243
+ * @see app/Http/Controllers/UserController.php:365
  * @route '/api/users/bulk-upload'
  */
 bulkUpload.url = (options?: RouteQueryOptions) => {
@@ -456,7 +456,7 @@ bulkUpload.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\UserController::bulkUpload
- * @see app/Http/Controllers/UserController.php:243
+ * @see app/Http/Controllers/UserController.php:365
  * @route '/api/users/bulk-upload'
  */
 bulkUpload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -466,7 +466,7 @@ bulkUpload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\UserController::bulkUpload
- * @see app/Http/Controllers/UserController.php:243
+ * @see app/Http/Controllers/UserController.php:365
  * @route '/api/users/bulk-upload'
  */
     const bulkUploadForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -476,7 +476,7 @@ bulkUpload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\UserController::bulkUpload
- * @see app/Http/Controllers/UserController.php:243
+ * @see app/Http/Controllers/UserController.php:365
  * @route '/api/users/bulk-upload'
  */
         bulkUploadForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -485,6 +485,396 @@ bulkUpload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
         })
     
     bulkUpload.form = bulkUploadForm
+/**
+* @see \App\Http\Controllers\UserController::downloadCsvTemplate
+ * @see app/Http/Controllers/UserController.php:524
+ * @route '/api/users/download-csv-template'
+ */
+export const downloadCsvTemplate = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadCsvTemplate.url(options),
+    method: 'get',
+})
+
+downloadCsvTemplate.definition = {
+    methods: ["get","head"],
+    url: '/api/users/download-csv-template',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\UserController::downloadCsvTemplate
+ * @see app/Http/Controllers/UserController.php:524
+ * @route '/api/users/download-csv-template'
+ */
+downloadCsvTemplate.url = (options?: RouteQueryOptions) => {
+    return downloadCsvTemplate.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::downloadCsvTemplate
+ * @see app/Http/Controllers/UserController.php:524
+ * @route '/api/users/download-csv-template'
+ */
+downloadCsvTemplate.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadCsvTemplate.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\UserController::downloadCsvTemplate
+ * @see app/Http/Controllers/UserController.php:524
+ * @route '/api/users/download-csv-template'
+ */
+downloadCsvTemplate.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: downloadCsvTemplate.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\UserController::downloadCsvTemplate
+ * @see app/Http/Controllers/UserController.php:524
+ * @route '/api/users/download-csv-template'
+ */
+    const downloadCsvTemplateForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: downloadCsvTemplate.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\UserController::downloadCsvTemplate
+ * @see app/Http/Controllers/UserController.php:524
+ * @route '/api/users/download-csv-template'
+ */
+        downloadCsvTemplateForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: downloadCsvTemplate.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\UserController::downloadCsvTemplate
+ * @see app/Http/Controllers/UserController.php:524
+ * @route '/api/users/download-csv-template'
+ */
+        downloadCsvTemplateForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: downloadCsvTemplate.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    downloadCsvTemplate.form = downloadCsvTemplateForm
+/**
+* @see \App\Http\Controllers\UserController::downloadAdminExample
+ * @see app/Http/Controllers/UserController.php:540
+ * @route '/api/users/download-admin-example'
+ */
+export const downloadAdminExample = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadAdminExample.url(options),
+    method: 'get',
+})
+
+downloadAdminExample.definition = {
+    methods: ["get","head"],
+    url: '/api/users/download-admin-example',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\UserController::downloadAdminExample
+ * @see app/Http/Controllers/UserController.php:540
+ * @route '/api/users/download-admin-example'
+ */
+downloadAdminExample.url = (options?: RouteQueryOptions) => {
+    return downloadAdminExample.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::downloadAdminExample
+ * @see app/Http/Controllers/UserController.php:540
+ * @route '/api/users/download-admin-example'
+ */
+downloadAdminExample.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadAdminExample.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\UserController::downloadAdminExample
+ * @see app/Http/Controllers/UserController.php:540
+ * @route '/api/users/download-admin-example'
+ */
+downloadAdminExample.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: downloadAdminExample.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\UserController::downloadAdminExample
+ * @see app/Http/Controllers/UserController.php:540
+ * @route '/api/users/download-admin-example'
+ */
+    const downloadAdminExampleForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: downloadAdminExample.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\UserController::downloadAdminExample
+ * @see app/Http/Controllers/UserController.php:540
+ * @route '/api/users/download-admin-example'
+ */
+        downloadAdminExampleForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: downloadAdminExample.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\UserController::downloadAdminExample
+ * @see app/Http/Controllers/UserController.php:540
+ * @route '/api/users/download-admin-example'
+ */
+        downloadAdminExampleForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: downloadAdminExample.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    downloadAdminExample.form = downloadAdminExampleForm
+/**
+* @see \App\Http\Controllers\UserController::downloadInstructorExample
+ * @see app/Http/Controllers/UserController.php:556
+ * @route '/api/users/download-instructor-example'
+ */
+export const downloadInstructorExample = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadInstructorExample.url(options),
+    method: 'get',
+})
+
+downloadInstructorExample.definition = {
+    methods: ["get","head"],
+    url: '/api/users/download-instructor-example',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\UserController::downloadInstructorExample
+ * @see app/Http/Controllers/UserController.php:556
+ * @route '/api/users/download-instructor-example'
+ */
+downloadInstructorExample.url = (options?: RouteQueryOptions) => {
+    return downloadInstructorExample.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::downloadInstructorExample
+ * @see app/Http/Controllers/UserController.php:556
+ * @route '/api/users/download-instructor-example'
+ */
+downloadInstructorExample.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadInstructorExample.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\UserController::downloadInstructorExample
+ * @see app/Http/Controllers/UserController.php:556
+ * @route '/api/users/download-instructor-example'
+ */
+downloadInstructorExample.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: downloadInstructorExample.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\UserController::downloadInstructorExample
+ * @see app/Http/Controllers/UserController.php:556
+ * @route '/api/users/download-instructor-example'
+ */
+    const downloadInstructorExampleForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: downloadInstructorExample.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\UserController::downloadInstructorExample
+ * @see app/Http/Controllers/UserController.php:556
+ * @route '/api/users/download-instructor-example'
+ */
+        downloadInstructorExampleForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: downloadInstructorExample.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\UserController::downloadInstructorExample
+ * @see app/Http/Controllers/UserController.php:556
+ * @route '/api/users/download-instructor-example'
+ */
+        downloadInstructorExampleForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: downloadInstructorExample.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    downloadInstructorExample.form = downloadInstructorExampleForm
+/**
+* @see \App\Http\Controllers\UserController::downloadStudentExample
+ * @see app/Http/Controllers/UserController.php:572
+ * @route '/api/users/download-student-example'
+ */
+export const downloadStudentExample = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadStudentExample.url(options),
+    method: 'get',
+})
+
+downloadStudentExample.definition = {
+    methods: ["get","head"],
+    url: '/api/users/download-student-example',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\UserController::downloadStudentExample
+ * @see app/Http/Controllers/UserController.php:572
+ * @route '/api/users/download-student-example'
+ */
+downloadStudentExample.url = (options?: RouteQueryOptions) => {
+    return downloadStudentExample.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::downloadStudentExample
+ * @see app/Http/Controllers/UserController.php:572
+ * @route '/api/users/download-student-example'
+ */
+downloadStudentExample.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: downloadStudentExample.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\UserController::downloadStudentExample
+ * @see app/Http/Controllers/UserController.php:572
+ * @route '/api/users/download-student-example'
+ */
+downloadStudentExample.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: downloadStudentExample.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\UserController::downloadStudentExample
+ * @see app/Http/Controllers/UserController.php:572
+ * @route '/api/users/download-student-example'
+ */
+    const downloadStudentExampleForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: downloadStudentExample.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\UserController::downloadStudentExample
+ * @see app/Http/Controllers/UserController.php:572
+ * @route '/api/users/download-student-example'
+ */
+        downloadStudentExampleForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: downloadStudentExample.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\UserController::downloadStudentExample
+ * @see app/Http/Controllers/UserController.php:572
+ * @route '/api/users/download-student-example'
+ */
+        downloadStudentExampleForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: downloadStudentExample.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    downloadStudentExample.form = downloadStudentExampleForm
+/**
+* @see \App\Http\Controllers\UserController::csvFormatInfo
+ * @see app/Http/Controllers/UserController.php:588
+ * @route '/api/users/csv-format-info'
+ */
+export const csvFormatInfo = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: csvFormatInfo.url(options),
+    method: 'get',
+})
+
+csvFormatInfo.definition = {
+    methods: ["get","head"],
+    url: '/api/users/csv-format-info',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\UserController::csvFormatInfo
+ * @see app/Http/Controllers/UserController.php:588
+ * @route '/api/users/csv-format-info'
+ */
+csvFormatInfo.url = (options?: RouteQueryOptions) => {
+    return csvFormatInfo.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\UserController::csvFormatInfo
+ * @see app/Http/Controllers/UserController.php:588
+ * @route '/api/users/csv-format-info'
+ */
+csvFormatInfo.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: csvFormatInfo.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\UserController::csvFormatInfo
+ * @see app/Http/Controllers/UserController.php:588
+ * @route '/api/users/csv-format-info'
+ */
+csvFormatInfo.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: csvFormatInfo.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\UserController::csvFormatInfo
+ * @see app/Http/Controllers/UserController.php:588
+ * @route '/api/users/csv-format-info'
+ */
+    const csvFormatInfoForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: csvFormatInfo.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\UserController::csvFormatInfo
+ * @see app/Http/Controllers/UserController.php:588
+ * @route '/api/users/csv-format-info'
+ */
+        csvFormatInfoForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: csvFormatInfo.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\UserController::csvFormatInfo
+ * @see app/Http/Controllers/UserController.php:588
+ * @route '/api/users/csv-format-info'
+ */
+        csvFormatInfoForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: csvFormatInfo.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    csvFormatInfo.form = csvFormatInfoForm
 const users = {
     index: Object.assign(index, index),
 store: Object.assign(store, store),
@@ -492,6 +882,11 @@ show: Object.assign(show, show),
 update: Object.assign(update, update),
 destroy: Object.assign(destroy, destroy),
 bulkUpload: Object.assign(bulkUpload, bulkUpload),
+downloadCsvTemplate: Object.assign(downloadCsvTemplate, downloadCsvTemplate),
+downloadAdminExample: Object.assign(downloadAdminExample, downloadAdminExample),
+downloadInstructorExample: Object.assign(downloadInstructorExample, downloadInstructorExample),
+downloadStudentExample: Object.assign(downloadStudentExample, downloadStudentExample),
+csvFormatInfo: Object.assign(csvFormatInfo, csvFormatInfo),
 }
 
 export default users

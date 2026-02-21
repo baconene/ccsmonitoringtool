@@ -604,4 +604,5 @@ class DashboardApiController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
-    }}
+    }
+}

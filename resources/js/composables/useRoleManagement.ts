@@ -2,6 +2,48 @@
 import axios from 'axios';
 import type { Role } from '@/types';
 
+// Helper function to extract user-friendly error messages
+const getErrorMessage = (err: any): string => {
+  // Network error (no response from server)
+  if (!err.response) {
+    if (err.message === 'Network Error') {
+      return 'Network error. Please check your connection and try again.';
+    }
+    if (err.code === 'ECONNABORTED') {
+      return 'Request timeout. Server is taking too long to respond.';
+    }
+    return err.message || 'Network error occurred. Please check your connection.';
+  }
+
+  // Unauthorized
+  if (err.response?.status === 401) {
+    return 'Unauthorized. Please log in again.';
+  }
+
+  // Forbidden
+  if (err.response?.status === 403) {
+    return 'You do not have permission to access this resource.';
+  }
+
+  // Not found
+  if (err.response?.status === 404) {
+    return 'Resource not found.';
+  }
+
+  // Server error
+  if (err.response?.status >= 500) {
+    return 'Server error. Please try again later.';
+  }
+
+  // Custom error message from API
+  if (err.response?.data?.message) {
+    return err.response.data.message;
+  }
+
+  // Fallback
+  return 'Failed to fetch roles';
+};
+
 export function useRoleManagement() {
   const roles = ref<Role[]>([]);
   const loading = ref(false);
@@ -16,7 +58,7 @@ export function useRoleManagement() {
       roles.value = response.data;
       return response.data;
     } catch (err: any) {
-      error.value = err.response?.data?.message || 'Failed to fetch roles';
+      error.value = getErrorMessage(err);
       console.error('Error fetching roles:', err);
       throw err;
     } finally {

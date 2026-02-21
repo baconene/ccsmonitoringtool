@@ -14,7 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, GraduationCap, ClipboardList, Users, Calendar, UserCog, Sliders } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, GraduationCap, ClipboardList, Users, Calendar, UserCog, Sliders, BarChart3 } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -146,6 +146,11 @@ const studentNavItems: NavItem[] = [
         title: 'My Assessments',
         href: '/student/assessments',
         icon: GraduationCap,
+    },
+    {
+        title: 'Assessment',
+        href: '/student/assessment',
+        icon: BarChart3,
     },
     {
         title: 'Grade Report',
