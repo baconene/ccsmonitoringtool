@@ -148,16 +148,66 @@
 
       <!-- Delete confirmation -->
       <div v-else-if="mode === 'delete'" class="space-y-4">
-        <p>Are you sure you want to delete <strong>{{ course?.name }}</strong>?</p>
+        <!-- Warning Message -->
+        <div v-if="deleteWarning" class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div class="flex-1">
+              <p class="text-sm font-medium text-yellow-800 dark:text-yellow-300">{{ deleteWarning }}</p>
+              <p v-if="requiresForceDelete" class="text-sm text-yellow-700 dark:text-yellow-400 mt-2">
+                You can either:
+                <br/>• Unenroll all students first, then delete the course
+                <br/>• Force delete (this will also remove all student enrollments and progress)
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Standard delete confirmation -->
+        <div v-else class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+          <p class="text-gray-900 dark:text-gray-100">
+            Are you sure you want to delete <strong>{{ course?.name || course?.title }}</strong>?
+          </p>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            This action will permanently delete the course and all its modules, activities, and content.
+          </p>
+        </div>
+        
         <div class="flex justify-end gap-2">
-          <button @click="$emit('close')" class="px-4 py-2 rounded border">
+          <button 
+            @click="$emit('close')" 
+            :disabled="isSubmitting"
+            class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
             Cancel
           </button>
+          
+          <!-- Regular delete button (or disabled when force delete required) -->
           <button
-            @click="handleDelete"
-            class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+            v-if="!requiresForceDelete"
+            @click="handleDelete(false)"
+            :disabled="isSubmitting"
+            class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
           >
-            Delete
+            <svg v-if="isSubmitting" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {{ isSubmitting ? 'Deleting...' : 'Delete Course' }}
+          </button>
+          
+          <!-- Force delete button (shown when there are enrolled students) -->
+          <button
+            v-else
+            @click="handleDelete(true)"
+            :disabled="isSubmitting"
+            class="px-4 py-2 rounded bg-red-700 text-white hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+          >
+            <svg v-if="isSubmitting" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {{ isSubmitting ? 'Force Deleting...' : 'Force Delete (Remove All Enrollments)' }}
           </button>
         </div>
       </div>
@@ -231,6 +281,9 @@ const localCourse = reactive({
 const isSubmitting = ref(false);
 const errors = ref<Record<string, string>>({});
 const successMessage = ref('');
+const deleteWarning = ref<string>('');
+const requiresForceDelete = ref(false);
+const enrolledStudentsCount = ref(0);
 
 // Fetch grade levels on mount
 onMounted(async () => {
@@ -342,14 +395,52 @@ async function handleSubmit() {
 }
 
 // Handle delete
-async function handleDelete() {
+async function handleDelete(forceDelete = false) {
   if (!props.course?.id) return;
+  
+  isSubmitting.value = true;
+  errors.value = {};
+  deleteWarning.value = '';
+  
   try {
-    await axios.delete(`/courses/${props.course.id}`);
-    emit('refresh'); // no new course ID for delete
-  } catch (error) {
+    const response = await axios.delete(`/courses/${props.course.id}`, {
+      data: { force_delete: forceDelete }
+    });
+    
+    successMessage.value = response.data.message || 'Course deleted successfully';
+    
+    // Close modal and refresh after a brief delay to show success message
+    setTimeout(() => {
+      emit('refresh');
+      emit('close');
+    }, 1500);
+    
+  } catch (error: any) {
     console.error('Error deleting course:', error);
-    // You might want to show an error message to the user here
+    
+    if (error.response?.status === 422 && error.response?.data?.requires_force_delete) {
+      // Course has enrolled students - show force delete option
+      requiresForceDelete.value = true;
+      enrolledStudentsCount.value = error.response.data.enrolled_students || 0;
+      deleteWarning.value = error.response.data.message || `This course has ${enrolledStudentsCount.value} enrolled student(s).`;
+    } else if (error.response?.data?.message) {
+      // Other validation or server errors
+      errors.value = { general: error.response.data.message };
+    } else {
+      // Generic error
+      errors.value = { general: 'Failed to delete course. Please try again.' };
+    }
+  } finally {
+    isSubmitting.value = false;
   }
 }
+
+// Reset force delete state when modal closes
+watch(() => props.open, (isOpen) => {
+  if (!isOpen) {
+    requiresForceDelete.value = false;
+    enrolledStudentsCount.value = 0;
+    deleteWarning.value = '';
+  }
+});
 </script>

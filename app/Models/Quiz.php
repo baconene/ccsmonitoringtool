@@ -16,10 +16,16 @@ class Quiz extends Model
         parent::boot();
 
         static::deleting(function ($quiz) {
-            // Delete all student quiz progress
-            $progressIds = StudentQuizProgress::where('quiz_id', $quiz->id)->pluck('id');
-            StudentQuizAnswer::whereIn('quiz_progress_id', $progressIds)->delete();
-            StudentQuizProgress::where('quiz_id', $quiz->id)->delete();
+            // Delete all student quiz answers and progress
+            // Note: student_quiz_progress was migrated to student_activity_progress
+            $progressIds = \App\Models\StudentActivityProgress::where('activity_id', $quiz->activity_id)
+                ->where('activity_type', 'quiz')
+                ->pluck('id');
+            
+            if ($progressIds->isNotEmpty()) {
+                StudentQuizAnswer::whereIn('activity_progress_id', $progressIds)->delete();
+                \App\Models\StudentActivityProgress::whereIn('id', $progressIds)->delete();
+            }
 
             // Delete all questions (which will cascade to their options)
             $quiz->questions()->each(function ($question) {

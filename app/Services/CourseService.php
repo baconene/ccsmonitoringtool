@@ -432,30 +432,44 @@ class CourseService
                 // Delete student activity records
                 \App\Models\StudentActivity::where('activity_id', $activity->id)->delete();
                 
-                // Delete student activity progress (quiz, assignment, project, assessment)
+                // Delete student activity progress (unified table for quiz, assignment, project, assessment)
                 \App\Models\StudentActivityProgress::where('activity_id', $activity->id)->delete();
                 
                 // Delete quiz-related data
                 if ($activity->quiz) {
-                    // Delete questions and their options
-                    foreach ($activity->quiz->questions as $question) {
-                        $question->options()->delete();
-                    }
-                    $activity->quiz->questions()->delete();
+                    // The Quiz model's boot method handles cleanup of questions, options, and answers
                     $activity->quiz->delete();
                 }
                 
                 // Delete assignment-related data
                 if ($activity->assignment) {
+                    // Delete assignment answers if any
+                    \Illuminate\Support\Facades\DB::table('student_assignment_answers')
+                        ->whereIn('assignment_question_id', function($query) use ($activity) {
+                            $query->select('id')
+                                ->from('assignment_questions')
+                                ->where('assignment_id', $activity->assignment->id);
+                        })
+                        ->delete();
+                    
                     $activity->assignment->delete();
                 }
+                
+                // Delete activity skills relationships
+                $activity->skills()->detach();
             }
             
             // Delete module activities
             $module->activities()->delete();
             
-            // Delete lessons
+            // Delete lessons and their completions
+            foreach ($module->lessons as $lesson) {
+                \App\Models\LessonCompletion::where('lesson_id', $lesson->id)->delete();
+            }
             $module->lessons()->delete();
+            
+            // Delete module skills
+            $module->skills()->delete();
             
             // Delete module completions
             \App\Models\ModuleCompletion::where('module_id', $module->id)->delete();
@@ -466,6 +480,12 @@ class CourseService
         
         // Delete course enrollments
         \App\Models\CourseEnrollment::where('course_id', $course->id)->delete();
+        
+        // Delete course schedules
+        \Illuminate\Support\Facades\DB::table('schedules')
+            ->where('schedulable_type', 'App\\Models\\Course')
+            ->where('schedulable_id', $course->id)
+            ->delete();
     }
 
     /**
