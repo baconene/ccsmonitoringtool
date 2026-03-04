@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Student\StudentQuizController::show
- * @see app/Http/Controllers/Student/StudentQuizController.php:20
+ * @see app/Http/Controllers/Student/StudentQuizController.php:21
  * @route '/student/quizs/{studentActivity}'
  */
 export const show = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Student\StudentQuizController::show
- * @see app/Http/Controllers/Student/StudentQuizController.php:20
+ * @see app/Http/Controllers/Student/StudentQuizController.php:21
  * @route '/student/quizs/{studentActivity}'
  */
 show.url = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ show.url = (args: { studentActivity: number | { id: number } } | [studentActivit
 
 /**
 * @see \App\Http\Controllers\Student\StudentQuizController::show
- * @see app/Http/Controllers/Student/StudentQuizController.php:20
+ * @see app/Http/Controllers/Student/StudentQuizController.php:21
  * @route '/student/quizs/{studentActivity}'
  */
 show.get = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -58,7 +58,7 @@ show.get = (args: { studentActivity: number | { id: number } } | [studentActivit
 })
 /**
 * @see \App\Http\Controllers\Student\StudentQuizController::show
- * @see app/Http/Controllers/Student/StudentQuizController.php:20
+ * @see app/Http/Controllers/Student/StudentQuizController.php:21
  * @route '/student/quizs/{studentActivity}'
  */
 show.head = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -68,7 +68,7 @@ show.head = (args: { studentActivity: number | { id: number } } | [studentActivi
 
     /**
 * @see \App\Http\Controllers\Student\StudentQuizController::show
- * @see app/Http/Controllers/Student/StudentQuizController.php:20
+ * @see app/Http/Controllers/Student/StudentQuizController.php:21
  * @route '/student/quizs/{studentActivity}'
  */
     const showForm = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -78,7 +78,7 @@ show.head = (args: { studentActivity: number | { id: number } } | [studentActivi
 
             /**
 * @see \App\Http\Controllers\Student\StudentQuizController::show
- * @see app/Http/Controllers/Student/StudentQuizController.php:20
+ * @see app/Http/Controllers/Student/StudentQuizController.php:21
  * @route '/student/quizs/{studentActivity}'
  */
         showForm.get = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -87,7 +87,7 @@ show.head = (args: { studentActivity: number | { id: number } } | [studentActivi
         })
             /**
 * @see \App\Http\Controllers\Student\StudentQuizController::show
- * @see app/Http/Controllers/Student/StudentQuizController.php:20
+ * @see app/Http/Controllers/Student/StudentQuizController.php:21
  * @route '/student/quizs/{studentActivity}'
  */
         showForm.head = (args: { studentActivity: number | { id: number } } | [studentActivity: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

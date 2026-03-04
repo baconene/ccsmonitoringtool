@@ -20,12 +20,13 @@ class GradeCalculatorService
 {
     /**
      * Default activity type weights (fallback if database settings are unavailable)
+     * NOTE: This is now deprecated - weights should come from activity_types table
      */
     private const DEFAULT_ACTIVITY_WEIGHTS = [
-        'Quiz' => 30,
-        'Assignment' => 15,
-        'Assessment' => 35,
-        'Exercise' => 20,
+        'Quiz' => 25,
+        'Assignment' => 25,
+        'Assessment' => 25,
+        'Exercise' => 25,
     ];
 
     /**
@@ -61,14 +62,17 @@ class GradeCalculatorService
     /**
      * Get activity type weights from database or use defaults
      * If courseId is provided, gets course-specific weights with fallback to global
+     * Automatically syncs with activity_types table to ensure all types are covered
      */
     private function getActivityTypeWeights(?int $courseId = null): array
     {
         try {
             if ($courseId) {
-                $weights = CourseGradeSetting::getActivityTypeWeights($courseId);
+                // Use dynamic method that syncs with activity_types table
+                $weights = CourseGradeSetting::getActivityTypeWeightsDynamic($courseId);
             } else {
-                $weights = GradeSetting::getActivityTypeWeights();
+                // Use dynamic method that syncs with activity_types table
+                $weights = GradeSetting::getActivityTypeWeightsDynamic();
             }
             return !empty($weights) ? $weights : self::DEFAULT_ACTIVITY_WEIGHTS;
         } catch (\Exception $e) {

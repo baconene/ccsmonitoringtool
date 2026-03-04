@@ -2,7 +2,10 @@ import Auth from './Auth'
 import Api from './Api'
 import GradeLevelController from './GradeLevelController'
 import CourseController from './CourseController'
+import GradeController from './GradeController'
+import GitHistoryController from './GitHistoryController'
 import UserController from './UserController'
+import AdminConfigurationController from './AdminConfigurationController'
 import ActivityController from './ActivityController'
 import QuizController from './QuizController'
 import QuestionController from './QuestionController'
@@ -15,7 +18,6 @@ import LessonController from './LessonController'
 import DocumentController from './DocumentController'
 import Student from './Student'
 import StudentAssignmentController from './StudentAssignmentController'
-import GradeController from './GradeController'
 import GradeSettingsController from './GradeSettingsController'
 import Settings from './Settings'
 const Controllers = {
@@ -23,7 +25,10 @@ const Controllers = {
 Api: Object.assign(Api, Api),
 GradeLevelController: Object.assign(GradeLevelController, GradeLevelController),
 CourseController: Object.assign(CourseController, CourseController),
+GradeController: Object.assign(GradeController, GradeController),
+GitHistoryController: Object.assign(GitHistoryController, GitHistoryController),
 UserController: Object.assign(UserController, UserController),
+AdminConfigurationController: Object.assign(AdminConfigurationController, AdminConfigurationController),
 ActivityController: Object.assign(ActivityController, ActivityController),
 QuizController: Object.assign(QuizController, QuizController),
 QuestionController: Object.assign(QuestionController, QuestionController),
@@ -36,7 +41,6 @@ LessonController: Object.assign(LessonController, LessonController),
 DocumentController: Object.assign(DocumentController, DocumentController),
 Student: Object.assign(Student, Student),
 StudentAssignmentController: Object.assign(StudentAssignmentController, StudentAssignmentController),
-GradeController: Object.assign(GradeController, GradeController),
 GradeSettingsController: Object.assign(GradeSettingsController, GradeSettingsController),
 Settings: Object.assign(Settings, Settings),
 }

@@ -150,4 +150,12 @@ class Activity extends Model
             ->withPivot('weight')
             ->withTimestamps();
     }
+
+    /**
+     * Accessor for the count of modules this activity belongs to
+     */
+    public function getModulesCountAttribute(): int
+    {
+        return $this->modules()->count();
+    }
 }

@@ -80,7 +80,7 @@ add.post = (args: { module: number | { id: number } } | [module: number | { id: 
     add.form = addForm
 /**
 * @see \App\Http\Controllers\ModuleController::remove
- * @see app/Http/Controllers/ModuleController.php:179
+ * @see app/Http/Controllers/ModuleController.php:198
  * @route '/modules/{module}/activities/{activity}'
  */
 export const remove = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -95,7 +95,7 @@ remove.definition = {
 
 /**
 * @see \App\Http\Controllers\ModuleController::remove
- * @see app/Http/Controllers/ModuleController.php:179
+ * @see app/Http/Controllers/ModuleController.php:198
  * @route '/modules/{module}/activities/{activity}'
  */
 remove.url = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions) => {
@@ -123,7 +123,7 @@ remove.url = (args: { module: number | { id: number }, activity: string | number
 
 /**
 * @see \App\Http\Controllers\ModuleController::remove
- * @see app/Http/Controllers/ModuleController.php:179
+ * @see app/Http/Controllers/ModuleController.php:198
  * @route '/modules/{module}/activities/{activity}'
  */
 remove.delete = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -133,7 +133,7 @@ remove.delete = (args: { module: number | { id: number }, activity: string | num
 
     /**
 * @see \App\Http\Controllers\ModuleController::remove
- * @see app/Http/Controllers/ModuleController.php:179
+ * @see app/Http/Controllers/ModuleController.php:198
  * @route '/modules/{module}/activities/{activity}'
  */
     const removeForm = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -148,7 +148,7 @@ remove.delete = (args: { module: number | { id: number }, activity: string | num
 
             /**
 * @see \App\Http\Controllers\ModuleController::remove
- * @see app/Http/Controllers/ModuleController.php:179
+ * @see app/Http/Controllers/ModuleController.php:198
  * @route '/modules/{module}/activities/{activity}'
  */
         removeForm.delete = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\GradeController::pdf
- * @see app/Http/Controllers/GradeController.php:519
+ * @see app/Http/Controllers/GradeController.php:561
  * @route '/student/{student}/report/course/{course}/pdf'
  */
 export const pdf = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ pdf.definition = {
 
 /**
 * @see \App\Http\Controllers\GradeController::pdf
- * @see app/Http/Controllers/GradeController.php:519
+ * @see app/Http/Controllers/GradeController.php:561
  * @route '/student/{student}/report/course/{course}/pdf'
  */
 pdf.url = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions) => {
@@ -42,7 +42,7 @@ pdf.url = (args: { student: string | number, course: string | number } | [studen
 
 /**
 * @see \App\Http\Controllers\GradeController::pdf
- * @see app/Http/Controllers/GradeController.php:519
+ * @see app/Http/Controllers/GradeController.php:561
  * @route '/student/{student}/report/course/{course}/pdf'
  */
 pdf.get = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -51,7 +51,7 @@ pdf.get = (args: { student: string | number, course: string | number } | [studen
 })
 /**
 * @see \App\Http\Controllers\GradeController::pdf
- * @see app/Http/Controllers/GradeController.php:519
+ * @see app/Http/Controllers/GradeController.php:561
  * @route '/student/{student}/report/course/{course}/pdf'
  */
 pdf.head = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -61,7 +61,7 @@ pdf.head = (args: { student: string | number, course: string | number } | [stude
 
     /**
 * @see \App\Http\Controllers\GradeController::pdf
- * @see app/Http/Controllers/GradeController.php:519
+ * @see app/Http/Controllers/GradeController.php:561
  * @route '/student/{student}/report/course/{course}/pdf'
  */
     const pdfForm = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -71,7 +71,7 @@ pdf.head = (args: { student: string | number, course: string | number } | [stude
 
             /**
 * @see \App\Http\Controllers\GradeController::pdf
- * @see app/Http/Controllers/GradeController.php:519
+ * @see app/Http/Controllers/GradeController.php:561
  * @route '/student/{student}/report/course/{course}/pdf'
  */
         pdfForm.get = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -80,7 +80,7 @@ pdf.head = (args: { student: string | number, course: string | number } | [stude
         })
             /**
 * @see \App\Http\Controllers\GradeController::pdf
- * @see app/Http/Controllers/GradeController.php:519
+ * @see app/Http/Controllers/GradeController.php:561
  * @route '/student/{student}/report/course/{course}/pdf'
  */
         pdfForm.head = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -96,7 +96,7 @@ pdf.head = (args: { student: string | number, course: string | number } | [stude
     pdf.form = pdfForm
 /**
 * @see \App\Http\Controllers\GradeController::csv
- * @see app/Http/Controllers/GradeController.php:529
+ * @see app/Http/Controllers/GradeController.php:571
  * @route '/student/{student}/report/course/{course}/csv'
  */
 export const csv = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -111,7 +111,7 @@ csv.definition = {
 
 /**
 * @see \App\Http\Controllers\GradeController::csv
- * @see app/Http/Controllers/GradeController.php:529
+ * @see app/Http/Controllers/GradeController.php:571
  * @route '/student/{student}/report/course/{course}/csv'
  */
 csv.url = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions) => {
@@ -137,7 +137,7 @@ csv.url = (args: { student: string | number, course: string | number } | [studen
 
 /**
 * @see \App\Http\Controllers\GradeController::csv
- * @see app/Http/Controllers/GradeController.php:529
+ * @see app/Http/Controllers/GradeController.php:571
  * @route '/student/{student}/report/course/{course}/csv'
  */
 csv.get = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -146,7 +146,7 @@ csv.get = (args: { student: string | number, course: string | number } | [studen
 })
 /**
 * @see \App\Http\Controllers\GradeController::csv
- * @see app/Http/Controllers/GradeController.php:529
+ * @see app/Http/Controllers/GradeController.php:571
  * @route '/student/{student}/report/course/{course}/csv'
  */
 csv.head = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -156,7 +156,7 @@ csv.head = (args: { student: string | number, course: string | number } | [stude
 
     /**
 * @see \App\Http\Controllers\GradeController::csv
- * @see app/Http/Controllers/GradeController.php:529
+ * @see app/Http/Controllers/GradeController.php:571
  * @route '/student/{student}/report/course/{course}/csv'
  */
     const csvForm = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -166,7 +166,7 @@ csv.head = (args: { student: string | number, course: string | number } | [stude
 
             /**
 * @see \App\Http\Controllers\GradeController::csv
- * @see app/Http/Controllers/GradeController.php:529
+ * @see app/Http/Controllers/GradeController.php:571
  * @route '/student/{student}/report/course/{course}/csv'
  */
         csvForm.get = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -175,7 +175,7 @@ csv.head = (args: { student: string | number, course: string | number } | [stude
         })
             /**
 * @see \App\Http\Controllers\GradeController::csv
- * @see app/Http/Controllers/GradeController.php:529
+ * @see app/Http/Controllers/GradeController.php:571
  * @route '/student/{student}/report/course/{course}/csv'
  */
         csvForm.head = (args: { student: string | number, course: string | number } | [student: string | number, course: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

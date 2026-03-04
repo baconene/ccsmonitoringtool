@@ -37,32 +37,17 @@ interface Props {
     studentsProgress?: any[];
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+    studentsProgress: () => [],
+});
 
 // Student Submissions Composable
 const { submissions, loading, fetchAssignmentSubmissions } = useStudentSubmissions();
-
-// Tab state
-const activeTab = ref<'assignment' | 'submissions'>('assignment');
-
-// Load submissions when the submissions tab is activated
-const handleTabChange = async (tab: 'assignment' | 'submissions') => {
-    activeTab.value = tab;
-    if (tab === 'submissions' && props.assignment?.id && submissions.value.length === 0) {
-        await fetchAssignmentSubmissions(props.assignment.id);
-    }
-};
 
 // State
 const showCreateForm = ref(!props.assignment);
 const showEditMode = ref(false);
 const showStudentProgress = ref(true);
-
-// Submissions filter and sort
-const submissionsFilter = ref<'all' | 'not_started' | 'in_progress' | 'submitted' | 'graded'>('all');
-const submissionsSearchQuery = ref('');
-const submissionsSortBy = ref<'name' | 'status' | 'score' | 'date'>('date');
-const submissionsSortOrder = ref<'asc' | 'desc'>('desc');
 
 // Form data for creating new assignment
 const formData = ref({
@@ -78,6 +63,7 @@ const formData = ref({
 
 // Deleted question IDs (for updates)
 const deletedQuestionIds = ref<number[]>([]);
+const assignmentErrors = ref<Record<string, string>>({});
 
 const formatDate = (date: string) => {
     if (!date) return 'N/A';
@@ -91,26 +77,30 @@ const formatDate = (date: string) => {
 };
 
 const handleCreateAssignment = () => {
-    console.log('Creating assignment with data:', {
-        activity_id: props.activity.id,
-        ...formData.value,
-    });
-    
+    assignmentErrors.value = {};
     router.post('/assignments', {
         activity_id: props.activity.id,
         ...formData.value,
     }, {
-        onSuccess: () => {
+        onSuccess: (page) => {
             console.log('Assignment created successfully');
-            showCreateForm.value = false;
+            console.log('Response:', page.props);
+            // Reload the page to show the new assignment
+            router.visit(`/activities/${props.activity.id}`, {
+                method: 'get',
+                preserveScroll: true,
+            });
         },
         onError: (errors) => {
             console.error('Assignment creation failed:', errors);
+            assignmentErrors.value = errors as Record<string, string>;
+            alert(errors?.message || errors?.error || 'Failed to create assignment. Please check required question fields.');
         }
     });
 };
 
 const handleUpdateAssignment = () => {
+    assignmentErrors.value = {};
     router.put(`/assignments/${props.assignment.id}`, {
         ...formData.value,
         deleted_question_ids: deletedQuestionIds.value,
@@ -118,6 +108,11 @@ const handleUpdateAssignment = () => {
         onSuccess: () => {
             showEditMode.value = false;
             deletedQuestionIds.value = [];
+            assignmentErrors.value = {};
+        },
+        onError: (errors) => {
+            assignmentErrors.value = errors as Record<string, string>;
+            alert(errors?.message || errors?.error || 'Failed to update assignment. Please check required question fields.');
         }
     });
 };
@@ -168,16 +163,6 @@ const getQuestionTypeDisplay = (type: string) => {
     return types[type] || type;
 };
 
-const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-        'not_started': 'text-gray-600 bg-gray-100 dark:bg-gray-700 dark:text-gray-300',
-        'in_progress': 'text-blue-600 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400',
-        'submitted': 'text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400',
-        'graded': 'text-purple-600 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-400',
-    };
-    return colors[status] || colors['not_started'];
-};
-
 const viewGrading = () => {
     if (props.assignment?.id) {
         router.visit(`/assignments/${props.assignment.id}/grading`);
@@ -188,88 +173,6 @@ const calculateTotalPoints = computed(() => {
     return formData.value.questions.reduce((sum: number, q: Question) => sum + (q.points || 0), 0);
 });
 
-// Filtered and sorted submissions
-const filteredSubmissions = computed(() => {
-    if (!props.studentsProgress) return [];
-    
-    let filtered = props.studentsProgress;
-    
-    // Apply status filter
-    if (submissionsFilter.value !== 'all') {
-        filtered = filtered.filter(s => s.status === submissionsFilter.value);
-    }
-    
-    // Apply search filter
-    if (submissionsSearchQuery.value) {
-        const query = submissionsSearchQuery.value.toLowerCase();
-        filtered = filtered.filter(s => {
-            const studentName = `${s.student?.first_name || ''} ${s.student?.last_name || ''}`.toLowerCase();
-            const studentEmail = (s.student?.email || '').toLowerCase();
-            return studentName.includes(query) || studentEmail.includes(query);
-        });
-    }
-    
-    // Apply sorting
-    const sorted = [...filtered].sort((a, b) => {
-        let comparison = 0;
-        
-        switch (submissionsSortBy.value) {
-            case 'name':
-                const nameA = `${a.student?.first_name || ''} ${a.student?.last_name || ''}`;
-                const nameB = `${b.student?.first_name || ''} ${b.student?.last_name || ''}`;
-                comparison = nameA.localeCompare(nameB);
-                break;
-            case 'status':
-                const statusOrder = ['not_started', 'in_progress', 'submitted', 'graded'];
-                comparison = statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
-                break;
-            case 'score':
-                comparison = (a.score || 0) - (b.score || 0);
-                break;
-            case 'date':
-                const dateA = a.submitted_at ? new Date(a.submitted_at).getTime() : 0;
-                const dateB = b.submitted_at ? new Date(b.submitted_at).getTime() : 0;
-                comparison = dateA - dateB;
-                break;
-        }
-        
-        return submissionsSortOrder.value === 'asc' ? comparison : -comparison;
-    });
-    
-    return sorted;
-});
-
-// Submission statistics
-const submissionStats = computed(() => {
-    if (!props.studentsProgress) return {
-        total: 0,
-        notStarted: 0,
-        inProgress: 0,
-        submitted: 0,
-        graded: 0,
-        needsGrading: 0,
-    };
-    
-    return {
-        total: props.studentsProgress.length,
-        notStarted: props.studentsProgress.filter(s => s.status === 'not_started').length,
-        inProgress: props.studentsProgress.filter(s => s.status === 'in_progress').length,
-        submitted: props.studentsProgress.filter(s => s.status === 'submitted').length,
-        graded: props.studentsProgress.filter(s => s.status === 'graded').length,
-        needsGrading: props.studentsProgress.filter(s => s.status === 'submitted').length,
-    };
-});
-
-// Toggle sort
-const toggleSort = (field: 'name' | 'status' | 'score' | 'date') => {
-    if (submissionsSortBy.value === field) {
-        submissionsSortOrder.value = submissionsSortOrder.value === 'asc' ? 'desc' : 'asc';
-    } else {
-        submissionsSortBy.value = field;
-        submissionsSortOrder.value = 'desc';
-    }
-};
-
 // View student submission
 const viewStudentSubmission = (progressId: number, assignmentId: number) => {
     router.visit(`/instructor/assignments/${assignmentId}/submissions/${progressId}`);
@@ -278,46 +181,8 @@ const viewStudentSubmission = (progressId: number, assignmentId: number) => {
 
 <template>
     <div class="space-y-6">
-        <!-- Tabs Navigation (only show if assignment exists) -->
-        <div v-if="assignment" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div class="border-b border-gray-200 dark:border-gray-700">
-                <nav class="flex -mb-px" aria-label="Tabs">
-                    <button
-                        @click="handleTabChange('assignment')"
-                        :class="[
-                            activeTab === 'assignment'
-                                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300',
-                            'flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm transition-colors'
-                        ]"
-                    >
-                        <Settings :size="18" />
-                        Assignment Details
-                    </button>
-                    <button
-                        @click="handleTabChange('submissions')"
-                        :class="[
-                            activeTab === 'submissions'
-                                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300',
-                            'flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm transition-colors'
-                        ]"
-                    >
-                        <Users :size="18" />
-                        Student Submissions
-                        <span
-                            v-if="submissionStats.needsGrading > 0"
-                            class="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full"
-                        >
-                            {{ submissionStats.needsGrading }}
-                        </span>
-                    </button>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Tab: Assignment Details -->
-        <div v-if="!assignment || activeTab === 'assignment'">
+        <!-- Assignment Details Section -->
+        <div>
             <!-- Assignment Overview (if exists) -->
             <div v-if="assignment && !showEditMode" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div class="flex items-center justify-between mb-4">
@@ -368,13 +233,77 @@ const viewStudentSubmission = (progressId: number, assignmentId: number) => {
                     >
                         <div class="flex-1">
                             <p class="text-sm font-medium text-gray-900 dark:text-white">
-                                {{ index + 1 }}. {{ question.question_text }}
+                                {{ Number(index) + 1 }}. {{ question.question_text }}
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 {{ getQuestionTypeDisplay(question.question_type) }} • {{ question.points }} pts
                             </p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+            <!-- Student Submissions Table (shown below questions, like QuizManagement) -->
+            <div v-if="assignment && studentsProgress && studentsProgress.length > 0" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    Student Submissions ({{ studentsProgress.length }})
+                </h3>
+                <div class="overflow-x-auto bg-gray-50 dark:bg-gray-900/40 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <table class="w-full text-sm">
+                        <thead class="border-b border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Student Name</th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Email</th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Status</th>
+                                <th class="px-4 py-3 text-right font-semibold text-gray-700 dark:text-gray-300">Score</th>
+                                <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Submission Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            <tr
+                                v-for="student in studentsProgress"
+                                :key="student.student_id"
+                                class="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            >
+                                <td class="px-4 py-3 text-gray-900 dark:text-gray-100 font-medium">{{ student.student_name }}</td>
+                                <td class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs">{{ student.student_email }}</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex flex-col gap-1">
+                                        <span
+                                            :class="{
+                                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': student.status === 'in_progress',
+                                                'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': student.status === 'submitted',
+                                                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': student.status === 'graded',
+                                                'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400': student.status === 'not_started',
+                                            }"
+                                            class="px-3 py-1 rounded-full text-xs font-medium w-fit"
+                                        >
+                                            {{ student.status }}
+                                        </span>
+                                        <span
+                                            :class="{
+                                                'text-green-700 dark:text-green-400 font-medium': student.is_taking_activity || student.status === 'graded',
+                                                'text-gray-600 dark:text-gray-400': !student.is_taking_activity && student.status === 'not_started',
+                                            }"
+                                            class="text-xs"
+                                        >
+                                            {{ student.is_taking_activity || student.status === 'graded' ? '✓ Active' : '○ Pending' }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <span v-if="student.score !== null" class="font-semibold text-gray-900 dark:text-gray-100">
+                                        {{ student.score }}/{{ student.max_score }}
+                                    </span>
+                                    <span v-else class="text-gray-500 dark:text-gray-400">—</span>
+                                </td>
+                                <td class="px-4 py-3 text-xs text-gray-600 dark:text-gray-400">
+                                    {{ student.submitted_at ? new Date(student.submitted_at).toLocaleDateString() : '—' }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -395,6 +324,13 @@ const viewStudentSubmission = (progressId: number, assignmentId: number) => {
             </div>
 
             <form @submit.prevent="showEditMode ? handleUpdateAssignment() : handleCreateAssignment()" class="space-y-6">
+                <div v-if="Object.keys(assignmentErrors).length > 0" class="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3">
+                    <p class="text-sm font-medium text-red-700 dark:text-red-300 mb-1">Unable to save assignment:</p>
+                    <ul class="text-xs text-red-700 dark:text-red-300 list-disc pl-5 space-y-1">
+                        <li v-for="(error, key) in assignmentErrors" :key="key">{{ error }}</li>
+                    </ul>
+                </div>
+
                 <!-- Basic Info -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -554,7 +490,7 @@ const viewStudentSubmission = (progressId: number, assignmentId: number) => {
                                     <div class="flex items-start justify-between gap-4">
                                         <div class="flex-1">
                                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Question {{ qIndex + 1 }}
+                                                Question {{ Number(qIndex) + 1 }}
                                             </label>
                                             <textarea
                                                 v-model="question.question_text"
@@ -566,7 +502,7 @@ const viewStudentSubmission = (progressId: number, assignmentId: number) => {
                                         </div>
                                         <button
                                             type="button"
-                                            @click="removeQuestion(qIndex)"
+                                            @click="removeQuestion(Number(qIndex))"
                                             class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                                         >
                                             <Trash2 :size="18" />
@@ -638,7 +574,7 @@ const viewStudentSubmission = (progressId: number, assignmentId: number) => {
                                             </label>
                                             <button
                                                 type="button"
-                                                @click="addOption(qIndex)"
+                                                @click="addOption(Number(qIndex))"
                                                 class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400"
                                             >
                                                 + Add Option
@@ -665,7 +601,7 @@ const viewStudentSubmission = (progressId: number, assignmentId: number) => {
                                                 />
                                                 <button
                                                     type="button"
-                                                    @click="removeOption(qIndex, oIndex)"
+                                                    @click="removeOption(Number(qIndex), Number(oIndex))"
                                                     class="text-red-600 hover:text-red-800"
                                                 >
                                                     <X :size="16" />
@@ -777,18 +713,7 @@ const viewStudentSubmission = (progressId: number, assignmentId: number) => {
                     Create Assignment
                 </button>
             </div>
-        </div>
-
-        <!-- Tab: Student Submissions -->
-        <div v-if="assignment && activeTab === 'submissions'" class="space-y-6">
-            <StudentSubmissions
-                :submissions="submissions"
-                activity-type="assignment"
-                :activity-id="assignment.id"
-                :activity-title="assignment.title || activity.title"
-                :course-id="activity.course_id"
-                :loading="loading"
-            />
-        </div>
-    </div>
+        </div> 
 </template>
+
+

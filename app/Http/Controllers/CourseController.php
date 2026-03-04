@@ -42,10 +42,18 @@ class CourseController extends Controller
             $courses = $this->courseService->getCourses($filters, $perPage);
 
             // Fetch all available activities for the instructor/admin
-            $availableActivities = \App\Models\Activity::with(['activityType', 'creator', 'quiz.questions'])
+            $availableActivities = \App\Models\Activity::with(['activityType', 'creator', 'quiz.questions', 'assignment.questions'])
                 ->where('created_by', auth()->id())
                 ->get()
                 ->map(function ($activity) {
+                    $questionCount = $activity->quiz
+                        ? ($activity->quiz?->questions?->count() ?? 0)
+                        : ($activity->assignment?->questions?->count() ?? 0);
+
+                    $totalPoints = $activity->quiz
+                        ? ($activity->quiz?->questions?->sum('points') ?? 0)
+                        : (($activity->assignment?->questions?->sum('points') ?? 0) ?: ($activity->assignment?->total_points ?? 0));
+
                     return [
                         'id' => $activity->id,
                         'title' => $activity->title,
@@ -58,8 +66,8 @@ class CourseController extends Controller
                         'due_date' => $activity->due_date,
                         'activityType' => $activity->activityType,
                         'creator' => $activity->creator,
-                        'question_count' => $activity->quiz ? $activity->quiz->questions->count() : 0,
-                        'total_points' => $activity->quiz ? $activity->quiz->questions->sum('points') : 0,
+                        'question_count' => $questionCount,
+                        'total_points' => $totalPoints,
                     ];
                 });
 

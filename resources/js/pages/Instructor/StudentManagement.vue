@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
+import type { BreadcrumbItem } from '@/types';
 import { 
   Users, 
   Search, 
@@ -70,6 +71,18 @@ interface Props {
 
 const props = defineProps<Props>();
 
+// Breadcrumb items
+const breadcrumbItems: BreadcrumbItem[] = [
+  {
+    title: 'Dashboard',
+    href: '/dashboard',
+  },
+  {
+    title: 'Student Management',
+    href: '/student-management',
+  },
+];
+
 // State
 const selectedCourse = ref<Course | null>(null);
 const students = ref<Student[]>([]);
@@ -107,7 +120,16 @@ const availableSections = computed(() => {
 });
 
 const filteredStudents = computed(() => {
-  return students.value;
+  if (!searchQuery.value.trim()) {
+    return students.value;
+  }
+  
+  const query = searchQuery.value.toLowerCase().trim();
+  return students.value.filter(student =>
+    student.name.toLowerCase().includes(query) ||
+    student.email.toLowerCase().includes(query) ||
+    student.student_id_text.toLowerCase().includes(query)
+  );
 });
 
 const statsCards = computed(() => {
@@ -197,7 +219,8 @@ const viewStudentProfile = (userId: number) => {
   // Navigate to existing student profile page (using user_id, not student.id)
   // Pass return URL to preserve Student Management state
   const returnUrl = window.location.pathname + window.location.search;
-  router.visit(`/student/${userId}/details?returnUrl=${encodeURIComponent(returnUrl)}`);
+  const selectedCourseParam = selectedCourse.value ? `&courseId=${selectedCourse.value.id}` : '';
+  router.visit(`/student/${userId}/details?returnUrl=${encodeURIComponent(returnUrl)}${selectedCourseParam}`);
 };
 
 const viewStudentActivities = async (student: Student) => {
@@ -283,11 +306,15 @@ const handleCourseDropdownBlur = () => {
 // Lifecycle
 onMounted(() => {
   fetchStatistics();
+
+  if (props.courses.length > 0) {
+    selectCourse(props.courses[0]);
+  }
 });
 </script>
 
 <template>
-  <AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbItems">
     <Head title="Student Management" />
     
     <div class="py-8">
@@ -310,23 +337,23 @@ onMounted(() => {
         </div>
 
         <!-- Statistics Cards -->
-        <div v-if="statistics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div v-if="statistics" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
           <div
             v-for="stat in statsCards"
             :key="stat.title"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+            class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6"
           >
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                <p class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                   {{ stat.title }}
                 </p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {{ stat.value }}
                 </p>
               </div>
-              <div :class="`p-3 rounded-lg bg-${stat.color}-100 dark:bg-${stat.color}-900/30`">
-                <component :is="stat.icon" :class="`w-6 h-6 text-${stat.color}-600 dark:text-${stat.color}-400`" />
+              <div :class="`p-2 sm:p-3 rounded-lg bg-${stat.color}-100 dark:bg-${stat.color}-900/30`">
+                <component :is="stat.icon" :class="`w-5 h-5 sm:w-6 sm:h-6 text-${stat.color}-600 dark:text-${stat.color}-400`" />
               </div>
             </div>
           </div>

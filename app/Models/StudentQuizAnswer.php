@@ -128,14 +128,28 @@ class StudentQuizAnswer extends Model
             $this->is_correct = $selectedOption && $selectedOption->is_correct;
             $this->points_earned = $this->is_correct ? $question->points : 0;
         } 
-        // Handle enumeration and short-answer questions
-        elseif (($question->question_type === 'enumeration' || $question->question_type === 'short_answer') && !empty($this->answer_text)) {
-            // For enumeration and short answer, manual grading is needed
-            // However, we acknowledge the answer was provided
-            // Set is_correct to false by default (pending manual grading) and points to 0
-            // Instructors can manually grade these later and update the score
-            $this->is_correct = false; // false means not graded yet / pending review
-            $this->points_earned = 0; // Default to 0 until manually graded
+        // Handle enumeration questions - auto-grade by comparing with correct answer
+        elseif ($question->question_type === 'enumeration' && !empty($this->answer_text)) {
+            $studentItems = $this->parseEnumerationAnswers($this->answer_text);
+            $correctItems = $this->parseEnumerationAnswers($question->correct_answer);
+            
+            // Case-insensitive comparison
+            $studentItems = array_map('strtolower', $studentItems);
+            $correctItems = array_map('strtolower', $correctItems);
+            
+            sort($studentItems);
+            sort($correctItems);
+            
+            $this->is_correct = $studentItems === $correctItems;
+            $this->points_earned = $this->is_correct ? $question->points : 0;
+        }
+        // Handle short-answer questions - auto-grade by comparing with correct answer
+        elseif ($question->question_type === 'short_answer' && !empty($this->answer_text)) {
+            $studentAnswer = $this->normalizeText($this->answer_text);
+            $correctAnswer = $this->normalizeText($question->correct_answer);
+            
+            $this->is_correct = $studentAnswer === $correctAnswer;
+            $this->points_earned = $this->is_correct ? $question->points : 0;
         }
         // No valid answer provided
         else {
@@ -144,5 +158,38 @@ class StudentQuizAnswer extends Model
         }
         
         $this->save();
+    }
+
+    /**
+     * Normalize text for comparison (case-insensitive, whitespace normalized)
+     */
+    private function normalizeText($value): string
+    {
+        $text = trim((string) $value);
+        $text = strtolower($text);
+        return preg_replace('/\s+/u', ' ', $text) ?? $text;
+    }
+
+    /**
+     * Parse enumeration answers into array of items
+     */
+    private function parseEnumerationAnswers($value): array
+    {
+        if (is_array($value)) {
+            $rawItems = $value;
+        } else {
+            // Split by newlines, commas, or semicolons
+            $rawItems = preg_split('/[\r\n,;]+/u', (string) $value) ?: [];
+        }
+
+        $items = [];
+        foreach ($rawItems as $item) {
+            $normalized = preg_replace('/\s+/u', ' ', trim((string) $item));
+            if ($normalized !== null && $normalized !== '') {
+                $items[] = $normalized;
+            }
+        }
+
+        return array_values(array_unique($items));
     }
 }

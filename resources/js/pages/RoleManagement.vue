@@ -4,7 +4,6 @@ import { Head, router } from '@inertiajs/vue3';
 import { onMounted, computed, ref } from 'vue';
 import type { NewUserData, UserUpdateData, User, BreadcrumbItem } from '@/types/index';
 import UserListTable from '@/components/UserListTable.vue';
-import RolesSection from '@/components/RolesSection.vue';
 import Notification from '@/components/Notification.vue';
 import { useUserManagement } from '@/composables/useUserManagement';
 import { useRoleManagement } from '@/composables/useRoleManagement';
@@ -299,27 +298,14 @@ onMounted(() => {
           </button>
         </div>
 
-        <!-- DEBUG: Display API Response -->
-        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-          <h3 class="font-bold text-blue-900 dark:text-blue-200 mb-2">DEBUG INFO</h3>
-          <div class="text-sm font-mono bg-white dark:bg-gray-800 p-3 rounded border border-blue-200 dark:border-blue-800 max-h-64 overflow-auto">
-            <pre v-if="debugResponse">{{ JSON.stringify(debugResponse, null, 2) }}</pre>
-            <pre v-else-if="debugError" class="text-red-600">{{ debugError }}</pre>
-            <p v-else class="text-gray-500">Loading...</p>
-          </div>
-          <div class="mt-2 text-sm">
-            <p>Users Count: {{ users.length }}</p>
-            <p>Roles Count: {{ roles.length }}</p>
-          </div>
-        </div>
+
 
         <!-- Content -->
         <div class="space-y-8">
-          <!-- Roles Section -->
-          <RolesSection :roles="roles" :get-role-badge-color="getRoleBadgeColor" />
-
           <!-- Users Section -->
           <UserListTable
+            :roles="roles"
+            :get-role-badge-color="getRoleBadgeColor"
             :users="users"
             @add-user="handleAddUser"
             @edit-user="handleEditUser"

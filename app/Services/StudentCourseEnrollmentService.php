@@ -6,9 +6,11 @@ use App\Models\Course;
 use App\Models\CourseGradeLevel;
 use App\Models\Student;
 use App\Models\User;
+use App\Models\StudentSkillAssessment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Exception;
 
 class StudentCourseEnrollmentService
@@ -70,6 +72,9 @@ class StudentCourseEnrollmentService
 
             // Initialize student progress for existing course modules
             $this->initializeStudentProgress($course, $student);
+
+            // Initialize skill assessments with default values
+            $this->initializeStudentSkillAssessments($course, $student);
 
             DB::commit();
 
@@ -406,7 +411,8 @@ class StudentCourseEnrollmentService
                     try {
                         $student->studentActivities()->create([
                             'activity_id' => $activity->id,
-                            'module_id' => $module->id, // Required field
+                            'module_id' => $module->id,
+                            'course_id' => $course->id, // Add the missing course_id
                             'score' => null,
                             'status' => 'not_started',
                             'started_at' => null,
@@ -419,6 +425,73 @@ class StudentCourseEnrollmentService
                             'student_id' => $student->id,
                             'activity_id' => $activity->id,
                             'module_id' => $module->id,
+                            'course_id' => $course->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Initialize student skill assessments with default values when enrolling
+     *
+     * @param Course $course
+     * @param Student $student
+     * @return void
+     */
+    private function initializeStudentSkillAssessments(Course $course, Student $student): void
+    {
+        // Get all modules in the course
+        $modules = $course->modules()->with('skills')->get();
+        
+        foreach ($modules as $module) {
+            // Get all skills for this module
+            $skills = $module->skills;
+            
+            foreach ($skills as $skill) {
+                // Check if assessment already exists
+                $existingAssessment = StudentSkillAssessment::where('student_id', $student->id)
+                    ->where('skill_id', $skill->id)
+                    ->first();
+                
+                if (!$existingAssessment) {
+                    try {
+                        // Create initial skill assessment with default values
+                        StudentSkillAssessment::create([
+                            'student_id' => $student->id,
+                            'skill_id' => $skill->id,
+                            'normalized_score' => 0.00,
+                            'feedback_score' => 0.00,
+                            'peer_review_score' => 0.00,
+                            'attempt_count' => 0,
+                            'improvement_factor' => 1.00,
+                            'days_late' => 0,
+                            'final_score' => 0.00,
+                            'mastery_level' => 'not_met',
+                            'consistency_score' => 0.00,
+                            'assessment_metadata' => [
+                                'status' => 'not_started',
+                                'initialized_at' => now()->toDateTimeString(),
+                                'course_id' => $course->id,
+                                'module_id' => $module->id,
+                            ],
+                        ]);
+                        
+                        Log::debug('Initialized skill assessment', [
+                            'student_id' => $student->id,
+                            'skill_id' => $skill->id,
+                            'skill_name' => $skill->name,
+                            'course_id' => $course->id,
+                        ]);
+                    } catch (\Exception $e) {
+                        // Log and continue if there are constraint issues
+                        Log::warning('Failed to create student skill assessment', [
+                            'student_id' => $student->id,
+                            'skill_id' => $skill->id,
+                            'skill_name' => $skill->name,
+                            'course_id' => $course->id,
                             'error' => $e->getMessage()
                         ]);
                     }
@@ -459,8 +532,18 @@ class StudentCourseEnrollmentService
                     ->delete();
 
                 // Clean up quiz progress if it exists using student relationship
-                $student->quizProgress()
-                    ->whereIn('activity_id', $activityIds)
+                if (Schema::hasTable('student_quiz_progress')) {
+                    $student->quizProgress()
+                        ->whereIn('activity_id', $activityIds)
+                        ->delete();
+                }
+            }
+            
+            // Clean up skill assessments for skills in this module
+            $skillIds = $module->skills()->pluck('skills.id')->toArray();
+            if (!empty($skillIds)) {
+                StudentSkillAssessment::where('student_id', $studentId)
+                    ->whereIn('skill_id', $skillIds)
                     ->delete();
             }
         }

@@ -166,6 +166,7 @@ const props = defineProps<{
   moduleId: number;
   moduleType: string;
   availableActivities: Activity[];
+  usedActivityIds?: number[];
 }>();
 
 const emit = defineEmits<{
@@ -186,6 +187,11 @@ const getActivityType = (activity: Activity) => {
 // Filter activities based on module type
 const filteredActivities = computed(() => {
   let activities = props.availableActivities;
+
+  if (props.usedActivityIds?.length) {
+    const usedIds = new Set(props.usedActivityIds);
+    activities = activities.filter((activity) => !usedIds.has(activity.id));
+  }
 
   // Filter by module type
   if (props.moduleType === 'Quizzes') {

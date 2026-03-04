@@ -22,12 +22,16 @@ class StudentSubmissionController extends Controller
         // Load relationships
         $submission->load([
             'student.user',
-            'activity.course'
+            'activity.modules.course',
+            'activity.assignment.questions.options',
+            'activity.quiz.questions.options',
+            'activity.activityType'
         ]);
 
         // Get activity type and details
         $activity = $submission->activity;
-        $activityType = $this->determineActivityType($activity);
+        // Use the activity_type string from StudentActivity or derive from activityType relationship
+        $activityType = $submission->activity_type ?? strtolower($activity->activityType->name ?? 'assignment');
 
         // Get answers/questions based on activity type
         $answers = $this->getSubmissionAnswers($submission, $activity, $activityType);
@@ -55,7 +59,8 @@ class StudentSubmissionController extends Controller
             'id' => $activity->id,
             'title' => $activity->title,
             'description' => $activity->description,
-            'activity_type' => $activity->activity_type,
+            'activity_type' => $activityType,
+            'activity_type_name' => $activity->activityType?->name ?? 'Unknown',
         ];
 
         return Inertia::render('ActivityManagement/StudentSubmissionShow', [
@@ -119,16 +124,19 @@ class StudentSubmissionController extends Controller
 
     /**
      * Determine activity type from activity
+     * @deprecated Use $submission->activity_type instead
      */
     private function determineActivityType(Activity $activity): string
     {
-        $type = $activity->activity_type;
+        // Use activityType relationship to get the correct type name
+        $type = strtolower($activity->activityType->name ?? 'assignment');
         
         // Map activity types to frontend types
         $typeMap = [
-            'assignment' => 'assignment',
             'quiz' => 'quiz',
+            'assignment' => 'assignment',
             'project' => 'project',
+            'lesson' => 'lesson',
         ];
 
         return $typeMap[$type] ?? 'assignment';
@@ -159,9 +167,9 @@ class StudentSubmissionController extends Controller
 
         // Get questions based on activity type
         if ($activityType === 'quiz') {
-            $questions = $activity->quiz->questions ?? collect();
+            $questions = $activity->quiz?->questions ?? collect();
         } elseif ($activityType === 'assignment') {
-            $questions = $activity->assignment->questions ?? collect();
+            $questions = $activity->assignment?->questions ?? collect();
         } else {
             $questions = $activity->questions ?? collect();
         }
@@ -170,10 +178,10 @@ class StudentSubmissionController extends Controller
             // Get student's answer - this should be implemented based on your answer models
             $answer = null; // TODO: Implement based on activity type (StudentQuizAnswer or StudentAssignmentAnswer)
 
-            $formattedAnswer = [
+            $questionData = [
                 'id' => $question->id,
-                'question_text' => $question->question_text,
-                'question_type' => $question->question_type,
+                'question_text' => $question->question_text ?? $question->text ?? '',
+                'question_type' => $question->question_type ?? $question->type ?? 'multiple_choice',
                 'points' => $question->points ?? 1,
                 'student_answer' => $answer ? $answer->answer : null,
                 'student_answers' => $answer ? ($answer->answers ?? []) : [],
@@ -184,7 +192,18 @@ class StudentSubmissionController extends Controller
                 'feedback' => $answer ? ($answer->feedback ?? null) : null,
             ];
 
-            $answers[] = $formattedAnswer;
+            // Add options if this is a multiple choice question
+            if (in_array($questionData['question_type'], ['multiple_choice', 'single_choice'])) {
+                $questionData['options'] = ($question->options ?? collect())->map(function ($option) {
+                    return [
+                        'id' => $option->id,
+                        'text' => $option->option_text ?? '',
+                        'is_correct' => $option->is_correct ?? false,
+                    ];
+                })->toArray();
+            }
+
+            $answers[] = $questionData;
         }
 
         return $answers;

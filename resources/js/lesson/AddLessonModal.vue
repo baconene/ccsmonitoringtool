@@ -1,23 +1,23 @@
 <template>
   <div v-if="visible" class="fixed inset-0 flex items-center justify-center bg-black/50 dark:bg-black/70 z-50 p-4">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
       
       <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="flex items-center justify-between mb-4 sm:mb-6">
+        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div class="flex-shrink-0 w-8 sm:w-10 h-8 sm:h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+            <svg class="w-4 sm:w-5 h-4 sm:h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
           </div>
-          <div>
-            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">Add New Lesson</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Create a new lesson for this module</p>
+          <div class="min-w-0">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 truncate">Add New Lesson</h3>
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">Create a new lesson for this module</p>
           </div>
         </div>
         <button 
           @click="closeModal" 
-          class="p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          class="p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
           title="Close"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,7 +26,7 @@
         </button>
       </div>
 
-      <form @submit.prevent="submitLesson" class="space-y-6">
+      <form @submit.prevent="submitLesson" class="space-y-4 sm:space-y-6">
         <!-- Lesson Title -->
         <div class="space-y-2">
           <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200">
@@ -35,7 +35,7 @@
           <input
             v-model="title"
             type="text"
-            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
+            class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
             placeholder="Enter a descriptive lesson title..."
             required
           />
@@ -50,7 +50,7 @@
             Lesson Description
           </label>
           <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-900">
-            <div ref="editorContainer" class="min-h-[200px] quill-editor-container"></div>
+            <div ref="editorContainer" class="min-h-[150px] sm:min-h-[200px] quill-editor-container"></div>
           </div>
           <p class="text-xs text-gray-500 dark:text-gray-400">
             Provide detailed content for the lesson. Use the toolbar to format your text.
@@ -58,18 +58,18 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"
             @click="closeModal"
-            class="w-full sm:w-auto px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+            class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
             :disabled="loading"
           >
             Cancel
           </button>
           <button
             type="submit"
-            class="w-full sm:w-auto px-6 py-3 text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800 flex items-center justify-center gap-2"
+            class="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800 flex items-center justify-center gap-2"
             :disabled="loading"
           >
             <svg v-if="loading" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +78,7 @@
             <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            <span v-if="loading">Creating Lesson...</span>
+            <span v-if="loading">Creating...</span>
             <span v-else>Create Lesson</span>
           </button>
         </div>
@@ -100,7 +100,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'close'): void;
-  (e: 'added', lesson: { id: number; title: string; description: string; documents: any[] }): void;
+  (e: 'saved', lesson: { id: number; title: string; description: string; documents: any[] }): void;
 }>();
 
 const title = ref('');
@@ -186,7 +186,7 @@ async function submitLesson() {
     });
 
     // Emit lesson data returned from backend
-    emit('added', response.data.lesson || {
+    emit('saved', response.data.lesson || {
       id: response.data.id,
       title: title.value,
       description,

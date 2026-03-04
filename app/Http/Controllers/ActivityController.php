@@ -4,12 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\ActivityType;
+use App\Models\Assignment;
+use App\Models\AssignmentQuestion;
+use App\Models\AssignmentQuestionOption;
+use App\Models\CourseEnrollment;
+use App\Models\Student;
+use App\Models\StudentActivity;
+use App\Models\StudentActivityProgress;
 use App\Models\Schedule;
 use App\Models\ScheduleActivity;
 use App\Models\ScheduleParticipant;
 use App\Services\QuizCsvUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,7 +28,7 @@ class ActivityController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Activity::with(['activityType', 'creator', 'quiz.questions', 'assignment'])
+        $query = Activity::with(['activityType', 'creator', 'quiz.questions', 'assignment.questions'])
             ->where('created_by', auth()->id());
 
         // Apply filters if provided
@@ -45,8 +53,12 @@ class ActivityController extends Controller
             $activity->load('modules');
             
             // Add computed properties
-            $activity->question_count = $activity->quiz?->questions?->count() ?? 0;
-            $activity->total_points = $activity->quiz?->questions?->sum('points') ?? 0;
+            $activity->question_count = $activity->quiz
+                ? ($activity->quiz?->questions?->count() ?? 0)
+                : ($activity->assignment?->questions?->count() ?? 0);
+            $activity->total_points = $activity->quiz
+                ? ($activity->quiz?->questions?->sum('points') ?? 0)
+                : (($activity->assignment?->questions?->sum('points') ?? 0) ?: ($activity->assignment?->total_points ?? 0));
             $activity->has_due_date = $activity->assignment?->due_date ? true : false;
             
             // Add module usage information
@@ -57,9 +69,7 @@ class ActivityController extends Controller
                 ];
             })->toArray();
             
-            $activity->modules_count = $activity->modules->count();
-            
-            return $activity;
+            return $activity->append(['modules_count']);
         });
 
         $activityTypes = ActivityType::all();
@@ -115,6 +125,18 @@ class ActivityController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
+            // Load the activity type to determine what model to create
+            $activityType = $activity->activityType;
+            
+            Log::info('Activity created', [
+                'activity_id' => $activity->id,
+                'activity_type' => $activityType->name,
+                'model' => $activityType->model,
+            ]);
+
+            // Create the corresponding model based on activity type
+            $this->createActivityTypeModel($activity, $activityType);
+
             // Automatically create schedule if due_date is provided
             if (!empty($validated['due_date'])) {
                 $this->createScheduleForActivity($activity);
@@ -155,9 +177,89 @@ class ActivityController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
+            Log::error('Failed to create activity', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Failed to create activity: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Create the appropriate model based on activity type
+     */
+    private function createActivityTypeModel(Activity $activity, $activityType)
+    {
+        try {
+            // Get the model class from activity type
+            $modelClass = $activityType->model;
+            
+            if (!$modelClass) {
+                Log::info('No model defined for activity type', [
+                    'activity_type_id' => $activityType->id,
+                    'activity_type_name' => $activityType->name,
+                ]);
+                return;
+            }
+
+            $modelName = strtolower(class_basename($modelClass));
+            $typeName = strtolower($activityType->name ?? '');
+            $resolvedType = $modelName ?: $typeName;
+
+            // Map activity type names to model classes
+            switch ($resolvedType) {
+                case 'assignment':
+                    Assignment::create([
+                        'activity_id' => $activity->id,
+                        'created_by' => auth()->id(),
+                        'title' => $activity->title,
+                        'description' => $activity->description,
+                        'assignment_type' => 'objective',
+                        'total_points' => 100,
+                    ]);
+                    Log::info('Assignment created for activity', [
+                        'activity_id' => $activity->id,
+                    ]);
+                    break;
+
+                case 'quiz':
+                    // Check if Quiz model exists
+                    if (class_exists('App\Models\Quiz')) {
+                        \App\Models\Quiz::create([
+                            'activity_id' => $activity->id,
+                            'created_by' => auth()->id(),
+                            'title' => $activity->title,
+                            'description' => $activity->description,
+                            'total_points' => 100,
+                        ]);
+                        Log::info('Quiz created for activity', [
+                            'activity_id' => $activity->id,
+                        ]);
+                    }
+                    break;
+
+                case 'lesson':
+                    // Lesson might not need a separate model or it's handled differently
+                    Log::info('Lesson activity created (no separate model needed)', [
+                        'activity_id' => $activity->id,
+                    ]);
+                    break;
+
+                default:
+                    Log::warning('Unknown activity type model', [
+                        'activity_type_model' => $modelClass,
+                        'activity_id' => $activity->id,
+                    ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error creating activity type model', [
+                'activity_id' => $activity->id,
+                'error' => $e->getMessage(),
+            ]);
+            // Don't throw - we want the activity to be created even if the specific model fails
         }
     }
 
@@ -233,13 +335,138 @@ class ActivityController extends Controller
         })->unique('id')->values();
 
         // Count modules and courses
-        $activity->modules_count = $activity->modules->count();
         $activity->courses_count = $courses->count();
         $activity->related_courses = $courses;
+        $activity->append(['modules_count']);
+
+        // Get student progress for ANY activity type (Quiz, Assignment, etc.)
+        $studentsProgress = $this->getStudentProgress($activity);
 
         return Inertia::render('ActivityManagement/Show', [
             'activity' => $activity,
+            'studentsProgress' => $studentsProgress,
         ]);
+    }
+
+    /**
+     * Get student progress for any activity type (Quiz, Assignment, etc.)
+     * Returns unified format for all activity types
+     */
+    private function getStudentProgress(Activity $activity): array
+    {
+        $courseId = $activity->modules()->value('course_id');
+
+        if (!$courseId) {
+            return [];
+        }
+
+        $enrollments = CourseEnrollment::with(['student.user', 'user'])
+            ->where('course_id', $courseId)
+            ->get();
+
+        $activityType = $activity->activityType?->name ?? 'Unknown';
+        $totalQuestions = 0;
+
+        // Get total questions based on activity type
+        if ($activity->quiz) {
+            $totalQuestions = $activity->quiz->questions()->count();
+        } elseif ($activity->assignment) {
+            $totalQuestions = $activity->assignment->questions()->count();
+        }
+
+        return $enrollments->map(function ($enrollment) use ($activity, $courseId, $totalQuestions, $activityType) {
+            $student = $enrollment->student;
+
+            if (!$student && $enrollment->user_id) {
+                $student = Student::with('user')
+                    ->where('user_id', $enrollment->user_id)
+                    ->first();
+            }
+
+            $studentId = $student?->id;
+            $studentUser = $student?->user ?? $enrollment->user;
+
+            // Get progress record
+            $progress = null;
+            $activityTypeDb = strtolower($activityType);
+            
+            if ($studentId) {
+                $progress = StudentActivityProgress::where('student_id', $studentId)
+                    ->where('activity_id', $activity->id)
+                    ->where('activity_type', $activityTypeDb)
+                    ->latest('updated_at')
+                    ->first();
+            }
+
+            // Get student activity record
+            $studentActivity = null;
+            if ($studentId) {
+                $studentActivity = StudentActivity::where('student_id', $studentId)
+                    ->where('activity_id', $activity->id)
+                    ->where('course_id', $courseId)
+                    ->first();
+            }
+
+            // Calculate progress percentage
+            $takingActivity = $progress && (
+                $progress->status !== 'not_started'
+                || (int) ($progress->answered_questions ?? 0) > 0
+                || $progress->started_at !== null
+                || $progress->submitted_at !== null
+            );
+
+            // Determine status
+            $status = 'not_started';
+            if ($progress) {
+                if ($progress->graded_at !== null || in_array($progress->status, ['graded', 'completed'], true)) {
+                    $status = 'graded';
+                } elseif ($progress->submitted_at !== null || $progress->is_submitted || $progress->status === 'submitted') {
+                    $status = 'submitted';
+                } elseif ($takingActivity || $progress->status === 'in_progress') {
+                    $status = 'in_progress';
+                }
+            } elseif ($studentActivity && in_array($studentActivity->status, ['in_progress', 'submitted', 'graded'], true)) {
+                $status = $studentActivity->status;
+            }
+
+            $answeredQuestions = (int) ($progress?->answered_questions ?? 0);
+            $progressPercentage = $progress?->progress_percentage;
+            
+            if ($progressPercentage === null) {
+                // For graded/completed activities with scores, use score percentage
+                if ($status === 'graded' && $progress?->score !== null && $progress?->max_score > 0) {
+                    $progressPercentage = round(($progress->score / $progress->max_score) * 100, 2);
+                } elseif ($status === 'graded' && $studentActivity?->score !== null && $studentActivity?->max_score > 0) {
+                    $progressPercentage = round(($studentActivity->score / $studentActivity->max_score) * 100, 2);
+                } else {
+                    // For in-progress activities, use answered questions percentage
+                    $progressPercentage = $totalQuestions > 0
+                        ? round(($answeredQuestions / $totalQuestions) * 100, 2)
+                        : 0;
+                }
+            }
+
+            return [
+                'student_id' => $studentId,
+                'student_name' => $studentUser?->name ?? 'Unknown',
+                'student_number' => $student?->student_id_text ?? 'N/A',
+                'student_email' => $studentUser?->email ?? 'N/A',
+                'is_taking_activity' => (bool) $takingActivity,
+                'status' => $status,
+                'submission_status' => $progress?->submission_status ?? 'not_started',
+                'answered_questions' => $answeredQuestions,
+                'total_questions' => $totalQuestions,
+                'progress_percentage' => (float) $progressPercentage,
+                'score' => $progress?->score ?? $studentActivity?->score ?? null,
+                'max_score' => $progress?->max_score ?? $progress?->points_possible ?? $studentActivity?->max_score ?? 100,
+                'percentage_score' => $progress?->percentage_score ?? $studentActivity?->percentage_score ?? null,
+                'submitted_at' => $progress?->submitted_at?->format('Y-m-d H:i:s') ?? $studentActivity?->submitted_at?->format('Y-m-d H:i:s'),
+                'graded_at' => $progress?->graded_at?->format('Y-m-d H:i:s') ?? $studentActivity?->graded_at?->format('Y-m-d H:i:s'),
+                'requires_grading' => (bool) ($progress?->requires_grading ?? false),
+                'can_review' => in_array($status, ['submitted', 'graded'], true) && ($progress?->student_activity_id || $studentActivity?->id),
+                'student_activity_id' => $progress?->student_activity_id ?? $studentActivity?->id,
+            ];
+        })->values()->toArray();
     }
 
     /**
@@ -248,6 +475,9 @@ class ActivityController extends Controller
     public function edit(Activity $activity): Response
     {
         $activityTypes = ActivityType::all();
+        
+        // Load assignment with questions if available
+        $activity->load(['assignment.questions.options']);
         
         return Inertia::render('ActivityManagement/Edit', [
             'activity' => $activity,
@@ -260,20 +490,168 @@ class ActivityController extends Controller
      */
     public function update(Request $request, Activity $activity)
     {
-        $validated = $request->validate([
+        \Log::info('Activity update request received', [
+            'activity_id' => $activity->id,
+            'has_assignment' => (bool) $activity->assignment,
+            'request_content_type' => $request->header('Content-Type'),
+        ]);
+
+        // Log the actual request payload
+        $allData = $request->all();
+        \Log::info('Request payload', [
+            'keys' => array_keys($allData),
+            'has_questions' => isset($allData['questions']),
+            'questions_count' => isset($allData['questions']) ? count($allData['questions']) : 0,
+        ]);
+
+        // Build validation rules based on activity type
+        $rules = [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'activity_type_id' => 'required|exists:activity_types,id',
             'due_date' => 'nullable|date',
+        ];
+
+        // Add assignment-related validation if this activity has an assignment
+        if ($activity->assignment) {
+            $rules = array_merge($rules, [
+                'instructions' => 'nullable|string',
+                'total_points' => 'required|integer|min:1',
+                'time_limit' => 'nullable|integer|min:1',
+                'allow_late_submission' => 'boolean',
+                'questions' => 'nullable|array',
+                'questions.*.id' => 'nullable|integer|exists:assignment_questions,id',
+                'questions.*.question_text' => 'required|string',
+                'questions.*.question_type' => 'required|in:true_false,multiple_choice,enumeration,short_answer',
+                'questions.*.points' => 'required|integer|min:1',
+                'questions.*.correct_answer' => 'nullable|string',
+                'questions.*.acceptable_answers' => 'nullable|array',
+                'questions.*.case_sensitive' => 'boolean',
+                'questions.*.explanation' => 'nullable|string',
+                'questions.*.options' => 'nullable|array',
+                'questions.*.options.*.id' => 'nullable|integer|exists:assignment_question_options,id',
+                'questions.*.options.*.option_text' => 'required|string',
+                'questions.*.options.*.is_correct' => 'boolean',
+                'deleted_question_ids' => 'nullable|array',
+                'deleted_question_ids.*' => 'integer|exists:assignment_questions,id',
+            ]);
+        }
+
+        $validated = $request->validate($rules);
+
+        Log::info('Validated data', [
+            'has_questions' => !empty($validated['questions']),
+            'questions_count' => is_array($validated['questions'] ?? null) ? count($validated['questions']) : 0,
+            'deleted_ids_count' => is_array($validated['deleted_question_ids'] ?? null) ? count($validated['deleted_question_ids']) : 0,
         ]);
 
         DB::beginTransaction();
         
         try {
-            $activity->update($validated);
+            // Update the activity
+            $activity->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'activity_type_id' => $validated['activity_type_id'],
+                'due_date' => $validated['due_date'] ?? null,
+            ]);
 
             // Handle schedule updates based on due_date changes
             $this->syncScheduleForActivity($activity);
+
+            // If activity has an assignment, update assignment data
+            if ($activity->assignment && $activity->assignment->id) {
+                $assignment = $activity->assignment;
+
+                // Update basic assignment fields
+                $assignment->update([
+                    'title' => $validated['title'],
+                    'description' => $validated['description'] ?? null,
+                    'instructions' => $validated['instructions'] ?? null,
+                    'total_points' => $validated['total_points'] ?? 0,
+                    'time_limit' => $validated['time_limit'] ?? null,
+                    'allow_late_submission' => $validated['allow_late_submission'] ?? false,
+                ]);
+
+                // Delete removed questions
+                if (!empty($validated['deleted_question_ids'])) {
+                    AssignmentQuestion::whereIn('id', $validated['deleted_question_ids'])->delete();
+                }
+
+                // Update or create questions
+                if (!empty($validated['questions'])) {
+                    foreach ($validated['questions'] as $index => $questionData) {
+                        if (!empty($questionData['id'])) {
+                            // Update existing question
+                            $question = AssignmentQuestion::find($questionData['id']);
+                            if ($question) {
+                                $question->update([
+                                    'question_text' => $questionData['question_text'],
+                                    'question_type' => $questionData['question_type'],
+                                    'points' => $questionData['points'],
+                                    'correct_answer' => $questionData['correct_answer'] ?? null,
+                                    'acceptable_answers' => $questionData['acceptable_answers'] ?? null,
+                                    'case_sensitive' => $questionData['case_sensitive'] ?? false,
+                                    'explanation' => $questionData['explanation'] ?? null,
+                                    'order' => $index + 1,
+                                ]);
+
+                                // Sync options
+                                if (!empty($questionData['options'])) {
+                                    $existingOptionIds = $question->options()->pluck('id')->toArray();
+                                    $updatedOptionIds = [];
+
+                                    foreach ($questionData['options'] as $optionData) {
+                                        if (!empty($optionData['id'])) {
+                                            // Update existing option
+                                            $question->options()->where('id', $optionData['id'])->update([
+                                                'option_text' => $optionData['option_text'],
+                                                'is_correct' => $optionData['is_correct'] ?? false,
+                                            ]);
+                                            $updatedOptionIds[] = $optionData['id'];
+                                        } else {
+                                            // Create new option
+                                            $option = $question->options()->create([
+                                                'option_text' => $optionData['option_text'],
+                                                'is_correct' => $optionData['is_correct'] ?? false,
+                                            ]);
+                                            $updatedOptionIds[] = $option->id;
+                                        }
+                                    }
+
+                                    // Delete removed options
+                                    $optionsToDelete = array_diff($existingOptionIds, $updatedOptionIds);
+                                    if (!empty($optionsToDelete)) {
+                                        AssignmentQuestionOption::whereIn('id', $optionsToDelete)->delete();
+                                    }
+                                }
+                            }
+                        } else {
+                            // Create new question
+                            $question = $assignment->questions()->create([
+                                'question_text' => $questionData['question_text'],
+                                'question_type' => $questionData['question_type'],
+                                'points' => $questionData['points'],
+                                'correct_answer' => $questionData['correct_answer'] ?? null,
+                                'acceptable_answers' => $questionData['acceptable_answers'] ?? null,
+                                'case_sensitive' => $questionData['case_sensitive'] ?? false,
+                                'explanation' => $questionData['explanation'] ?? null,
+                                'order' => $index + 1,
+                            ]);
+
+                            // Create options for new question
+                            if (!empty($questionData['options'])) {
+                                foreach ($questionData['options'] as $optionData) {
+                                    $question->options()->create([
+                                        'option_text' => $optionData['option_text'],
+                                        'is_correct' => $optionData['is_correct'] ?? false,
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             DB::commit();
             

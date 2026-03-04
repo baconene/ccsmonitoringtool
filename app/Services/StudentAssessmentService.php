@@ -162,15 +162,12 @@ class StudentAssessmentService
         // Get all activities for this skill
         $activities = $skill->activities()->get();
 
-        if ($activities->isEmpty()) {
-            return $this->createEmptySkillAssessment($skill);
-        }
-
-        // Get student's performance on activities related to this skill
-        $activityScores = [];
+        // Get student's performance on activities and lessons
+        $performanceScores = [];
         $totalAttempts = 0;
         $totalDaysLate = 0;
 
+        // Process activities linked to this skill
         foreach ($activities as $activity) {
             $studentActivity = StudentActivity::where('student_id', $student->id)
                 ->where('activity_id', $activity->id)
@@ -188,11 +185,12 @@ class StudentAssessmentService
                         ?->pivot->weight ?? 1.0;
 
                     // Store with weight
-                    $activityScores[] = [
+                    $performanceScores[] = [
                         'score' => $score,
                         'weight' => $activityWeight,
                         'attempts' => $studentActivity->attempt_count ?? 1,
                         'days_late' => $this->calculateDaysLate($studentActivity),
+                        'type' => 'activity',
                     ];
 
                     $totalAttempts += $studentActivity->attempt_count ?? 1;
@@ -201,12 +199,38 @@ class StudentAssessmentService
             }
         }
 
-        if (empty($activityScores)) {
+        // Process lessons from the skill's module
+        $module = $skill->module;
+        if ($module) {
+            $lessons = $module->lessons()->get();
+            
+            foreach ($lessons as $lesson) {
+                // Check if student completed this lesson
+                $lessonCompletion = \App\Models\LessonCompletion::where('user_id', $student->user_id)
+                    ->where('lesson_id', $lesson->id)
+                    ->first();
+                
+                if ($lessonCompletion) {
+                    // Lesson completed = 100% score
+                    $performanceScores[] = [
+                        'score' => 100.0,
+                        'weight' => 0.5, // Lessons have half weight compared to activities
+                        'attempts' => 1,
+                        'days_late' => 0, // Lessons don't have due dates typically
+                        'type' => 'lesson',
+                    ];
+                    
+                    $totalAttempts += 1;
+                }
+            }
+        }
+
+        if (empty($performanceScores)) {
             return $this->createEmptySkillAssessment($skill);
         }
 
         // Normalize and calculate weighted skill score
-        $normalizedScore = $this->calculateNormalizedScore($activityScores);
+        $normalizedScore = $this->calculateNormalizedScore($performanceScores);
         $feedbackBonus = 0; // Can be extended to support feedback scores
         $peerReviewBonus = 0; // Can be extended to support peer review
         $improvementFactor = $this->calculateImprovementFactor($totalAttempts);
@@ -226,7 +250,11 @@ class StudentAssessmentService
         $mastery = $this->determineMasteryLevel($finalScore, $threshold);
 
         // Calculate consistency
-        $consistencyScore = $this->calculateConsistencyScore($activityScores);
+        $consistencyScore = $this->calculateConsistencyScore($performanceScores);
+
+        // Count components
+        $activityCount = collect($performanceScores)->where('type', 'activity')->count();
+        $lessonCount = collect($performanceScores)->where('type', 'lesson')->count();
 
         // Create or update the assessment record
         $assessment = StudentSkillAssessment::updateOrCreate(
@@ -245,7 +273,9 @@ class StudentAssessmentService
                 'mastery_level' => $mastery,
                 'consistency_score' => round($consistencyScore, 2),
                 'assessment_metadata' => [
-                    'activity_count' => count($activityScores),
+                    'activity_count' => $activityCount,
+                    'lesson_count' => $lessonCount,
+                    'total_components' => count($performanceScores),
                     'evaluation_date' => now()->toDateTimeString(),
                 ],
             ]

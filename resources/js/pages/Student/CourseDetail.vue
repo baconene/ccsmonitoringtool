@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { Module, Activity, Quiz, StudentQuizProgress } from '@/types';
+import type { BreadcrumbItem } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -90,6 +91,22 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+// Breadcrumb items
+const breadcrumbItems = computed<BreadcrumbItem[]>(() => [
+  {
+    title: 'Dashboard',
+    href: '/dashboard',
+  },
+  {
+    title: 'My Courses',
+    href: '/student/courses',
+  },
+  {
+    title: props.course.title,
+    href: `/student/courses/${props.course.id}`,
+  },
+]);
 
 // Debug: Check all activities
 // Debug removed - activity segregation is working correctly
@@ -479,7 +496,7 @@ const closeDocumentViewer = () => {
 </script>
 
 <template>
-  <AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbItems">
     <Head :title="course.title" />
 
     <div class="py-8 px-4 sm:px-6 lg:px-8">
@@ -669,8 +686,14 @@ const closeDocumentViewer = () => {
                     </div>
                   </div>
                   
-                  <!-- Mark Complete Button -->
-                  <div class="ml-4">
+                  <!-- Lesson Actions -->
+                  <div class="ml-4 flex items-center gap-2">
+                    <Link
+                      :href="`/student/courses/${course.id}/modules/${module.id}`"
+                      class="px-3 py-1.5 text-xs font-medium rounded-md border border-blue-300 text-blue-700 hover:text-blue-800 hover:border-blue-400 dark:border-blue-700 dark:text-blue-300 dark:hover:text-blue-200 transition-colors"
+                    >
+                      View Lesson
+                    </Link>
                     <button
                       v-if="!isLessonCompleted(lesson)"
                       @click="markLessonComplete(lesson.id)"
@@ -724,6 +747,13 @@ const closeDocumentViewer = () => {
                           <span>{{ activity.question_count || 0 }} questions</span>
                           <span>{{ activity.total_points || 0 }} points</span>
                           <span v-if="activity.time_limit">{{ activity.time_limit }} minutes</span>
+                        </div>
+
+                        <div
+                          v-if="(!activity.question_count || activity.question_count === 0) && (!activity.total_points || activity.total_points === 0)"
+                          class="mb-3 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded px-2 py-1"
+                        >
+                          Assignment content is not configured yet.
                         </div>
 
                         <!-- Quiz Status Badge -->

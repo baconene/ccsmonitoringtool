@@ -1,23 +1,23 @@
 <template>
-  <AppLayout title="My Activities">
+  <AppLayout title="My Activities" :breadcrumbs="breadcrumbItems">
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
-          <div class="flex justify-between items-center">
+          <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
             <div>
-              <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">My Activities</h1>
-              <p class="mt-2 text-gray-600 dark:text-gray-400">
+              <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">My Activities</h1>
+              <p class="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 Track your assignments, quizzes, and upcoming deadlines
               </p>
             </div>
             
             <!-- Filters -->
-            <div class="flex gap-4">
+            <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
               <select 
                 v-model="selectedCourse" 
                 @change="filterActivities"
-                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                class="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 <option value="">All Courses</option>
                 <option v-for="course in courses" :key="course.id" :value="course.id.toString()">
@@ -28,7 +28,7 @@
               <select 
                 v-model="selectedStatus" 
                 @change="filterActivities"
-                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                class="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               >
                 <option value="">All Status</option>
                 <option value="not-taken">Not Taken</option>
@@ -39,28 +39,43 @@
             </div>
           </div>
           
-          <!-- Summary Stats -->
-          <div class="mt-6 grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Activities</div>
-              <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ filteredActivities.length }}</div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Not Taken</div>
-              <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ getStatusCount('not-taken') }}</div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <div class="text-sm font-medium text-gray-500 dark:text-gray-400">In Progress</div>
-              <div class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ getStatusCount('in-progress') }}</div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Completed</div>
-              <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ getStatusCount('completed') }}</div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Overdue</div>
-              <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ getStatusCount('overdue') }}</div>
-            </div>
+          <!-- Summary Stats with Collapse Toggle -->
+          <div class="mt-6">
+            <button 
+              @click="showStats = !showStats"
+              class="flex items-center gap-2 mb-3 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <svg class="w-5 h-5 transition-transform" :style="{ transform: showStats ? 'rotate(0deg)' : 'rotate(-90deg)' }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+              <span>Activity Summary</span>
+            </button>
+
+            <!-- Stats Grid (Collapsible) -->
+            <transition name="slide-fade" mode="out-in">
+              <div v-if="showStats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
+                  <div class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 line-clamp-1">Total Activities</div>
+                  <div class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{{ filteredActivities.length }}</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
+                  <div class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 line-clamp-1">Not Taken</div>
+                  <div class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{{ getStatusCount('not-taken') }}</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
+                  <div class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 line-clamp-1">In Progress</div>
+                  <div class="text-xl sm:text-2xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">{{ getStatusCount('in-progress') }}</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
+                  <div class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 line-clamp-1">Completed</div>
+                  <div class="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400 mt-1">{{ getStatusCount('completed') }}</div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-700">
+                  <div class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 line-clamp-1">Overdue</div>
+                  <div class="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400 mt-1">{{ getStatusCount('overdue') }}</div>
+                </div>
+              </div>
+            </transition>
           </div>
         </div>
 
@@ -174,7 +189,7 @@
                   <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                     <div 
                       class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      :style="{ width: `${(activity.progress.completed_questions / activity.progress.total_questions) * 100}%` }"
+                      :style="{ width: `${activity.progress.total_questions > 0 ? (activity.progress.completed_questions / activity.progress.total_questions) * 100 : 0}%` }"
                     ></div>
                   </div>
                   <div class="mt-2 text-sm">
@@ -224,6 +239,7 @@ import { ref, computed, onMounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { useNotification } from '@/composables/useNotification';
+import type { BreadcrumbItem } from '@/types';
 import Notification from '@/components/Notification.vue';
 import { 
   BookOpen, 
@@ -276,8 +292,21 @@ const props = defineProps<{
   };
 }>();
 
+// Breadcrumb items
+const breadcrumbItems: BreadcrumbItem[] = [
+  {
+    title: 'Dashboard',
+    href: '/dashboard',
+  },
+  {
+    title: 'My Activities',
+    href: '/student/activities',
+  },
+];
+
 const selectedCourse = ref(props.filters.course_id || '');
 const selectedStatus = ref(props.filters.status || '');
+const showStats = ref(true);
 
 // Initialize notification composable
 const { notification, error } = useNotification();
@@ -426,3 +455,16 @@ const filterActivities = () => {
   });
 };
 </script>
+
+<style scoped>
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+</style>

@@ -14,7 +14,9 @@ import {
   BarChart3,
   Activity,
   Award,
-  Calendar
+  Calendar,
+  GitBranch,
+  Copy
 } from 'lucide-vue-next';
 
 // Get authenticated user from Inertia page props
@@ -35,21 +37,19 @@ interface AdminStats {
   systemHealth: number;
 }
 
-interface CourseStats {
-  id: number;
-  title: string;
-  studentCount: number;
-  activityCount: number;
-  instructorName: string;
-  status: 'active' | 'draft' | 'archived';
-}
-
 interface RecentActivity {
   id: number;
   type: 'enrollment' | 'submission' | 'course_created' | 'user_added';
   description: string;
   timestamp: string;
   userInitials: string;
+}
+
+interface GitCommit {
+  hash: string;
+  author?: string;
+  date?: string;
+  message: string;
 }
 
 // Reactive state
@@ -66,10 +66,14 @@ const stats = ref<AdminStats>({
   systemHealth: 100
 });
 
-const courses = ref<CourseStats[]>([]);
 const recentActivities = ref<RecentActivity[]>([]);
+const gitCommits = ref<GitCommit[]>([]);
+const gitStatus = ref<any>(null);
 const loading = ref(true);
+const gitLoading = ref(false);
 const error = ref<string | null>(null);
+const gitError = ref<string | null>(null);
+const copiedHash = ref<string | null>(null);
 
 // Computed properties
 const systemStatus = computed(() => {
@@ -99,29 +103,95 @@ const loadAdminData = async () => {
     loading.value = true;
     error.value = null;
 
-    // Fetch admin stats
-    const statsResponse = await axios.get('/api/dashboard/admin-stats');
-    if (statsResponse.data && statsResponse.data.stats) {
-      stats.value = statsResponse.data.stats;
+    // Fetch admin stats (non-critical)
+    try {
+      const statsResponse = await axios.get('/api/dashboard/admin-stats', {
+        timeout: 3000
+      });
+      if (statsResponse.data && statsResponse.data.stats) {
+        stats.value = statsResponse.data.stats;
+      }
+    } catch (err: any) {
+      console.warn('Warning: Admin stats could not be loaded:', err);
     }
 
-    // Fetch course statistics
-    const coursesResponse = await axios.get('/api/dashboard/admin-courses');
-    if (coursesResponse.data && coursesResponse.data.courses) {
-      courses.value = coursesResponse.data.courses.slice(0, 10); // Top 10 courses
+    // Fetch recent activities (non-critical)
+    try {
+      const activitiesResponse = await axios.get('/api/dashboard/admin-activities', {
+        timeout: 3000
+      });
+      if (activitiesResponse.data && activitiesResponse.data.activities) {
+        recentActivities.value = activitiesResponse.data.activities.slice(0, 8);
+      }
+    } catch (err: any) {
+      console.warn('Warning: Admin activities could not be loaded:', err);
+      recentActivities.value = [];
     }
 
-    // Fetch recent activities
-    const activitiesResponse = await axios.get('/api/dashboard/admin-activities');
-    if (activitiesResponse.data && activitiesResponse.data.activities) {
-      recentActivities.value = activitiesResponse.data.activities.slice(0, 8);
+    // Load git history (critical for this dashboard)
+    await loadGitHistory();
+    
+    // Load git status (nice to have)
+    try {
+      await loadGitStatus();
+    } catch (err: any) {
+      console.warn('Warning: Git status could not be loaded:', err);
     }
   } catch (err: any) {
-    console.error('Error loading admin dashboard:', err);
-    error.value = err.response?.data?.message || 'Failed to load dashboard data';
+    // Only show error if git history also failed
+    console.error('Error in admin dashboard:', err);
+    if (gitCommits.value.length === 0 && gitError.value) {
+      error.value = 'Unable to load git history. The dashboard may have connection issues.';
+    }
   } finally {
     loading.value = false;
   }
+};
+
+// Load git history
+const loadGitHistory = async () => {
+  try {
+    gitLoading.value = true;
+    gitError.value = null;
+    
+    const response = await axios.get('/api/admin/git/history', {
+      params: { limit: 20, format: 'detailed' },
+      timeout: 5000
+    });
+    
+    if (response.data && response.data.success) {
+      gitCommits.value = response.data.commits || [];
+    } else {
+      gitError.value = 'No git history available';
+    }
+  } catch (err: any) {
+    console.error('Error loading git history:', err);
+    gitError.value = err.message || 'Failed to load git history';
+  } finally {
+    gitLoading.value = false;
+  }
+};
+
+// Load git status
+const loadGitStatus = async () => {
+  try {
+    const response = await axios.get('/api/admin/git/status');
+    
+    if (response.data && response.data.success) {
+      gitStatus.value = response.data;
+    }
+  } catch (err: any) {
+    console.error('Error loading git status:', err);
+  }
+};
+
+// Copy hash to clipboard
+const copyHashToClipboard = (hash: string) => {
+  navigator.clipboard.writeText(hash);
+  copiedHash.value = hash;
+  setTimeout(() => {
+    copiedHash.value = null;
+  }, 2000);
 };
 
 // Navigate functions
@@ -154,6 +224,7 @@ onMounted(() => {
 const refreshData = () => {
   loadAdminData();
 };
+
 </script>
 
 <template>
@@ -176,31 +247,30 @@ const refreshData = () => {
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-20">
+    <!-- Loading State (only show if nothing loaded yet) -->
+    <div v-if="loading && gitCommits.length === 0 && !error" class="flex justify-center items-center py-20">
       <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
       <span class="ml-4 text-gray-600 dark:text-gray-300 text-lg">Loading admin dashboard...</span>
     </div>
 
-    <!-- Error State -->
-    <div v-else-if="error" class="bg-red-50/80 dark:bg-red-900/20 backdrop-blur-sm border border-red-200 dark:border-red-700 rounded-xl p-6 mb-6">
-      <div class="flex items-start gap-4">
-        <AlertCircle class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />
+    <!-- Error Warning (non-blocking) -->
+    <div v-if="error" class="bg-yellow-50/80 dark:bg-yellow-900/20 backdrop-blur-sm border border-yellow-200 dark:border-yellow-700 rounded-xl p-4 mb-6">
+      <div class="flex items-start gap-3">
+        <AlertCircle class="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
         <div class="flex-1">
-          <h3 class="text-lg font-semibold text-red-800 dark:text-red-200">Error loading dashboard</h3>
-          <p class="text-red-700 dark:text-red-300 mt-2">{{ error }}</p>
+          <p class="text-yellow-800 dark:text-yellow-200 text-sm">{{ error }}</p>
           <button 
             @click="loadAdminData" 
-            class="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+            class="mt-2 px-3 py-1 text-xs bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors font-medium"
           >
-            Try Again
+            Retry
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Dashboard Content -->
-    <div v-else>
+    <!-- Dashboard Content (always show if not in loading state) -->
+    <div v-if="!loading || gitCommits.length > 0 || !error">
       <!-- System Health Card -->
       <div :class="[systemStatusBg, 'rounded-xl shadow-lg border border-blue-200/50 dark:border-blue-700/50 p-6 mb-8 transition-all']">
         <div class="flex items-center justify-between">
@@ -401,62 +471,102 @@ const refreshData = () => {
 
       <!-- Top Courses Table -->
       <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-6">
-        <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-6">Top Active Courses</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+            <GitBranch class="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            Git History
+          </h2>
+          <button
+            @click="loadGitHistory"
+            :disabled="gitLoading"
+            class="px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {{ gitLoading ? 'Loading...' : 'Refresh' }}
+          </button>
+        </div>
+
+        <!-- Git Error -->
+        <div v-if="gitError" class="bg-red-50/80 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-4">
+          <p class="text-sm text-red-700 dark:text-red-300">{{ gitError }}</p>
+        </div>
+
+        <!-- Git Loading State -->
+        <div v-else-if="gitLoading" class="flex justify-center items-center py-12">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span class="ml-3 text-gray-600 dark:text-gray-300">Loading git history...</span>
+        </div>
+
+        <!-- No Commits -->
+        <div v-else-if="gitCommits.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
+          No commits found
+        </div>
+
+        <!-- Git Commits Table -->
+        <div v-else class="overflow-x-auto">
+          <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-gray-200 dark:border-gray-700">
-                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Course Name</th>
-                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Instructor</th>
-                <th class="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Students</th>
-                <th class="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Activities</th>
-                <th class="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 text-sm">Status</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Hash</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Message</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Author</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">Date</th>
               </tr>
             </thead>
             <tbody>
               <tr
-                v-for="course in courses"
-                :key="course.id"
+                v-for="commit in gitCommits"
+                :key="commit.hash"
                 class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
               >
                 <td class="py-3 px-4">
-                  <p class="font-medium text-gray-800 dark:text-gray-200 text-sm truncate">{{ course.title }}</p>
+                  <div class="flex items-center gap-2">
+                    <code class="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-gray-700 dark:text-gray-300">
+                      {{ commit.hash.substring(0, 7) }}
+                    </code>
+                    <button
+                      @click="copyHashToClipboard(commit.hash)"
+                      :title="copiedHash === commit.hash ? 'Copied!' : 'Copy full hash'"
+                      class="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+                    >
+                      <Copy class="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    </button>
+                  </div>
                 </td>
                 <td class="py-3 px-4">
-                  <p class="text-gray-600 dark:text-gray-400 text-sm">{{ course.instructorName }}</p>
+                  <p class="text-gray-800 dark:text-gray-200 truncate" :title="commit.message">{{ commit.message }}</p>
                 </td>
-                <td class="py-3 px-4 text-center">
-                  <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
-                    {{ course.studentCount }}
-                  </span>
+                <td class="py-3 px-4">
+                  <p class="text-gray-600 dark:text-gray-400 truncate" :title="commit.author">{{ commit.author || '-' }}</p>
                 </td>
-                <td class="py-3 px-4 text-center">
-                  <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">
-                    {{ course.activityCount }}
-                  </span>
-                </td>
-                <td class="py-3 px-4 text-center">
-                  <span
-                    :class="[
-                      'px-3 py-1 rounded-full text-xs font-bold uppercase',
-                      {
-                        'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300': course.status === 'active',
-                        'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300': course.status === 'draft',
-                        'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300': course.status === 'archived'
-                      }
-                    ]"
-                  >
-                    {{ course.status }}
-                  </span>
-                </td>
-              </tr>
-              <tr v-if="courses.length === 0">
-                <td colspan="5" class="py-8 text-center text-gray-500 dark:text-gray-400">
-                  No courses found
+                <td class="py-3 px-4">
+                  <p class="text-gray-600 dark:text-gray-400">{{ commit.date || '-' }}</p>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Git Status -->
+        <div v-if="gitStatus && gitStatus.hasChanges" class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Working Directory Changes</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
+              <p class="text-xs text-gray-600 dark:text-gray-400">Added</p>
+              <p class="text-lg font-bold text-green-600 dark:text-green-400">{{ gitStatus.stats.added }}</p>
+            </div>
+            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+              <p class="text-xs text-gray-600 dark:text-gray-400">Modified</p>
+              <p class="text-lg font-bold text-blue-600 dark:text-blue-400">{{ gitStatus.stats.modified }}</p>
+            </div>
+            <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
+              <p class="text-xs text-gray-600 dark:text-gray-400">Deleted</p>
+              <p class="text-lg font-bold text-red-600 dark:text-red-400">{{ gitStatus.stats.deleted }}</p>
+            </div>
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3">
+              <p class="text-xs text-gray-600 dark:text-gray-400">Untracked</p>
+              <p class="text-lg font-bold text-yellow-600 dark:text-yellow-400">{{ gitStatus.stats.untracked }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

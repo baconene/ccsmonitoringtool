@@ -61,6 +61,9 @@ class SkillManagementController extends Controller
             'module_id' => $module->id,
         ]));
 
+        // Auto-link this skill to all activities in the module
+        $this->linkSkillToModuleActivities($skill, $module);
+
         return response()->json([
             'message' => 'Skill created successfully.',
             'skill' => $skill,
@@ -130,6 +133,22 @@ class SkillManagementController extends Controller
             if ($module->course->instructor_id !== ($instructor->id ?? null)) {
                 abort(403, 'You are not allowed to manage skills for this module.');
             }
+        }
+    }
+
+    /**
+     * Link a skill to all activities in its module
+     */
+    private function linkSkillToModuleActivities(Skill $skill, Module $module): void
+    {
+        // Get all activities in this module
+        $activities = $module->activities()->get();
+
+        foreach ($activities as $activity) {
+            // Attach skill to activity with default weight (if not already attached)
+            $activity->skills()->syncWithoutDetaching([
+                $skill->id => ['weight' => 1.0]
+            ]);
         }
     }
 }

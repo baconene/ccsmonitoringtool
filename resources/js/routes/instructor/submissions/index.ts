@@ -103,7 +103,7 @@ show.head = (args: { submission: number | { id: number } } | [submission: number
     show.form = showForm
 /**
 * @see \App\Http\Controllers\Instructor\StudentSubmissionController::grade
- * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:71
+ * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:76
  * @route '/instructor/submissions/{submission}/grade'
  */
 export const grade = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -118,7 +118,7 @@ grade.definition = {
 
 /**
 * @see \App\Http\Controllers\Instructor\StudentSubmissionController::grade
- * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:71
+ * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:76
  * @route '/instructor/submissions/{submission}/grade'
  */
 grade.url = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -151,7 +151,7 @@ grade.url = (args: { submission: number | { id: number } } | [submission: number
 
 /**
 * @see \App\Http\Controllers\Instructor\StudentSubmissionController::grade
- * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:71
+ * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:76
  * @route '/instructor/submissions/{submission}/grade'
  */
 grade.post = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -161,7 +161,7 @@ grade.post = (args: { submission: number | { id: number } } | [submission: numbe
 
     /**
 * @see \App\Http\Controllers\Instructor\StudentSubmissionController::grade
- * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:71
+ * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:76
  * @route '/instructor/submissions/{submission}/grade'
  */
     const gradeForm = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -171,7 +171,7 @@ grade.post = (args: { submission: number | { id: number } } | [submission: numbe
 
             /**
 * @see \App\Http\Controllers\Instructor\StudentSubmissionController::grade
- * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:71
+ * @see app/Http/Controllers/Instructor/StudentSubmissionController.php:76
  * @route '/instructor/submissions/{submission}/grade'
  */
         gradeForm.post = (args: { submission: number | { id: number } } | [submission: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

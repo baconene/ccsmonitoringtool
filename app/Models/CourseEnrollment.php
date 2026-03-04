@@ -31,6 +31,29 @@ class CourseEnrollment extends Model
     ];
 
     /**
+     * Resolve the effective student_id for this enrollment.
+     * Supports legacy rows that only have user_id.
+     */
+    private function resolveStudentId(): ?int
+    {
+        if ($this->student_id) {
+            return (int) $this->student_id;
+        }
+
+        if (!$this->user_id) {
+            return null;
+        }
+
+        $resolvedStudentId = Student::where('user_id', $this->user_id)->value('id');
+
+        if ($resolvedStudentId && $this->student_id !== (int) $resolvedStudentId) {
+            $this->student_id = (int) $resolvedStudentId;
+        }
+
+        return $resolvedStudentId ? (int) $resolvedStudentId : null;
+    }
+
+    /**
      * Get the user for this enrollment (backward compatibility).
      */
     public function user(): BelongsTo
@@ -67,8 +90,16 @@ class CourseEnrollment extends Model
      */
     public function updateProgress(): void
     {
+        $effectiveStudentId = $this->resolveStudentId();
+
+        if (!$effectiveStudentId) {
+            $this->progress = 0.0;
+            $this->save();
+            return;
+        }
+
         $course = $this->course;
-        $modules = $course->modules()->with('activities')->get();
+        $modules = $course->modules()->with(['activities', 'lessons'])->get();
         
         if ($modules->isEmpty()) {
             $this->progress = 0.0;
@@ -76,14 +107,27 @@ class CourseEnrollment extends Model
             return;
         }
 
-        // Calculate progress based on completed activities
-        $totalActivities = 0;
-        $completedActivities = 0;
+        // Calculate progress based on completed lessons + activities
+        $totalItems = 0;
+        $completedItems = 0;
         
         foreach ($modules as $module) {
+            $moduleLessons = $module->lessons;
+            $lessonIds = $moduleLessons->pluck('id');
+            $totalItems += $moduleLessons->count();
+
+            if ($lessonIds->isNotEmpty()) {
+                $completedLessons = LessonCompletion::where('user_id', $this->user_id)
+                    ->where('course_id', $course->id)
+                    ->whereIn('lesson_id', $lessonIds)
+                    ->count();
+
+                $completedItems += $completedLessons;
+            }
+
             $moduleActivities = $module->activities;
             $activityIds = $moduleActivities->pluck('id');
-            $totalActivities += $moduleActivities->count();
+            $totalItems += $moduleActivities->count();
             
             if ($activityIds->isEmpty()) {
                 continue;
@@ -92,7 +136,7 @@ class CourseEnrollment extends Model
             // Count completed activities for this student using unified
             // StudentActivityProgress as the source of truth. This
             // matches how reports and module views determine completion.
-            $completedActivities += StudentActivityProgress::where('student_id', $this->student_id)
+            $completedItems += StudentActivityProgress::where('student_id', $effectiveStudentId)
                 ->whereIn('activity_id', $activityIds)
                 ->where(function ($query) {
                     $query->where('is_completed', true)
@@ -102,8 +146,8 @@ class CourseEnrollment extends Model
         }
         
         // Calculate progress percentage
-        $progress = $totalActivities > 0 
-            ? round(($completedActivities / $totalActivities) * 100, 2) 
+        $progress = $totalItems > 0 
+            ? round(($completedItems / $totalItems) * 100, 2) 
             : 0.0;
         
         $this->progress = (float) $progress;
@@ -111,8 +155,14 @@ class CourseEnrollment extends Model
         // Check if course should be marked as complete or incomplete
         // Course is complete when all modules are marked as complete
         $totalModules = $modules->count();
-        $completedModules = ModuleCompletion::where('student_id', $this->student_id)
-            ->where('course_id', $course->id)
+        $completedModules = ModuleCompletion::where('course_id', $course->id)
+            ->where(function ($query) use ($effectiveStudentId) {
+                $query->where('student_id', $effectiveStudentId);
+
+                if ($this->user_id) {
+                    $query->orWhere('user_id', $this->user_id);
+                }
+            })
             ->count();
         
         if ($totalModules > 0 && $completedModules >= $totalModules) {
@@ -138,6 +188,12 @@ class CourseEnrollment extends Model
      */
     public function checkAndCompleteModules(): void
     {
+        $effectiveStudentId = $this->resolveStudentId();
+
+        if (!$effectiveStudentId) {
+            return;
+        }
+
         $course = $this->course;
         $modules = $course->modules()->with(['activities', 'lessons'])->get();
         
@@ -145,8 +201,8 @@ class CourseEnrollment extends Model
             // Skip if module is already completed.
             // A completion may have been created either with a student_id
             // or only a user_id (from older logic), so check for both.
-            $existingCompletion = ModuleCompletion::where(function ($query) {
-                    $query->where('student_id', $this->student_id)
+                $existingCompletion = ModuleCompletion::where(function ($query) use ($effectiveStudentId) {
+                    $query->where('student_id', $effectiveStudentId)
                           ->orWhere('user_id', $this->user_id);
                 })
                 ->where('module_id', $module->id)
@@ -160,14 +216,15 @@ class CourseEnrollment extends Model
             // Check if all activities in this module are completed
             $moduleActivityIds = $module->activities->pluck('id');
             
-            // Skip if no activities (prevents division by zero)
+            // If module has activities, ALL must be completed
+            // If module has no activities, it's considered complete (only lessons or documents)
             if ($moduleActivityIds->isEmpty()) {
-                $allActivitiesCompleted = true; // No activities = considered complete
+                $allActivitiesCompleted = true; // No activities = nothing to complete
             } else {
                 // Use StudentActivityProgress as the single source of truth
                 // for activity completion, consistent with reports and
                 // frontend helpers.
-                $completedActivitiesCount = StudentActivityProgress::where('student_id', $this->student_id)
+                $completedActivitiesCount = StudentActivityProgress::where('student_id', $effectiveStudentId)
                     ->whereIn('activity_id', $moduleActivityIds)
                     ->where(function ($query) {
                         $query->where('is_completed', true)
@@ -175,7 +232,9 @@ class CourseEnrollment extends Model
                     })
                     ->count();
                 
-                $allActivitiesCompleted = $completedActivitiesCount === $moduleActivityIds->count();
+                // All activities must be completed
+                $allActivitiesCompleted = $completedActivitiesCount === $moduleActivityIds->count() 
+                    && $completedActivitiesCount > 0;
             }
             
             // Check if all lessons in this module are completed
@@ -183,7 +242,7 @@ class CourseEnrollment extends Model
             
             // Skip if no lessons
             if ($moduleLessonIds->isEmpty()) {
-                $allLessonsCompleted = true; // No lessons = considered complete
+                $allLessonsCompleted = true; // No lessons = nothing to complete
             } else {
                 // LessonCompletion stores the user_id (backed by users table),
                 // while CourseEnrollment tracks both user_id and student_id.
@@ -208,7 +267,7 @@ class CourseEnrollment extends Model
                         'course_id' => $course->id,
                     ],
                     [
-                        'student_id' => $this->student_id,
+                        'student_id' => $effectiveStudentId,
                         'completed_at' => now(),
                         'completion_data' => json_encode([
                             'method' => 'automatic',

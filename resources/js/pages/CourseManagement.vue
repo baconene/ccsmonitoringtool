@@ -181,6 +181,18 @@ const activeModule = computed(
   () => sortedModules.value.find(m => m.id === activeModuleId.value) || null
 );
 
+const usedActivityIdsInSelectedCourse = computed(() => {
+  if (!selectedCourse.value) return [] as number[];
+
+  const usedIds = selectedCourse.value.modules.flatMap((module) =>
+    (module.activities || [])
+      .map((activity: any) => Number(activity?.id))
+      .filter((id: number) => Number.isFinite(id))
+  );
+
+  return Array.from(new Set(usedIds));
+});
+
 // Watch course changes
 watch(selectedCourseId, () => {
   activeModuleId.value = sortedModules.value[0]?.id || null;
@@ -502,6 +514,7 @@ function handleLessonsUpdate(updatedLessons: any[]) {
       :module-id="activeModule?.id ?? 0"
       :module-type="activeModule?.module_type || 'Mixed'"
       :available-activities="availableActivities || []"
+      :used-activity-ids="usedActivityIdsInSelectedCourse"
       @close="showAddActivityModal = false"
       @added="reloadCourses"
     />

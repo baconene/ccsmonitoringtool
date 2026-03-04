@@ -194,11 +194,25 @@ class StudentActivityResultsController extends Controller
         $progress->setRelation('quiz', $quiz);
         $progress->setRelation('activity', $activity);
 
+        // Build breadcrumbs
+        $course = $studentActivity->course;
+        $module = $studentActivity->module;
+        $breadcrumbs = [
+            ['title' => 'Dashboard', 'href' => route('dashboard')],
+            ['title' => 'My Courses', 'href' => route('student.courses.index')],
+            ['title' => $course->title, 'href' => route('student.courses.show', $course->id)],
+        ];
+        if ($module) {
+            $breadcrumbs[] = ['title' => $module->description, 'href' => route('student.courses.modules.show', [$course->id, $module->id])];
+        }
+        $breadcrumbs[] = ['title' => $activity->title];
+
         return Inertia::render('Student/ActivityResults', [
             'activityType' => $modelName, // 'Quiz'
             'progress' => $progress,
             'studentActivity' => $studentActivity,
             'courseId' => $studentActivity->course_id,
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 
@@ -236,6 +250,7 @@ class StudentActivityResultsController extends Controller
                     'question_type' => $question->question_type,
                     'points' => $question->points,
                     'correct_answer' => $question->correct_answer,
+                    'acceptable_answers' => $question->acceptable_answers,
                     'explanation' => $question->explanation,
                     'options' => $question->options ? $question->options->map(function ($opt) {
                         return [
@@ -313,6 +328,19 @@ class StudentActivityResultsController extends Controller
         $progress->setRelation('answers', $questionResults);
         $progress->setRelation('assignment', $assignment);
 
+        // Build breadcrumbs
+        $course = $studentActivity->course;
+        $module = $studentActivity->module;
+        $breadcrumbs = [
+            ['title' => 'Dashboard', 'href' => route('dashboard')],
+            ['title' => 'My Courses', 'href' => route('student.courses.index')],
+            ['title' => $course->title, 'href' => route('student.courses.show', $course->id)],
+        ];
+        if ($module) {
+            $breadcrumbs[] = ['title' => $module->description, 'href' => route('student.courses.modules.show', [$course->id, $module->id])];
+        }
+        $breadcrumbs[] = ['title' => $activity->title];
+
         return Inertia::render('Student/ActivityResults', [
             'activityType' => 'Assignment',
             'progress' => $progress,
@@ -330,6 +358,7 @@ class StudentActivityResultsController extends Controller
             'studentActivity' => $studentActivity,
             'summary' => $summary,
             'courseId' => $studentActivity->course_id,
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 
@@ -338,6 +367,19 @@ class StudentActivityResultsController extends Controller
      */
     private function handleAssessmentResults(StudentActivity $studentActivity, StudentActivityProgress $progress, $activity): Response
     {
+        // Build breadcrumbs
+        $course = $studentActivity->course;
+        $module = $studentActivity->module;
+        $breadcrumbs = [
+            ['title' => 'Dashboard', 'href' => route('dashboard')],
+            ['title' => 'My Courses', 'href' => route('student.courses.index')],
+            ['title' => $course->title, 'href' => route('student.courses.show', $course->id)],
+        ];
+        if ($module) {
+            $breadcrumbs[] = ['title' => $module->description, 'href' => route('student.courses.modules.show', [$course->id, $module->id])];
+        }
+        $breadcrumbs[] = ['title' => $activity->title];
+        
         // For now, return a basic view - can be expanded later
         return Inertia::render('Student/ActivityResults', [
             'activityType' => 'Assessment',
@@ -346,6 +388,7 @@ class StudentActivityResultsController extends Controller
             'activity' => $activity,
             'courseId' => $studentActivity->course_id,
             'message' => 'Assessment results view - Coming soon',
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 
@@ -354,6 +397,19 @@ class StudentActivityResultsController extends Controller
      */
     private function handleExerciseResults(StudentActivity $studentActivity, StudentActivityProgress $progress, $activity): Response
     {
+        // Build breadcrumbs
+        $course = $studentActivity->course;
+        $module = $studentActivity->module;
+        $breadcrumbs = [
+            ['title' => 'Dashboard', 'href' => route('dashboard')],
+            ['title' => 'My Courses', 'href' => route('student.courses.index')],
+            ['title' => $course->title, 'href' => route('student.courses.show', $course->id)],
+        ];
+        if ($module) {
+            $breadcrumbs[] = ['title' => $module->description, 'href' => route('student.courses.modules.show', [$course->id, $module->id])];
+        }
+        $breadcrumbs[] = ['title' => $activity->title];
+        
         // For now, return a basic view - can be expanded later
         return Inertia::render('Student/ActivityResults', [
             'activityType' => 'Exercise',
@@ -362,6 +418,7 @@ class StudentActivityResultsController extends Controller
             'activity' => $activity,
             'courseId' => $studentActivity->course_id,
             'message' => 'Exercise results view - Coming soon',
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 

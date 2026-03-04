@@ -7,6 +7,7 @@ use App\Models\Activity;
 use App\Models\Student;
 use App\Models\StudentActivity;
 use App\Models\StudentActivityProgress;
+use App\Services\StudentAssessmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -155,13 +156,27 @@ class StudentActivityController extends Controller
         );
 
         // Get enrollment and update progress + auto-complete modules
-        $enrollment = \App\Models\CourseEnrollment::where('student_id', $student->id)
+        $enrollment = \App\Models\CourseEnrollment::where(function ($query) use ($student, $user) {
+                $query->where('student_id', $student->id)
+                      ->orWhere('user_id', $user->id);
+            })
             ->where('course_id', $studentActivity->course_id)
             ->first();
         
         if ($enrollment) {
             $enrollment->updateProgress();
             $enrollment->checkAndCompleteModules(); // Auto-complete modules when requirements met
+        }
+
+        try {
+            app(StudentAssessmentService::class)->calculateStudentAssessment($student);
+        } catch (\Throwable $e) {
+            \Log::warning('Failed to recalculate student assessment after activity completion', [
+                'student_id' => $student->id,
+                'activity_id' => $activity->id,
+                'course_id' => $studentActivity->course_id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         // Return back to preserve scroll position and show success in frontend

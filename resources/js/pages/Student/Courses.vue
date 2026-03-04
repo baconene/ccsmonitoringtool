@@ -2,6 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import type { BreadcrumbItem } from '@/types';
 
 // TypeScript interfaces
 interface Course {
@@ -29,6 +30,18 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+// Breadcrumb items
+const breadcrumbItems: BreadcrumbItem[] = [
+  {
+    title: 'Dashboard',
+    href: '/dashboard',
+  },
+  {
+    title: 'My Courses',
+    href: '/student/courses',
+  },
+];
 
 const searchQuery = ref('');
 
@@ -75,7 +88,7 @@ const getStatusColor = (isCompleted: boolean) => {
 <template>
   <Head title="My Courses" />
 
-  <AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbItems">
     <div class="p-6 min-h-screen bg-gray-50 dark:bg-gray-900">
       <div class="max-w-7xl mx-auto">
         

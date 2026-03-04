@@ -9,6 +9,7 @@ use App\Models\StudentActivity;
 use App\Models\StudentActivityProgress;
 use App\Models\StudentAssignmentAnswer;
 use App\Models\InstructorNotification;
+use App\Services\StudentAssessmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -305,6 +306,32 @@ class StudentAssignmentController extends Controller
 
             $question = AssignmentQuestion::findOrFail($validated['question_id']);
 
+            $normalizedAnswerText = isset($validated['answer_text']) ? trim((string) $validated['answer_text']) : null;
+            $normalizedSelectedOptions = $validated['selected_options'] ?? null;
+
+            if ($question->question_type === 'true_false') {
+                if ((empty($normalizedAnswerText) || $normalizedAnswerText === '') && is_array($normalizedSelectedOptions) && !empty($normalizedSelectedOptions)) {
+                    $selectedOptionId = $normalizedSelectedOptions[0] ?? null;
+                    if ($selectedOptionId) {
+                        $selectedOption = $question->options()->where('id', $selectedOptionId)->first();
+                        $normalizedAnswerText = $selectedOption ? trim((string) $selectedOption->option_text) : $normalizedAnswerText;
+                    }
+                }
+
+                if (!empty($normalizedAnswerText)) {
+                    $lower = strtolower($normalizedAnswerText);
+                    if (in_array($lower, ['true', 't', '1', 'yes', 'y'], true)) {
+                        $normalizedAnswerText = 'true';
+                    } elseif (in_array($lower, ['false', 'f', '0', 'no', 'n'], true)) {
+                        $normalizedAnswerText = 'false';
+                    }
+                }
+            }
+
+            if (in_array($question->question_type, ['short_answer', 'enumeration'], true) && is_string($normalizedAnswerText)) {
+                $normalizedAnswerText = trim($normalizedAnswerText);
+            }
+
             // Create or update answer
             $answer = StudentAssignmentAnswer::updateOrCreate(
                 [
@@ -313,8 +340,8 @@ class StudentAssignmentController extends Controller
                     'assignment_question_id' => $question->id,
                 ],
                 [
-                    'answer_text' => $validated['answer_text'] ?? null,
-                    'selected_options' => $validated['selected_options'] ?? null,
+                    'answer_text' => $normalizedAnswerText,
+                    'selected_options' => $normalizedSelectedOptions,
                     'answered_at' => now(),
                 ]
             );
@@ -324,9 +351,9 @@ class StudentAssignmentController extends Controller
                 $isCorrect = false;
                 
                 if ($question->question_type === 'multiple_choice') {
-                    $isCorrect = $question->checkAnswer($validated['selected_options'] ?? []);
+                    $isCorrect = $question->checkAnswer($normalizedSelectedOptions ?? []);
                 } else {
-                    $isCorrect = $question->checkAnswer($validated['answer_text'] ?? '');
+                    $isCorrect = $question->checkAnswer($normalizedAnswerText ?? '');
                 }
 
                 $answer->update([
@@ -377,6 +404,7 @@ class StudentAssignmentController extends Controller
             // Update progress and real-time scores in StudentActivity
             $progress->update([
                 'answered_questions' => $answeredCount,
+                'completed_questions' => $answeredCount,
                 'points_earned' => $autoGradedScore,
                 'score' => $autoGradedScore,
                 'percentage_score' => $assignment->total_points > 0 ? round(($autoGradedScore / $assignment->total_points) * 100, 2) : 0,
@@ -506,6 +534,7 @@ class StudentAssignmentController extends Controller
                 'submitted_at' => now(),
                 'submission_date' => now(),
                 'is_submitted' => true,
+                'completed_questions' => $progress->total_questions,
                 'points_earned' => $totalScore,
                 'score' => $totalScore,
                 'percentage_score' => $percentage,
@@ -542,16 +571,29 @@ class StudentAssignmentController extends Controller
 
             $studentActivity->update($updateData);
 
-            // Auto-complete modules if requirements met (only for auto-graded assignments)
-            if (!$progress->requires_grading) {
-                $enrollment = \App\Models\CourseEnrollment::where('student_id', $student->id)
-                    ->where('course_id', $studentActivity->course_id)
-                    ->first();
-                
-                if ($enrollment) {
-                    $enrollment->updateProgress();
-                    $enrollment->checkAndCompleteModules();
-                }
+            // Always sync enrollment progress after submission so
+            // course/module status reflects latest activity state.
+            $enrollment = \App\Models\CourseEnrollment::where(function ($query) use ($student) {
+                    $query->where('student_id', $student->id)
+                          ->orWhere('user_id', auth()->id());
+                })
+                ->where('course_id', $studentActivity->course_id)
+                ->first();
+
+            if ($enrollment) {
+                $enrollment->updateProgress();
+                $enrollment->checkAndCompleteModules();
+            }
+
+            try {
+                app(StudentAssessmentService::class)->calculateStudentAssessment($student);
+            } catch (\Throwable $e) {
+                Log::warning('Failed to recalculate student assessment after assignment submission', [
+                    'student_id' => $student->id,
+                    'assignment_id' => $assignment->id,
+                    'activity_id' => $assignment->activity_id,
+                    'error' => $e->getMessage(),
+                ]);
             }
 
             // Create notification for instructor

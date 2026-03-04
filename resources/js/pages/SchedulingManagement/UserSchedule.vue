@@ -529,14 +529,14 @@ onMounted(() => {
               :time-from="0 * 60"
               :time-to="24 * 60"
               :disable-views="['years']"
-              default-view="week"
+              default-view="month"
               :editable-events="false"
               events-on-month-view="short"
               :snap-to-time="15"
               hide-view-selector
               twelve-hour
               :class="['vuecal--rounded', isDarkMode ? 'vuecal--dark-mode' : 'vuecal--light-mode']"
-              style="height: 650px"
+              style="height: auto; min-height: 600px"
               @event-click="handleEventClick"
             >
             <!-- Custom event content slot -->

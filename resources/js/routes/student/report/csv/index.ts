@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\GradeController::complete
- * @see app/Http/Controllers/GradeController.php:511
+ * @see app/Http/Controllers/GradeController.php:553
  * @route '/student/report/csv/complete'
  */
 export const complete = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ complete.definition = {
 
 /**
 * @see \App\Http\Controllers\GradeController::complete
- * @see app/Http/Controllers/GradeController.php:511
+ * @see app/Http/Controllers/GradeController.php:553
  * @route '/student/report/csv/complete'
  */
 complete.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ complete.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\GradeController::complete
- * @see app/Http/Controllers/GradeController.php:511
+ * @see app/Http/Controllers/GradeController.php:553
  * @route '/student/report/csv/complete'
  */
 complete.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ complete.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\GradeController::complete
- * @see app/Http/Controllers/GradeController.php:511
+ * @see app/Http/Controllers/GradeController.php:553
  * @route '/student/report/csv/complete'
  */
 complete.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ complete.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\GradeController::complete
- * @see app/Http/Controllers/GradeController.php:511
+ * @see app/Http/Controllers/GradeController.php:553
  * @route '/student/report/csv/complete'
  */
     const completeForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ complete.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\GradeController::complete
- * @see app/Http/Controllers/GradeController.php:511
+ * @see app/Http/Controllers/GradeController.php:553
  * @route '/student/report/csv/complete'
  */
         completeForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ complete.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\GradeController::complete
- * @see app/Http/Controllers/GradeController.php:511
+ * @see app/Http/Controllers/GradeController.php:553
  * @route '/student/report/csv/complete'
  */
         completeForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AdminConfigurationController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\GitHistoryController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\QuestionController;
@@ -78,8 +80,17 @@ Route::middleware(['auth', 'verified'])->prefix('api')->group(function () {
     // Admin assessment routes (session-authenticated)
     Route::prefix('admin')->middleware('role:admin,instructor')->group(function () {
         Route::get('/student/{studentId}/assessment', [App\Http\Controllers\Api\Student\AssessmentController::class, 'getStudentAssessment']);
+        Route::get('/student/{studentId}/grade-report/{courseId}', [App\Http\Controllers\GradeController::class, 'getStudentGradeDataForInstructor']);
         Route::post('/course/{courseId}/recalculate-assessments', [App\Http\Controllers\Api\Student\AssessmentController::class, 'recalculateCourseAssessments']);
         Route::post('/assessment/compare', [App\Http\Controllers\Api\Student\AssessmentController::class, 'compareAssessments']);
+        
+        // Git history routes (admin only)
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/git/history', [GitHistoryController::class, 'getHistory']);
+            Route::get('/git/branches', [GitHistoryController::class, 'getBranches']);
+            Route::get('/git/status', [GitHistoryController::class, 'getStatus']);
+            Route::get('/git/commit/{hash}', [GitHistoryController::class, 'getCommitDetails']);
+        });
     });
     
     // Debug authentication status
@@ -227,17 +238,28 @@ Route::get('/fix-schedules', function () {
 
 // Student Details Page (accessible by instructors and admins)
 Route::middleware(['auth', 'role:instructor,admin'])->group(function () {
-    Route::get('/student/{id}/details', function ($id) {
+    Route::get('/student/{id}/details', function (Illuminate\Http\Request $request, $id) {
         $student = \App\Models\User::with(['role', 'student.gradeLevel'])->findOrFail($id);
         
         if (!$student->role || $student->role->name !== 'student') {
             abort(404, 'User is not a student');
         }
 
+        $enrollmentProgressByCourseId = \App\Models\CourseEnrollment::query()
+            ->where(function ($query) use ($student) {
+                $query->where('user_id', $student->id);
+
+                if ($student->student?->id) {
+                    $query->orWhere('student_id', $student->student->id);
+                }
+            })
+            ->get(['course_id', 'progress'])
+            ->keyBy('course_id');
+
         $enrolledCourses = $student->enrolledCourses()
             ->with('lessons')
             ->get()
-            ->map(function ($course) use ($student) {
+            ->map(function ($course) use ($student, $enrollmentProgressByCourseId) {
                 $totalLessons = $course->lessons->count();
                 
                 // Count completed lessons for this student in this course
@@ -245,7 +267,8 @@ Route::middleware(['auth', 'role:instructor,admin'])->group(function () {
                     ->where('course_id', $course->id)
                     ->count();
                 
-                $progress = $totalLessons > 0 ? round(($completedLessons / $totalLessons) * 100) : 0;
+                $enrollmentProgress = $enrollmentProgressByCourseId->get($course->id)?->progress;
+                $progress = round((float) ($enrollmentProgress ?? 0), 1);
                 
                 $lastActivity = \App\Models\LessonCompletion::where('user_id', $student->id)
                     ->where('course_id', $course->id)
@@ -262,9 +285,34 @@ Route::middleware(['auth', 'role:instructor,admin'])->group(function () {
                 ];
             });
 
+        $gradeCourseOptions = $enrolledCourses->map(function ($course) {
+            return [
+                'id' => $course['id'],
+                'title' => $course['title'],
+            ];
+        })->values();
+
+        $requestedCourseId = (int) $request->query('courseId', 0);
+        $defaultGradeCourseId = $gradeCourseOptions->contains('id', $requestedCourseId)
+            ? $requestedCourseId
+            : ($gradeCourseOptions->first()['id'] ?? null);
+
+        $initialGradeReport = null;
+        if ($defaultGradeCourseId && $student->student) {
+            $isEnrolledInDefaultCourse = $student->student->courseEnrollments()
+                ->where('course_id', $defaultGradeCourseId)
+                ->exists();
+
+            if ($isEnrolledInDefaultCourse) {
+                $initialGradeReport = app(\App\Services\GradeCalculatorService::class)
+                    ->calculateStudentCourseGrades($student->id, $defaultGradeCourseId);
+            }
+        }
+
         return Inertia::render('Student/StudentDetails', [
             'student' => [
                 'id' => $student->id,
+                'student_record_id' => $student->student?->id,
                 'name' => $student->name,
                 'email' => $student->email,
                 'role_name' => $student->role_name,
@@ -273,6 +321,9 @@ Route::middleware(['auth', 'role:instructor,admin'])->group(function () {
                 'section' => $student->student?->section ?? null,
             ],
             'enrolledCourses' => $enrolledCourses,
+            'gradeReportCourses' => $gradeCourseOptions,
+            'selectedGradeCourseId' => $defaultGradeCourseId,
+            'initialGradeReport' => $initialGradeReport,
         ]);
     })->name('student.details');
 });
@@ -366,6 +417,27 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::get('role-management', function () {
     return Inertia::render('RoleManagement');
 })->middleware(['auth', 'verified', 'role:admin'])->name('role.management');
+
+// Admin Configuration Routes (Grade Levels, Activity Types, Question Types)
+Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+    // Configuration Index
+    Route::get('/admin/configuration', [AdminConfigurationController::class, 'index'])->name('admin.configuration.index');
+    
+    // Grade Level Routes
+    Route::post('/admin/grade-levels', [AdminConfigurationController::class, 'storeGradeLevel'])->name('admin.grade-levels.store');
+    Route::put('/admin/grade-levels/{gradeLevel}', [AdminConfigurationController::class, 'updateGradeLevel'])->name('admin.grade-levels.update');
+    Route::delete('/admin/grade-levels/{gradeLevel}', [AdminConfigurationController::class, 'destroyGradeLevel'])->name('admin.grade-levels.destroy');
+    
+    // Activity Type Routes
+    Route::post('/admin/activity-types', [AdminConfigurationController::class, 'storeActivityType'])->name('admin.activity-types.store');
+    Route::put('/admin/activity-types/{activityType}', [AdminConfigurationController::class, 'updateActivityType'])->name('admin.activity-types.update');
+    Route::delete('/admin/activity-types/{activityType}', [AdminConfigurationController::class, 'destroyActivityType'])->name('admin.activity-types.destroy');
+    
+    // Question Type Routes
+    Route::post('/admin/question-types', [AdminConfigurationController::class, 'storeQuestionType'])->name('admin.question-types.store');
+    Route::put('/admin/question-types/{questionType}', [AdminConfigurationController::class, 'updateQuestionType'])->name('admin.question-types.update');
+    Route::delete('/admin/question-types/{questionType}', [AdminConfigurationController::class, 'destroyQuestionType'])->name('admin.question-types.destroy');
+});
 
 // List all students (for testing)
 Route::get('/list-students', function () {

@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Models\StudentActivity;
 use App\Models\StudentActivityProgress;
 use App\Models\StudentQuizAnswer;
+use App\Services\StudentAssessmentService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -308,13 +309,27 @@ class StudentQuizController extends Controller
             // Update course enrollment progress
             $courseId = $progress->activity->modules->first()?->course_id;
             if ($courseId) {
-                $enrollment = \App\Models\CourseEnrollment::where('user_id', $user->id)
+                $enrollment = \App\Models\CourseEnrollment::where(function ($query) use ($user, $student) {
+                        $query->where('student_id', $student->id)
+                              ->orWhere('user_id', $user->id);
+                    })
                     ->where('course_id', $courseId)
                     ->first();
                 if ($enrollment) {
                     $enrollment->updateProgress();
                     $enrollment->checkAndCompleteModules(); // Auto-complete modules when requirements met
                 }
+            }
+
+            try {
+                app(StudentAssessmentService::class)->calculateStudentAssessment($student);
+            } catch (\Throwable $e) {
+                \Log::warning('Failed to recalculate student assessment after quiz submission', [
+                    'student_id' => $student->id,
+                    'activity_id' => $progress->activity_id,
+                    'progress_id' => $progressId,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 
@@ -357,8 +372,11 @@ class StudentQuizController extends Controller
         if ($progress) {
             // Load quiz answers separately
             $quizData = json_decode($progress->quiz_data, true);
-            $answers = StudentQuizAnswer::where('quiz_progress_id', $progress->id)->get();
-            $progress->answers = $answers;
+            $answers = StudentQuizAnswer::where('activity_progress_id', $progress->id)->get();
+            return response()->json([
+                'progress' => $progress,
+                'answers' => $answers,
+            ]);
         }
 
         return response()->json($progress);

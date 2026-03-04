@@ -84,7 +84,7 @@
                 >
                   <div class="flex items-center flex-1 min-w-0">
                     <component 
-                      :is="getDocumentIcon(document.doc_type)" 
+                      :is="getDocumentIcon(document)" 
                       class="h-4 w-4 text-amber-600 dark:text-amber-400 mr-2 flex-shrink-0" 
                     />
                     <span class="text-sm text-gray-700 dark:text-gray-300 truncate">
@@ -143,7 +143,9 @@ interface Document {
   id: number;
   name: string;
   file_path: string;
-  doc_type: string;
+  doc_type?: string | null;
+  mime_type?: string | null;
+  extension?: string | null;
 }
 
 interface Lesson {
@@ -348,22 +350,63 @@ const transformForLightMode = (element: HTMLElement) => {
 
 
 
-const getDocumentIcon = (docType: string) => {
-  switch (docType.toLowerCase()) {
-    case 'pdf':
-    case 'document':
-      return FileText;
-    case 'image':
-      return FileImage;
-    case 'video':
-      return FileVideo;
-    case 'audio':
-      return FileAudio;
-    case 'presentation':
-      return Presentation;
-    default:
-      return File;
+const getDocumentIcon = (document: Document) => {
+  const rawType = document?.doc_type || document?.mime_type || document?.extension || document?.name || '';
+  const normalizedType = String(rawType).toLowerCase();
+
+  if (!normalizedType) {
+    return File;
   }
+
+  if (
+    normalizedType.includes('pdf') ||
+    normalizedType.includes('doc') ||
+    normalizedType.includes('docx') ||
+    normalizedType.includes('txt') ||
+    normalizedType.includes('text')
+  ) {
+      return FileText;
+  }
+
+  if (
+    normalizedType.includes('image') ||
+    normalizedType.includes('png') ||
+    normalizedType.includes('jpg') ||
+    normalizedType.includes('jpeg') ||
+    normalizedType.includes('gif') ||
+    normalizedType.includes('webp')
+  ) {
+    return FileImage;
+  }
+
+  if (
+    normalizedType.includes('video') ||
+    normalizedType.includes('mp4') ||
+    normalizedType.includes('mov') ||
+    normalizedType.includes('avi') ||
+    normalizedType.includes('mkv')
+  ) {
+    return FileVideo;
+  }
+
+  if (
+    normalizedType.includes('audio') ||
+    normalizedType.includes('mp3') ||
+    normalizedType.includes('wav') ||
+    normalizedType.includes('ogg')
+  ) {
+    return FileAudio;
+  }
+
+  if (
+    normalizedType.includes('presentation') ||
+    normalizedType.includes('ppt') ||
+    normalizedType.includes('pptx')
+  ) {
+    return Presentation;
+  }
+
+  return File;
 };
 
 const viewDocument = (document: Document) => {

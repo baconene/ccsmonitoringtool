@@ -35,6 +35,7 @@ interface Props {
   courseId?: number;
   activity?: any;
   message?: string;
+  breadcrumbs?: Array<{ title: string; href?: string }>;
 }
 
 const props = defineProps<Props>();
@@ -146,9 +147,17 @@ const getCorrectAnswerText = (answer: any) => {
   
   if (question.question_type === 'multiple_choice' || question.question_type === 'true_false') {
     const correctOption = question.options?.find((opt: any) => opt.is_correct);
-    return correctOption?.option_text || 'N/A';
+    return correctOption?.option_text || question.correct_answer || 'N/A';
   } else if (question.question_type === 'enumeration' || question.question_type === 'short_answer') {
-    return question.correct_answer || 'Pending instructor review';
+    const acceptable = Array.isArray(question.acceptable_answers)
+      ? question.acceptable_answers.filter((a: any) => a !== null && String(a).trim() !== '')
+      : [];
+
+    if (acceptable.length > 0) {
+      return acceptable.join(', ');
+    }
+
+    return question.correct_answer || 'N/A';
   }
   return 'N/A';
 };
@@ -182,10 +191,82 @@ const formatTime = (seconds: number) => {
   const secs = totalSeconds % 60;
   return minutes > 0 ? `${minutes}m ${secs}s` : `${secs}s`;
 };
+
+// Get correct answer for assignment questions
+const getAssignmentCorrectAnswer = (question: any) => {
+  if (question.question_type === 'multiple_choice') {
+    // For multiple choice, find the option marked as correct
+    const correctOption = question.options?.find((opt: any) => opt.is_correct);
+    return correctOption?.option_text || 'N/A';
+  } else if (question.question_type === 'true_false') {
+    // For true/false, display the correct_answer value
+    return question.correct_answer || 'N/A';
+  } else if (question.question_type === 'enumeration') {
+    const acceptable = Array.isArray(question.acceptable_answers)
+      ? question.acceptable_answers.filter((a: any) => a !== null && String(a).trim() !== '')
+      : [];
+
+    if (acceptable.length > 0) {
+      return acceptable.join(', ');
+    }
+
+    return question.correct_answer || 'N/A';
+  } else if (question.question_type === 'short_answer') {
+    const acceptable = Array.isArray(question.acceptable_answers)
+      ? question.acceptable_answers.filter((a: any) => a !== null && String(a).trim() !== '')
+      : [];
+
+    if (acceptable.length > 0) {
+      return acceptable.join(', ');
+    }
+
+    return question.correct_answer || 'N/A';
+  } else {
+    return question.correct_answer || 'N/A';
+  }
+};
+
+// Get student answer for assignment questions
+const getAssignmentStudentAnswer = (question: any, studentAnswer: any) => {
+  if (!studentAnswer) return 'No answer provided';
+  
+  if (question.question_type === 'multiple_choice') {
+    // For multiple choice, find the selected option text
+    if (studentAnswer.selected_options && Array.isArray(studentAnswer.selected_options)) {
+      const selectedIds = studentAnswer.selected_options;
+      const selectedOptions = question.options?.filter((opt: any) => selectedIds.includes(opt.id));
+      return selectedOptions?.map((opt: any) => opt.option_text).join(', ') || 'No answer';
+    }
+    return 'No answer';
+  } else if (question.question_type === 'true_false') {
+    if (studentAnswer.answer_text && String(studentAnswer.answer_text).trim() !== '') {
+      return studentAnswer.answer_text;
+    }
+
+    let selected: any = studentAnswer.selected_options;
+    if (typeof studentAnswer.selected_options === 'string') {
+      try {
+        selected = JSON.parse(studentAnswer.selected_options || '[]');
+      } catch {
+        selected = [];
+      }
+    }
+
+    if (Array.isArray(selected) && selected.length > 0) {
+      const selectedOptions = question.options?.filter((opt: any) => selected.includes(opt.id));
+      return selectedOptions?.map((opt: any) => opt.option_text).join(', ') || 'No answer';
+    }
+
+    return 'No answer';
+  } else {
+    // For short_answer and enumeration
+    return studentAnswer.answer_text || 'No answer provided';
+  }
+};
 </script>
 
 <template>
-  <AppLayout>
+  <AppLayout :breadcrumbs="(props.breadcrumbs || []).map(b => ({ ...b, href: b.href || '' }))">
     <Head :title="pageTitle" />
 
     <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
@@ -467,13 +548,13 @@ const formatTime = (seconds: number) => {
               <p class="text-gray-900 dark:text-white mb-4">{{ result.question.question_text }}</p>
 
               <div v-if="result.student_answer" class="space-y-2 bg-gray-50 dark:bg-gray-800/50 p-3 rounded">
-                <div v-if="result.student_answer.answer_text">
+                <div>
                   <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Your Answer:</span>
-                  <p class="mt-1 text-gray-900 dark:text-white">{{ result.student_answer.answer_text }}</p>
+                  <p class="mt-1 text-gray-900 dark:text-white">{{ getAssignmentStudentAnswer(result.question, result.student_answer) }}</p>
                 </div>
-                <div v-if="result.question.correct_answer && isGraded">
+                <div v-if="isGraded" class="pt-2 border-t dark:border-gray-600">
                   <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Correct Answer:</span>
-                  <p class="mt-1 text-green-600">{{ result.question.correct_answer }}</p>
+                  <p class="mt-1 text-green-600">{{ getAssignmentCorrectAnswer(result.question) }}</p>
                 </div>
                 <div v-if="result.student_answer.instructor_feedback">
                   <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Feedback:</span>

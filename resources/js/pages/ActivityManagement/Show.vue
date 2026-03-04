@@ -27,6 +27,7 @@ interface Props {
         courses_count?: number;
         related_courses?: RelatedCourse[];
     };
+    studentsProgress?: any[];
 }
 
 const props = defineProps<Props>();
@@ -235,11 +236,12 @@ const navigateToCourse = (courseId: number) => {
                             leave-to-class="opacity-0 transform -translate-y-2"
                         >
                             <div v-show="showQuestions" class="border-t border-purple-200/50 dark:border-purple-700/50">
-                                <!-- Quiz Management -->
+                                <!-- Quiz Management with Student Submissions -->
                                 <QuizManagement
                                     v-if="activity.activity_type?.name === 'Quiz'"
                                     :activity="activity"
                                     :quiz="activity.quiz"
+                                    :students-progress="studentsProgress"
                                 />
 
                                 <!-- Assignment Management -->
@@ -247,12 +249,79 @@ const navigateToCourse = (courseId: number) => {
                                     v-else-if="activity.activity_type?.name === 'Assignment'"
                                     :activity="activity"
                                     :assignment="activity.assignment"
+                                    :students-progress="studentsProgress"
                                 />
+
+                                <!-- Generic Activity Submissions View -->
+                                <div
+                                    v-else-if="studentsProgress && studentsProgress.length > 0"
+                                    class="p-6 sm:p-8"
+                                >
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                                        Student Submissions ({{ studentsProgress.length }})
+                                    </h3>
+                                    <div class="overflow-x-auto bg-gray-50 dark:bg-gray-900/40 rounded-lg border border-gray-200 dark:border-gray-700">
+                                        <table class="w-full text-sm">
+                                            <thead class="border-b border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800">
+                                                <tr>
+                                                    <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Student Name</th>
+                                                    <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Email</th>
+                                                    <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Status</th>
+                                                    <th class="px-4 py-3 text-right font-semibold text-gray-700 dark:text-gray-300">Score</th>
+                                                    <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Submission Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                                <tr
+                                                    v-for="student in studentsProgress"
+                                                    :key="student.student_id"
+                                                    class="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                                >
+                                                    <td class="px-4 py-3 text-gray-900 dark:text-gray-100 font-medium">{{ student.student_name }}</td>
+                                                    <td class="px-4 py-3 text-gray-600 dark:text-gray-400 text-xs">{{ student.student_email }}</td>
+                                                    <td class="px-4 py-3">
+                                                        <div class="flex flex-col gap-1">
+                                                            <span
+                                                                :class="{
+                                                                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': student.status === 'in_progress',
+                                                                    'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': student.status === 'submitted',
+                                                                    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': student.status === 'graded',
+                                                                    'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400': student.status === 'not_started',
+                                                                }"
+                                                                class="px-3 py-1 rounded-full text-xs font-medium w-fit"
+                                                            >
+                                                                {{ student.status }}
+                                                            </span>
+                                                            <span
+                                                                :class="{
+                                                                    'text-green-700 dark:text-green-400 font-medium': student.is_taking_activity || student.status === 'graded',
+                                                                    'text-gray-600 dark:text-gray-400': !student.is_taking_activity && student.status === 'not_started',
+                                                                }"
+                                                                class="text-xs"
+                                                            >
+                                                                {{ student.is_taking_activity || student.status === 'graded' ? '✓ Active' : '○ Pending' }}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-4 py-3 text-right">
+                                                        <span v-if="student.score !== null" class="font-semibold text-gray-900 dark:text-gray-100">
+                                                            {{ student.score }}/{{ student.max_score }}
+                                                        </span>
+                                                        <span v-else class="text-gray-500 dark:text-gray-400">—</span>
+                                                    </td>
+                                                    <td class="px-4 py-3 text-xs text-gray-600 dark:text-gray-400">
+                                                        {{ student.submitted_at ? new Date(student.submitted_at).toLocaleDateString() : '—' }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </transition>
 
                         <!-- Default View (Non-collapsible) -->
-                        <div v-if="activity.activity_type?.name !== 'Quiz' && activity.activity_type?.name !== 'Assignment'" class="p-6 sm:p-8">
+                        <div v-if="activity.activity_type?.name !== 'Quiz' && activity.activity_type?.name !== 'Assignment' && (!studentsProgress || studentsProgress.length === 0)" class="p-6 sm:p-8">
                             <p class="text-gray-600 dark:text-gray-400 text-center">
                                 {{ isManageableActivityType(activity.activity_type?.name || '') ? 
                                     'Loading management interface...' : 

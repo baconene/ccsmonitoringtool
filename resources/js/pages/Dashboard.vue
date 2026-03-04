@@ -27,7 +27,28 @@ const props = withDefaults(defineProps<Props>(), {
 
 // Get user role for additional checks
 const page = usePage();
-const user = page.props.auth.user as { role?: string; name?: string; email?: string };
+const user = page.props.auth.user as { 
+  role?: string | { name: string; display_name: string }; 
+  name?: string; 
+  email?: string;
+  role_name?: string;
+};
+
+// Computed property to detect admin role
+const isAdmin = computed(() => {
+  if (!user) return false;
+  
+  if (typeof user.role === 'object' && user.role?.name) {
+    return user.role.name === 'admin';
+  }
+  if (typeof user.role === 'string') {
+    return user.role === 'admin';
+  }
+  if (user.role_name) {
+    return user.role_name === 'admin';
+  }
+  return false;
+});
 
 // Reactive state
 const courses = ref<Course[]>([]);
@@ -142,7 +163,7 @@ const handleCourseModalRefresh = async (newCourseId?: number) => {
                     <!-- Main Content Area -->
                     <div class="lg:col-span-12">
                         <!-- Dynamic Dashboard Component -->
-                        <div v-if="user?.role === 'admin'" class="w-full">
+                        <div v-if="isAdmin" class="w-full">
                             <AdminDashboard />
                         </div>
                         <div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors">

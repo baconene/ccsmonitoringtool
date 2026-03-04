@@ -1,0 +1,194 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000">
+  <!-- Title -->
+  <defs>
+    <linearGradient id="skillGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1400" height="1000" fill="#f9fafb"/>
+  
+  <!-- Title -->
+  <text x="700" y="40" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#1f2937" text-anchor="middle">
+    Skill Assessment System - Entity Relationship Diagram
+  </text>
+  
+  <!-- Legend -->
+  <g transform="translate(50, 70)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#374151">Legend:</text>
+    <rect x="0" y="10" width="20" height="15" fill="url(#skillGradient)" filter="url(#shadow)"/>
+    <text x="25" y="22" font-family="Arial, sans-serif" font-size="12" fill="#4b5563">Primary Entity</text>
+    <line x1="100" y1="17" x2="130" y2="17" stroke="#6366f1" stroke-width="2" marker-end="url(#arrowblue)"/>
+    <text x="135" y="22" font-family="Arial, sans-serif" font-size="12" fill="#4b5563">One-to-Many</text>
+    <line x1="220" y1="17" x2="250" y2="17" stroke="#ec4899" stroke-width="2" stroke-dasharray="5,5"/>
+    <text x="255" y="22" font-family="Arial, sans-serif" font-size="12" fill="#4b5563">Many-to-Many</text>
+  </g>
+  
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowblue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#6366f1"/>
+    </marker>
+    <marker id="arrowpink" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#ec4899"/>
+    </marker>
+  </defs>
+  
+  <!-- Entities -->
+  
+  <!-- Module Entity -->
+  <g filter="url(#shadow)">
+    <rect x="100" y="150" width="250" height="200" rx="8" fill="url(#skillGradient)"/>
+    <rect x="100" y="150" width="250" height="45" rx="8" fill="#4c1d95" opacity="0.3"/>
+    <text x="225" y="178" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">Module</text>
+    <text x="110" y="210" font-family="Courier New" font-size="13" fill="white">id (PK)</text>
+    <text x="110" y="230" font-family="Courier New" font-size="13" fill="white">course_id (FK)</text>
+    <text x="110" y="250" font-family="Courier New" font-size="13" fill="white">title</text>
+    <text x="110" y="270" font-family="Courier New" font-size="13" fill="white">description</text>
+    <text x="110" y="290" font-family="Courier New" font-size="13" fill="white">weight</text>
+    <text x="110" y="310" font-family="Courier New" font-size="13" fill="white">created_at</text>
+    <text x="110" y="330" font-family="Courier New" font-size="13" fill="white">updated_at</text>
+  </g>
+  
+  <!-- Skill Entity -->
+  <g filter="url(#shadow)">
+    <rect x="500" y="150" width="300" height="220" rx="8" fill="url(#skillGradient)"/>
+    <rect x="500" y="150" width="300" height="45" rx="8" fill="#4c1d95" opacity="0.3"/>
+    <text x="650" y="178" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">Skill</text>
+    <text x="510" y="210" font-family="Courier New" font-size="13" fill="white">id (PK)</text>
+    <text x="510" y="230" font-family="Courier New" font-size="13" fill="white">module_id (FK)</text>
+    <text x="510" y="250" font-family="Courier New" font-size="13" fill="white">name</text>
+    <text x="510" y="270" font-family="Courier New" font-size="13" fill="white">description</text>
+    <text x="510" y="290" font-family="Courier New" font-size="13" fill="white">competency_threshold</text>
+    <text x="510" y="310" font-family="Courier New" font-size="13" fill="white">created_at</text>
+    <text x="510" y="330" font-family="Courier New" font-size="13" fill="white">updated_at</text>
+    <text x="510" y="355" font-family="Arial" font-size="11" fill="white" font-style="italic">Default threshold: 70%</text>
+  </g>
+  
+  <!-- Activity Entity -->
+  <g filter="url(#shadow)">
+    <rect x="950" y="150" width="280" height="200" rx="8" fill="url(#skillGradient)"/>
+    <rect x="950" y="150" width="280" height="45" rx="8" fill="#4c1d95" opacity="0.3"/>
+    <text x="1090" y="178" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">Activity</text>
+    <text x="960" y="210" font-family="Courier New" font-size="13" fill="white">id (PK)</text>
+    <text x="960" y="230" font-family="Courier New" font-size="13" fill="white">module_id (FK)</text>
+    <text x="960" y="250" font-family="Courier New" font-size="13" fill="white">title</text>
+    <text x="960" y="270" font-family="Courier New" font-size="13" fill="white">type (quiz, assignment...)</text>
+    <text x="960" y="290" font-family="Courier New" font-size="13" fill="white">description</text>
+    <text x="960" y="310" font-family="Courier New" font-size="13" fill="white">created_at</text>
+    <text x="960" y="330" font-family="Courier New" font-size="13" fill="white">updated_at</text>
+  </g>
+  
+  <!-- Lesson Entity -->
+  <g filter="url(#shadow)">
+    <rect x="100" y="430" width="250" height="180" rx="8" fill="url(#skillGradient)"/>
+    <rect x="100" y="430" width="250" height="45" rx="8" fill="#4c1d95" opacity="0.3"/>
+    <text x="225" y="458" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">Lesson</text>
+    <text x="110" y="490" font-family="Courier New" font-size="13" fill="white">id (PK)</text>
+    <text x="110" y="510" font-family="Courier New" font-size="13" fill="white">module_id (FK)</text>
+    <text x="110" y="530" font-family="Courier New" font-size="13" fill="white">title</text>
+    <text x="110" y="550" font-family="Courier New" font-size="13" fill="white">content</text>
+    <text x="110" y="570" font-family="Courier New" font-size="13" fill="white">created_at</text>
+    <text x="110" y="590" font-family="Courier New" font-size="13" fill="white">updated_at</text>
+  </g>
+  
+  <!-- activity_skill Pivot Table -->
+  <g filter="url(#shadow)">
+    <rect x="550" y="450" width="200" height="140" rx="8" fill="#ec4899"/>
+    <rect x="550" y="450" width="200" height="45" rx="8" fill="#831843" opacity="0.3"/>
+    <text x="650" y="478" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle">activity_skill</text>
+    <text x="560" y="510" font-family="Courier New" font-size="13" fill="white">activity_id (FK, PK)</text>
+    <text x="560" y="530" font-family="Courier New" font-size="13" fill="white">skill_id (FK, PK)</text>
+    <text x="560" y="550" font-family="Courier New" font-size="13" fill="white">weight (default: 1.0)</text>
+    <text x="560" y="570" font-family="Courier New" font-size="13" fill="white">created_at</text>
+  </g>
+  
+  <!-- Student Entity -->
+  <g filter="url(#shadow)">
+    <rect x="950" y="450" width="280" height="160" rx="8" fill="url(#skillGradient)"/>
+    <rect x="950" y="450" width="280" height="45" rx="8" fill="#4c1d95" opacity="0.3"/>
+    <text x="1090" y="478" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">Student</text>
+    <text x="960" y="510" font-family="Courier New" font-size="13" fill="white">id (PK)</text>
+    <text x="960" y="530" font-family="Courier New" font-size="13" fill="white">user_id (FK)</text>
+    <text x="960" y="550" font-family="Courier New" font-size="13" fill="white">student_number</text>
+    <text x="960" y="570" font-family="Courier New" font-size="13" fill="white">created_at</text>
+    <text x="960" y="590" font-family="Courier New" font-size="13" fill="white">updated_at</text>
+  </g>
+  
+  <!-- StudentSkillAssessment Entity -->
+  <g filter="url(#shadow)">
+    <rect x="450" y="700" width="300" height="270" rx="8" fill="url(#skillGradient)"/>
+    <rect x="450" y="700" width="300" height="45" rx="8" fill="#4c1d95" opacity="0.3"/>
+    <text x="600" y="728" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" text-anchor="middle">StudentSkillAssessment</text>
+    <text x="460" y="760" font-family="Courier New" font-size="12" fill="white">id (PK)</text>
+    <text x="460" y="778" font-family="Courier New" font-size="12" fill="white">student_id (FK)</text>
+    <text x="460" y="796" font-family="Courier New" font-size="12" fill="white">skill_id (FK)</text>
+    <text x="460" y="814" font-family="Courier New" font-size="12" fill="white">normalized_score</text>
+    <text x="460" y="832" font-family="Courier New" font-size="12" fill="white">final_score</text>
+    <text x="460" y="850" font-family="Courier New" font-size="12" fill="white">mastery_level</text>
+    <text x="460" y="868" font-family="Courier New" font-size="12" fill="white">attempt_count</text>
+    <text x="460" y="886" font-family="Courier New" font-size="12" fill="white">consistency_score</text>
+    <text x="460" y="904" font-family="Courier New" font-size="12" fill="white">assessment_metadata (JSON)</text>
+    <text x="460" y="922" font-family="Courier New" font-size="12" fill="white">created_at</text>
+    <text x="460" y="940" font-family="Courier New" font-size="12" fill="white">updated_at</text>
+    <text x="460" y="960" font-family="Arial" font-size="10" fill="white" font-style="italic">Unique: (student_id, skill_id)</text>
+  </g>
+  
+  <!-- Relationships -->
+  
+  <!-- Module to Skill (1:M) -->
+  <line x1="350" y1="250" x2="500" y2="250" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arrowblue)"/>
+  <text x="400" y="245" font-family="Arial" font-size="12" fill="#1f2937" font-weight="bold">1:M</text>
+  
+  <!-- Module to Activity (1:M) -->
+  <path d="M 250 200 L 400 200 L 400 150 L 950 150 L 950 240" fill="none" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arrowblue)"/>
+  <text x="600" y="145" font-family="Arial" font-size="12" fill="#1f2937" font-weight="bold">1:M</text>
+  
+  <!-- Module to Lesson (1:M) -->
+  <line x1="225" y1="350" x2="225" y2="430" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arrowblue)"/>
+  <text x="235" y="395" font-family="Arial" font-size="12" fill="#1f2937" font-weight="bold">1:M</text>
+  
+  <!-- Skill to activity_skill (M:M via pivot) -->
+  <line x1="650" y1="370" x2="650" y2="450" stroke="#ec4899" stroke-width="2.5" stroke-dasharray="8,5" marker-end="url(#arrowpink)"/>
+  <text x="660" y="415" font-family="Arial" font-size="12" fill="#831843" font-weight="bold">M:M</text>
+  
+  <!-- Activity to activity_skill (M:M via pivot) -->
+  <path d="M 950 300 L 850 300 L 850 520 L 750 520" fill="none" stroke="#ec4899" stroke-width="2.5" stroke-dasharray="8,5" marker-end="url(#arrowpink)"/>
+  <text x="870" y="410" font-family="Arial" font-size="12" fill="#831843" font-weight="bold">M:M</text>
+  
+  <!-- Student to StudentSkillAssessment (1:M) -->
+  <path d="M 1090 610 L 1090 835 L 750 835" fill="none" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arrowblue)"/>
+  <text x="930" y="720" font-family="Arial" font-size="12" fill="#1f2937" font-weight="bold">1:M</text>
+  
+  <!-- Skill to StudentSkillAssessment (1:M) -->
+  <path d="M 600 370 L 600 700" fill="none" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arrowblue)"/>
+  <text x="610" y="540" font-family="Arial" font-size="12" fill="#1f2937" font-weight="bold">1:M</text>
+  
+  <!-- Notes Section -->
+  <g transform="translate(850, 700)">
+    <rect x="0" y="0" width="480" height="270" rx="8" fill="#f3f4f6" stroke="#d1d5db" stroke-width="2"/>
+    <text x="10" y="25" font-family="Arial" font-size="14" font-weight="bold" fill="#1f2937">Key Concepts:</text>
+    
+    <text x="10" y="50" font-family="Arial" font-size="12" fill="#374151" font-weight="bold">1. Auto-Linking:</text>
+    <text x="20" y="68" font-family="Arial" font-size="11" fill="#4b5563">• When activity added to module → links to all module skills</text>
+    <text x="20" y="83" font-family="Arial" font-size="11" fill="#4b5563">• When skill created → links to all module activities</text>
+    
+    <text x="10" y="108" font-family="Arial" font-size="12" fill="#374151" font-weight="bold">2. Enrollment Initialization:</text>
+    <text x="20" y="126" font-family="Arial" font-size="11" fill="#4b5563">• Student enrolls → StudentSkillAssessment created</text>
+    <text x="20" y="141" font-family="Arial" font-size="11" fill="#4b5563">• Default: final_score=0, mastery_level='not_met'</text>
+    
+    <text x="10" y="166" font-family="Arial" font-size="12" fill="#374151" font-weight="bold">3. Assessment Calculation:</text>
+    <text x="20" y="184" font-family="Arial" font-size="11" fill="#4b5563">• Activities: weight = 1.0</text>
+    <text x="20" y="199" font-family="Arial" font-size="11" fill="#4b5563">• Lessons: weight = 0.5 (via module relationship)</text>
+    <text x="20" y="214" font-family="Arial" font-size="11" fill="#4b5563">• Real-time updates on completion</text>
+    
+    <text x="10" y="239" font-family="Arial" font-size="12" fill="#374151" font-weight="bold">4. Mastery Levels:</text>
+    <text x="20" y="257" font-family="Arial" font-size="11" fill="#4b5563">exceeds | meets | approaching | not_met</text>
+  </g>
+  
+</svg>

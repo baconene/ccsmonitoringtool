@@ -155,19 +155,38 @@ public function update(Request $request, \App\Models\Module $module)
             'activity_ids.*' => 'exists:activities,id',
         ]);
 
+        $existingActivityIds = \DB::table('module_activities as ma')
+            ->join('modules as m', 'm.id', '=', 'ma.module_id')
+            ->where('m.course_id', $module->course_id)
+            ->pluck('ma.activity_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $existingActivityLookup = array_flip($existingActivityIds);
+
         // Get the next order number
         $maxOrder = $module->activities()->max('module_activities.order') ?? 0;
 
+        $attachedActivityIds = [];
+        
         foreach ($validated['activity_ids'] as $index => $activityId) {
-            // Check if activity is already attached
-            if (!$module->activities()->where('activity_id', $activityId)->exists()) {
+            // Avoid duplicates anywhere in the same course
+            if (!isset($existingActivityLookup[(int) $activityId])) {
                 $module->activities()->attach($activityId, [
                     'module_course_id' => $module->course_id,
                     'order' => $maxOrder + $index + 1,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+
+                $existingActivityLookup[(int) $activityId] = true;
+                $attachedActivityIds[] = (int) $activityId;
             }
+        }
+
+        // Auto-link module skills to newly attached activities
+        if (!empty($attachedActivityIds)) {
+            $this->linkModuleSkillsToActivities($module, $attachedActivityIds);
         }
 
         return redirect()->back()->with('success', 'Activities added successfully.');
@@ -181,6 +200,33 @@ public function update(Request $request, \App\Models\Module $module)
         $module->activities()->detach($activityId);
 
         return redirect()->back()->with('success', 'Activity removed successfully.');
+    }
+
+    /**
+     * Link all module skills to specified activities
+     */
+    private function linkModuleSkillsToActivities(\App\Models\Module $module, array $activityIds)
+    {
+        // Get all skills in this module
+        $moduleSkills = $module->skills()->pluck('skills.id');
+
+        if ($moduleSkills->isEmpty()) {
+            return;
+        }
+
+        // Get the activities
+        $activities = \App\Models\Activity::whereIn('id', $activityIds)->get();
+
+        foreach ($activities as $activity) {
+            // Create skill-activity links with default weight
+            $pivotData = [];
+            foreach ($moduleSkills as $skillId) {
+                $pivotData[$skillId] = ['weight' => 1.0];
+            }
+
+            // Sync without detaching (preserve existing skill relationships)
+            $activity->skills()->syncWithoutDetaching($pivotData);
+        }
     }
 
     /**

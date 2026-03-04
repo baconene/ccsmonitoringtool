@@ -7,12 +7,12 @@
       </h2>
     </template>
 
-    <div class="h-[calc(100vh-140px)] flex gap-0 bg-gray-50 dark:bg-gray-900">
-      <!-- Left Sidebar -->
-      <div class="w-80 bg-white dark:bg-gray-800 border-r dark:border-gray-700 overflow-y-auto flex flex-col">
+    <div class="flex flex-col md:flex md:flex-row md:gap-0 gap-0 bg-gray-50 dark:bg-gray-900 min-h-screen md:h-[calc(100vh-140px)]">
+      <!-- Left Sidebar - repositioned to top on mobile -->
+      <div class="w-full md:w-80 bg-white dark:bg-gray-800 border-b md:border-r md:border-b-0 dark:border-gray-700 overflow-y-auto md:overflow-y-auto flex flex-col">
         <!-- Sticky Header & Course Selector -->
-        <div class="sticky top-0 bg-white dark:bg-gray-800 z-20 border-b dark:border-gray-700 p-6 space-y-4">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Courses</h3>
+        <div class="sticky top-0 bg-white dark:bg-gray-800 z-20 border-b dark:border-gray-700 p-4 md:p-6 space-y-4">
+          <h3 class="text-base md:text-lg font-semibold text-gray-900 dark:text-gray-100">Courses</h3>
           
           <!-- Selected Course Display / Search Input -->
           <div class="relative">
@@ -23,7 +23,7 @@
               type="text"
               :placeholder="getSelectedCourseName()"
               :value="searchQuery || getSelectedCourseName()"
-              class="w-full px-4 py-2 border-2 border-blue-400 dark:border-blue-500 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-3 md:px-4 py-2 border-2 border-blue-400 dark:border-blue-500 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             
             <!-- Dropdown List -->
@@ -33,12 +33,12 @@
                 v-for="course in filteredCourses"
                 :key="course.id"
                 @click="selectCourse(course.id); showCourseList = false; searchQuery = ''"
-                class="w-full text-left px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-b dark:border-gray-700 last:border-b-0 transition-colors flex justify-between items-center"
+                class="w-full text-left px-3 md:px-4 py-2 md:py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-b dark:border-gray-700 last:border-b-0 transition-colors flex justify-between items-center"
               >
                 <div class="flex-1 min-w-0">
-                  <h4 class="font-medium text-gray-900 dark:text-gray-100 truncate text-sm">{{ course.title }}</h4>
+                  <h4 class="font-medium text-gray-900 dark:text-gray-100 truncate text-xs md:text-sm">{{ course.title }}</h4>
                 </div>
-                <div class="ml-3 flex items-center gap-1 text-sm font-bold">
+                <div class="ml-3 flex items-center gap-1 text-xs md:text-sm font-bold">
                   <span class="text-gray-400 dark:text-gray-500">|</span>
                   <span class="text-blue-600 dark:text-blue-400 w-8 text-right">{{ getCourseLetterGrade(course.id) }}</span>
                   <span class="text-gray-400 dark:text-gray-500">|</span>
@@ -48,35 +48,39 @@
               <!-- All Courses Option -->
               <button
                 @click="selectCourse('all'); showCourseList = false; searchQuery = ''"
-                class="w-full text-left px-4 py-3 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors flex justify-between items-center bg-gray-50 dark:bg-gray-700/50"
+                class="w-full text-left px-3 md:px-4 py-2 md:py-3 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors flex justify-between items-center bg-gray-50 dark:bg-gray-700/50"
               >
                 <div class="flex-1">
-                  <h4 class="font-medium text-gray-900 dark:text-gray-100 text-sm">All Courses</h4>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">Complete summary</p>
+                  <h4 class="font-medium text-gray-900 dark:text-gray-100 text-xs md:text-sm">All Courses</h4>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 hidden md:block">Complete summary</p>
                 </div>
               </button>
             </div>
           </div>
           
           <!-- Export Buttons -->
-          <div class="space-y-2">
+          <div class="grid grid-cols-2 md:grid-cols-1 gap-2">
             <button
               @click="exportPDF"
-              class="w-full px-3 py-2 text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+              class="w-full px-2 md:px-3 py-2 text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
             >
-              <DocumentArrowDownIcon class="h-3 w-3 inline mr-1" />PDF
+              <DocumentArrowDownIcon class="h-3 w-3 inline mr-1" />
+              <span class="hidden md:inline">PDF</span>
+              <span class="md:hidden">PDF</span>
             </button>
             <button
               @click="exportCSV"
-              class="w-full px-3 py-2 text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700"
+              class="w-full px-2 md:px-3 py-2 text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700"
             >
-              <DocumentArrowDownIcon class="h-3 w-3 inline mr-1" />CSV
+              <DocumentArrowDownIcon class="h-3 w-3 inline mr-1" />
+              <span class="hidden md:inline">CSV</span>
+              <span class="md:hidden">CSV</span>
             </button>
           </div>
         </div>
 
-        <!-- Scrollable Summary Section -->
-        <div class="flex-1 overflow-y-auto px-6 py-6">
+        <!-- Scrollable Summary Section - hidden on mobile, visible on desktop -->
+        <div class="hidden md:flex flex-1 overflow-y-auto px-6 py-6 flex-col">
           <!-- Summary -->
           <div v-if="gradeData" class="space-y-3">
             <h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Summary</h4>
@@ -100,7 +104,7 @@
 
       <!-- Main Content -->
       <div class="flex-1 overflow-y-auto">
-        <div class="max-w-6xl mx-auto px-6 py-6">
+        <div class="max-w-6xl mx-auto px-4 md:px-6 py-4 md:py-6">
           <!-- Loading -->
           <div v-if="loading" class="flex items-center justify-center h-64">
             <div class="text-center">
@@ -224,6 +228,52 @@
                       :style="{ width: `${module.module_score || 0}%` }"
                     ></div>
                   </div>
+
+                  <!-- Module Grade Breakdown Summary -->
+                  <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-3 mb-3 border border-indigo-200 dark:border-indigo-800">
+                    <h6 class="text-xs font-semibold text-indigo-900 dark:text-indigo-100 mb-2">Module Grade Breakdown:</h6>
+                    <div class="space-y-1.5 text-xs">
+                      <div class="text-indigo-800 dark:text-indigo-200">
+                        <span class="font-medium">Module Grade ({{ module.module_score || 0 }}%)</span> = 
+                        (Lessons × {{ module.lesson_weight_used || 0 }}%) + (Activities × {{ module.activity_weight_used || 0 }}%)
+                      </div>
+                      <div class="grid grid-cols-2 gap-2">
+                        <div 
+                          v-if="module.has_lessons"
+                          class="flex justify-between items-center bg-green-100 dark:bg-green-900/30 rounded px-2 py-1.5 border border-green-300 dark:border-green-700"
+                        >
+                          <span class="text-green-700 dark:text-green-300">📚 Lessons:</span>
+                          <span class="font-semibold text-green-900 dark:text-green-100">{{ module.lesson_score || 0 }}% × {{ module.lesson_weight_used || 0 }}%</span>
+                        </div>
+                        <div 
+                          v-if="module.has_activities"
+                          class="flex justify-between items-center bg-orange-100 dark:bg-orange-900/30 rounded px-2 py-1.5 border border-orange-300 dark:border-orange-700"
+                        >
+                          <span class="text-orange-700 dark:text-orange-300">📝 Activities:</span>
+                          <span class="font-semibold text-orange-900 dark:text-orange-100">{{ module.activity_score || 0 }}% × {{ module.activity_weight_used || 0 }}%</span>
+                        </div>
+                      </div>
+                      <div class="text-indigo-700 dark:text-indigo-300 pt-1 border-t border-indigo-200 dark:border-indigo-700">
+                        = {{ module.lesson_contribution || 0 }}% + {{ module.activity_contribution || 0 }}% = <span class="font-bold">{{ module.module_score || 0 }}%</span>
+                      </div>
+
+                      <!-- Activity Type Mini Breakdown -->
+                      <div v-if="module.has_activities && module.activity_types && module.activity_types.length > 0" class="pt-2 border-t border-indigo-200 dark:border-indigo-700">
+                        <div class="text-indigo-700 dark:text-indigo-300 text-[10px] mb-1">
+                          Activity Score ({{ module.activity_score || 0 }}%) =
+                        </div>
+                        <div class="flex flex-wrap gap-1">
+                          <span
+                            v-for="typeScore in module.activity_types"
+                            :key="typeScore.type"
+                            class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 border border-purple-300 dark:border-purple-700"
+                          >
+                            {{ typeScore.type }}: {{ typeScore.type_score || 0 }}% × {{ (typeScore.weight_used || 0).toFixed(1) }}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   
                   <!-- Toggle Button for Calculation Details -->
                   <button
@@ -303,24 +353,79 @@
                       </div>
                     </div>
 
+                    <!-- Activity Type Contribution Breakdown -->
+                    <div v-if="module.activity_types && module.activity_types.length > 0" class="mt-3 pt-3 border-t border-purple-200 dark:border-purple-700">
+                      <div class="text-xs font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                        📊 Activity Score Breakdown ({{ module.activity_score || 0 }}%):
+                      </div>
+                      
+                      <!-- Activity Score Formula -->
+                      <div class="bg-purple-50 dark:bg-purple-900/20 rounded p-2 mb-2 text-xs border border-purple-200 dark:border-purple-700">
+                        <div class="text-purple-800 dark:text-purple-200 font-medium mb-1">
+                          Activity Score = {{ module.activity_types.map(t => `(${t.type_score}% × ${(t.weight_used || 0).toFixed(1)}%)`).join(' + ') }}
+                        </div>
+                        <div class="text-purple-700 dark:text-purple-300">
+                          = {{ module.activity_types.map(t => ((t.type_score || 0) * (t.weight_used || 0) / 100).toFixed(2) + '%').join(' + ') }} = <span class="font-bold">{{ module.activity_score || 0 }}%</span>
+                        </div>
+                      </div>
+
+                      <!-- Individual Activity Type Cards -->
+                      <div class="space-y-1.5">
+                        <div
+                          v-for="typeScore in module.activity_types"
+                          :key="typeScore.type"
+                          class="bg-purple-50 dark:bg-purple-900/20 rounded px-2.5 py-2 text-xs border border-purple-200 dark:border-purple-700"
+                        >
+                          <div class="flex justify-between items-center mb-1.5">
+                            <span class="font-semibold text-purple-900 dark:text-purple-100">{{ typeScore.type }}</span>
+                            <span class="text-purple-700 dark:text-purple-300 font-bold text-sm">{{ typeScore.type_score || 0 }}%</span>
+                          </div>
+                          
+                          <div class="grid grid-cols-2 gap-2 mb-1.5">
+                            <div class="text-purple-600 dark:text-purple-400 text-[10px]">
+                              Weight: <span class="font-semibold">{{ (typeScore.weight_used || 0).toFixed(1) }}%</span>
+                            </div>
+                            <div class="text-purple-600 dark:text-purple-400 text-[10px]">
+                              Completed: <span class="font-semibold">{{ typeScore.completed_count }}/{{ typeScore.total_count }}</span>
+                            </div>
+                          </div>
+
+                          <!-- Contribution Calculation -->
+                          <div class="bg-white dark:bg-gray-800 rounded px-2 py-1 mb-1.5 border border-purple-100 dark:border-purple-800">
+                            <div class="text-purple-800 dark:text-purple-200 text-[10px]">
+                              Contribution: {{ typeScore.type_score || 0 }}% × {{ (typeScore.weight_used || 0).toFixed(1) }}% = 
+                              <span class="font-bold">{{ ((typeScore.type_score || 0) * (typeScore.weight_used || 0) / 100).toFixed(2) }}%</span>
+                            </div>
+                          </div>
+                          
+                          <div class="bg-purple-200 dark:bg-purple-800 rounded-full h-1.5">
+                            <div
+                              class="bg-purple-600 dark:bg-purple-400 h-1.5 rounded-full transition-all duration-300"
+                              :style="{ width: `${typeScore.type_score || 0}%` }"
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     <!-- Activity Details -->
-                    <div v-if="module.activities && module.activities.length > 0" class="mt-3 pt-2 border-t border-blue-200">
-                      <div class="text-xs font-medium text-blue-800 mb-2">Activity Breakdown:</div>
+                    <div v-if="module.activities && module.activities.length > 0" class="mt-3 pt-2 border-t border-blue-200 dark:border-blue-700">
+                      <div class="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">Activity Breakdown:</div>
                       <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                          <span class="text-blue-700 font-medium">Completed:</span>
-                          <span class="text-blue-900">{{ module.activities.filter(a => a.status === 'completed').length }}/{{ module.activities.length }}</span>
+                          <span class="text-blue-700 dark:text-blue-300 font-medium">Completed:</span>
+                          <span class="text-blue-900 dark:text-blue-100">{{ module.activities.filter(a => a.status === 'completed').length }}/{{ module.activities.length }}</span>
                         </div>
                         <div>
-                          <span class="text-blue-700 font-medium">Progress:</span>
-                          <span class="text-blue-900">{{ Math.round((module.activities.filter(a => a.status === 'completed').length / module.activities.length) * 100) }}%</span>
+                          <span class="text-blue-700 dark:text-blue-300 font-medium">Progress:</span>
+                          <span class="text-blue-900 dark:text-blue-100">{{ Math.round((module.activities.filter(a => a.status === 'completed').length / module.activities.length) * 100) }}%</span>
                         </div>
                       </div>
                       
-                      <!-- Activity Type Breakdown -->
+                      <!-- Activity Type Count -->
                       <div class="mt-2 flex flex-wrap gap-1">
                         <template v-for="activityType in getUniqueActivityTypes(module.activities)" :key="activityType">
-                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
                             {{ activityType }}: {{ getActivityTypeCount(module.activities, activityType) }}
                           </span>
                         </template>
@@ -333,23 +438,23 @@
           </div>
 
           <!-- Activity Details -->
-          <div class="bg-white shadow-sm rounded-lg">
+          <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border dark:border-gray-700">
             <div class="p-6">
-              <h4 class="text-lg font-medium text-gray-900 mb-4">Activity Breakdown</h4>
+              <h4 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Activity Breakdown</h4>
               <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Activity
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Type
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Status
                       </th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Score
                       </th>
                       <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">

@@ -208,6 +208,48 @@ class GradeController extends Controller
     }
 
     /**
+     * Get specific student's grade report data for instructor/admin view
+     */
+    public function getStudentGradeDataForInstructor(Request $request, int $studentUserId, int $courseId): JsonResponse
+    {
+        $user = Auth::user();
+
+        if (!$user->isInstructor() && !$user->isAdmin()) {
+            abort(403, 'Access denied');
+        }
+
+        $course = Course::findOrFail($courseId);
+
+        if ($user->isInstructor() && !$user->isAdmin()) {
+            $ownsCourse = Course::where('id', $courseId)
+                ->whereHas('instructor', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                ->exists();
+
+            if (!$ownsCourse) {
+                abort(403, 'Access denied');
+            }
+        }
+
+        $student = Student::where('user_id', $studentUserId)->firstOrFail();
+
+        $isEnrolled = $student->courseEnrollments()
+            ->where('course_id', $courseId)
+            ->exists();
+
+        if (!$isEnrolled) {
+            return response()->json([
+                'message' => 'Student is not enrolled in this course.'
+            ], 404);
+        }
+
+        $courseGrades = $this->gradeCalculator->calculateStudentCourseGrades($student->user_id, $courseId);
+
+        return response()->json($courseGrades);
+    }
+
+    /**
      * Export student's grade report as PDF
      */
     public function exportStudentPDF(Request $request, int $courseId = null)

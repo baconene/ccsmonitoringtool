@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { Search } from 'lucide-vue-next';
-import type { User } from '@/types';
+import { Search, HelpCircle } from 'lucide-vue-next';
+import type { User, Role } from '@/types';
 import NewUserModal from '@/pages/rolemanagement/NewUserModal.vue';
 import EditUserModal from '@/pages/rolemanagement/EditUserModal.vue';
 import DeleteConfirmationModal from '@/pages/rolemanagement/DeleteConfirmationModal.vue';
@@ -10,11 +10,14 @@ import UserFilter from '@/pages/rolemanagement/UserFilter.vue';
 
 const props = defineProps<{
   users: User[];
+  roles?: Role[];
+  getRoleBadgeColor?: (roleName: string) => string;
 }>();
 
 const showNewUserModal = ref(false);
 const showEditUserModal = ref(false);
 const showDeleteModal = ref(false);
+const showRolesHelpModal = ref(false);
 const userToEdit = ref<User | null>(null);
 const userToDelete = ref<User | null>(null);
 
@@ -173,6 +176,14 @@ const confirmDeleteUser = () => {
   }
 };
 
+const openRolesHelpModal = () => {
+  showRolesHelpModal.value = true;
+};
+
+const closeRolesHelpModal = () => {
+  showRolesHelpModal.value = false;
+};
+
 // Format date for display
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -185,15 +196,24 @@ const formatDate = (dateString: string) => {
     <div class="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Users</h2>
-        <button
-          @click="openNewUserModal"
-          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          Add User
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            @click="openNewUserModal"
+            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add User
+          </button>
+          <button
+            @click="openRolesHelpModal"
+            class="inline-flex items-center justify-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            title="View system roles and permissions"
+          >
+            <HelpCircle class="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       <!-- User Filter Component -->
@@ -309,6 +329,50 @@ const formatDate = (dateString: string) => {
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Roles Help Popover -->
+    <div v-if="showRolesHelpModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" @click="closeRolesHelpModal">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-xl max-h-[85vh] overflow-y-auto" @click.stop>
+        <!-- Header -->
+        <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 sm:px-6 py-4 flex justify-between items-center rounded-t-xl">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <HelpCircle class="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+            <h2 class="text-lg sm:text-xl font-bold">System Roles</h2>
+          </div>
+          <button @click="closeRolesHelpModal" class="text-white hover:text-gray-200 transition-colors flex-shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-4 sm:p-6 space-y-3 sm:space-y-4">
+          <div v-if="props.roles && props.roles.length > 0" v-for="role in props.roles" :key="role.id" class="border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+              <div class="flex items-center space-x-2 sm:space-x-3 flex-wrap">
+                <span :class="`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${props.getRoleBadgeColor ? props.getRoleBadgeColor(role.name) : 'bg-gray-100 text-gray-800'}`">
+                  {{ role.display_name }}
+                </span>
+                <span class="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">{{ role.name }}</span>
+              </div>
+              <span :class="`inline-flex items-center px-2 py-1 text-xs font-medium rounded flex-shrink-0 ${role.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'}`">
+                {{ role.is_active ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-300">{{ role.description }}</p>
+          </div>
+          <div v-else class="text-center py-6 sm:py-8">
+            <p class="text-sm text-gray-500 dark:text-gray-400">No roles available</p>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 dark:bg-gray-700/50 px-4 sm:px-6 py-3 rounded-b-xl border-t border-gray-200 dark:border-gray-600">
+          <button @click="closeRolesHelpModal" class="w-full px-3 sm:px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors font-medium">Close</button>
+        </div>
+      </div>
     </div>
 
     <!-- New User Modal -->

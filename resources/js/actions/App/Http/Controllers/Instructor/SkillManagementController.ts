@@ -182,7 +182,7 @@ store.post = (args: { module: number | { id: number } } | [module: number | { id
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Instructor\SkillManagementController::update
- * @see app/Http/Controllers/Instructor/SkillManagementController.php:73
+ * @see app/Http/Controllers/Instructor/SkillManagementController.php:76
  * @route '/skills/{skill}'
  */
 export const update = (args: { skill: number | { id: number } } | [skill: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -197,7 +197,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Instructor\SkillManagementController::update
- * @see app/Http/Controllers/Instructor/SkillManagementController.php:73
+ * @see app/Http/Controllers/Instructor/SkillManagementController.php:76
  * @route '/skills/{skill}'
  */
 update.url = (args: { skill: number | { id: number } } | [skill: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -230,7 +230,7 @@ update.url = (args: { skill: number | { id: number } } | [skill: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Instructor\SkillManagementController::update
- * @see app/Http/Controllers/Instructor/SkillManagementController.php:73
+ * @see app/Http/Controllers/Instructor/SkillManagementController.php:76
  * @route '/skills/{skill}'
  */
 update.put = (args: { skill: number | { id: number } } | [skill: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -240,7 +240,7 @@ update.put = (args: { skill: number | { id: number } } | [skill: number | { id: 
 
     /**
 * @see \App\Http\Controllers\Instructor\SkillManagementController::update
- * @see app/Http/Controllers/Instructor/SkillManagementController.php:73
+ * @see app/Http/Controllers/Instructor/SkillManagementController.php:76
  * @route '/skills/{skill}'
  */
     const updateForm = (args: { skill: number | { id: number } } | [skill: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -255,7 +255,7 @@ update.put = (args: { skill: number | { id: number } } | [skill: number | { id: 
 
             /**
 * @see \App\Http\Controllers\Instructor\SkillManagementController::update
- * @see app/Http/Controllers/Instructor/SkillManagementController.php:73
+ * @see app/Http/Controllers/Instructor/SkillManagementController.php:76
  * @route '/skills/{skill}'
  */
         updateForm.put = (args: { skill: number | { id: number } } | [skill: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -271,7 +271,7 @@ update.put = (args: { skill: number | { id: number } } | [skill: number | { id: 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\Instructor\SkillManagementController::destroy
- * @see app/Http/Controllers/Instructor/SkillManagementController.php:99
+ * @see app/Http/Controllers/Instructor/SkillManagementController.php:102
  * @route '/skills/{skill}'
  */
 export const destroy = (args: { skill: number | { id: number } } | [skill: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -286,7 +286,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Instructor\SkillManagementController::destroy
- * @see app/Http/Controllers/Instructor/SkillManagementController.php:99
+ * @see app/Http/Controllers/Instructor/SkillManagementController.php:102
  * @route '/skills/{skill}'
  */
 destroy.url = (args: { skill: number | { id: number } } | [skill: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -319,7 +319,7 @@ destroy.url = (args: { skill: number | { id: number } } | [skill: number | { id:
 
 /**
 * @see \App\Http\Controllers\Instructor\SkillManagementController::destroy
- * @see app/Http/Controllers/Instructor/SkillManagementController.php:99
+ * @see app/Http/Controllers/Instructor/SkillManagementController.php:102
  * @route '/skills/{skill}'
  */
 destroy.delete = (args: { skill: number | { id: number } } | [skill: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -329,7 +329,7 @@ destroy.delete = (args: { skill: number | { id: number } } | [skill: number | { 
 
     /**
 * @see \App\Http\Controllers\Instructor\SkillManagementController::destroy
- * @see app/Http/Controllers/Instructor/SkillManagementController.php:99
+ * @see app/Http/Controllers/Instructor/SkillManagementController.php:102
  * @route '/skills/{skill}'
  */
     const destroyForm = (args: { skill: number | { id: number } } | [skill: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -344,7 +344,7 @@ destroy.delete = (args: { skill: number | { id: number } } | [skill: number | { 
 
             /**
 * @see \App\Http\Controllers\Instructor\SkillManagementController::destroy
- * @see app/Http/Controllers/Instructor/SkillManagementController.php:99
+ * @see app/Http/Controllers/Instructor/SkillManagementController.php:102
  * @route '/skills/{skill}'
  */
         destroyForm.delete = (args: { skill: number | { id: number } } | [skill: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -439,7 +439,7 @@ addActivities.post = (args: { module: number | { id: number } } | [module: numbe
     addActivities.form = addActivitiesForm
 /**
 * @see \App\Http\Controllers\ModuleController::removeActivity
- * @see app/Http/Controllers/ModuleController.php:179
+ * @see app/Http/Controllers/ModuleController.php:198
  * @route '/modules/{module}/activities/{activity}'
  */
 export const removeActivity = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -454,7 +454,7 @@ removeActivity.definition = {
 
 /**
 * @see \App\Http\Controllers\ModuleController::removeActivity
- * @see app/Http/Controllers/ModuleController.php:179
+ * @see app/Http/Controllers/ModuleController.php:198
  * @route '/modules/{module}/activities/{activity}'
  */
 removeActivity.url = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions) => {
@@ -482,7 +482,7 @@ removeActivity.url = (args: { module: number | { id: number }, activity: string 
 
 /**
 * @see \App\Http\Controllers\ModuleController::removeActivity
- * @see app/Http/Controllers/ModuleController.php:179
+ * @see app/Http/Controllers/ModuleController.php:198
  * @route '/modules/{module}/activities/{activity}'
  */
 removeActivity.delete = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -492,7 +492,7 @@ removeActivity.delete = (args: { module: number | { id: number }, activity: stri
 
     /**
 * @see \App\Http\Controllers\ModuleController::removeActivity
- * @see app/Http/Controllers/ModuleController.php:179
+ * @see app/Http/Controllers/ModuleController.php:198
  * @route '/modules/{module}/activities/{activity}'
  */
     const removeActivityForm = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -507,7 +507,7 @@ removeActivity.delete = (args: { module: number | { id: number }, activity: stri
 
             /**
 * @see \App\Http\Controllers\ModuleController::removeActivity
- * @see app/Http/Controllers/ModuleController.php:179
+ * @see app/Http/Controllers/ModuleController.php:198
  * @route '/modules/{module}/activities/{activity}'
  */
         removeActivityForm.delete = (args: { module: number | { id: number }, activity: string | number } | [module: number | { id: number }, activity: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -523,7 +523,7 @@ removeActivity.delete = (args: { module: number | { id: number }, activity: stri
     removeActivity.form = removeActivityForm
 /**
 * @see \App\Http\Controllers\ModuleController::uploadDocuments
- * @see app/Http/Controllers/ModuleController.php:189
+ * @see app/Http/Controllers/ModuleController.php:235
  * @route '/modules/{module}/documents'
  */
 export const uploadDocuments = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -538,7 +538,7 @@ uploadDocuments.definition = {
 
 /**
 * @see \App\Http\Controllers\ModuleController::uploadDocuments
- * @see app/Http/Controllers/ModuleController.php:189
+ * @see app/Http/Controllers/ModuleController.php:235
  * @route '/modules/{module}/documents'
  */
 uploadDocuments.url = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -571,7 +571,7 @@ uploadDocuments.url = (args: { module: number | { id: number } } | [module: numb
 
 /**
 * @see \App\Http\Controllers\ModuleController::uploadDocuments
- * @see app/Http/Controllers/ModuleController.php:189
+ * @see app/Http/Controllers/ModuleController.php:235
  * @route '/modules/{module}/documents'
  */
 uploadDocuments.post = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -581,7 +581,7 @@ uploadDocuments.post = (args: { module: number | { id: number } } | [module: num
 
     /**
 * @see \App\Http\Controllers\ModuleController::uploadDocuments
- * @see app/Http/Controllers/ModuleController.php:189
+ * @see app/Http/Controllers/ModuleController.php:235
  * @route '/modules/{module}/documents'
  */
     const uploadDocumentsForm = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -591,7 +591,7 @@ uploadDocuments.post = (args: { module: number | { id: number } } | [module: num
 
             /**
 * @see \App\Http\Controllers\ModuleController::uploadDocuments
- * @see app/Http/Controllers/ModuleController.php:189
+ * @see app/Http/Controllers/ModuleController.php:235
  * @route '/modules/{module}/documents'
  */
         uploadDocumentsForm.post = (args: { module: number | { id: number } } | [module: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

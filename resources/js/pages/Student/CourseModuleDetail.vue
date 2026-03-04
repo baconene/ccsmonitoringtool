@@ -1,5 +1,5 @@
 <template>
-  <AppLayout :title="`${module.title} - ${course.title}`">
+  <AppLayout :title="`${module.title} - ${course.title}`" :breadcrumbs="breadcrumbs">
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <!-- Module Header -->
@@ -204,10 +204,16 @@ interface Stats {
   completion_percentage: number;
 }
 
+interface Breadcrumb {
+  title: string;
+  href: string;
+}
+
 const props = defineProps<{
   course: Course;
   module: Module;
   stats: Stats;
+  breadcrumbs: Breadcrumb[];
 }>();
 
 const markingComplete = ref(false);
