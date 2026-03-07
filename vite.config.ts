@@ -29,6 +29,10 @@ export default defineConfig({
         }),
         tailwindcss(),
         wayfinder({
+            // Temporary workaround: an ACL issue blocks writes under
+            // resources/js/actions/App/Http/Controllers/Api on this machine.
+            // Keep routes/form variants generation enabled for typed routing.
+            actions: false,
             formVariants: true,
         }),
         vue({

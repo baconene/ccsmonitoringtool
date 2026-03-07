@@ -22,22 +22,29 @@ class StudentManagementController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
+        $isAdmin = $user->isAdmin();
         $instructor = $user->instructor;
 
-        if (!$instructor) {
-            abort(403, 'You must be an instructor to access this page.');
+        if (!$isAdmin && !$instructor) {
+            abort(403, 'You must be an instructor or admin to access this page.');
         }
 
-        // Get instructor's courses
-        $courses = Course::where('instructor_id', $instructor->id)
+        // Admins can see all courses; instructors only see their own courses.
+        $coursesQuery = Course::query();
+        if (!$isAdmin) {
+            $coursesQuery->where('instructor_id', $instructor->id);
+        }
+
+        $courses = $coursesQuery
             ->with(['gradeLevels'])
+            ->withCount('courseEnrollments')
             ->get()
             ->map(function ($course) {
                 return [
                     'id' => $course->id,
                     'name' => $course->name,
                     'title' => $course->title,
-                    'total_students' => $course->courseEnrollments()->count(),
+                    'total_students' => $course->course_enrollments_count,
                 ];
             });
 
@@ -53,6 +60,94 @@ class StudentManagementController extends Controller
         return Inertia::render('Instructor/StudentManagement', [
             'courses' => $courses,
             'gradeLevels' => $gradeLevels,
+            'isAdmin' => $isAdmin,
+        ]);
+    }
+
+    /**
+     * Get all students and their enrollment progress across all courses (admin only).
+     */
+    public function getAllStudents(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user->isAdmin()) {
+            abort(403, 'Only admins can view all students across all courses.');
+        }
+
+        $search = $request->input('search', '');
+        $gradeLevel = $request->input('grade_level');
+        $section = $request->input('section');
+        $sortBy = $request->input('sort_by', 'name');
+        $sortOrder = $request->input('sort_order', 'asc');
+
+        $students = Student::with([
+            'user',
+            'gradeLevel',
+            'courseEnrollments',
+        ])->withCount('courseEnrollments')->get()->map(function ($student) {
+            $avgGrade = StudentActivity::where('student_id', $student->id)
+                ->whereNotNull('grade')
+                ->avg('grade');
+
+            $firstEnrollment = $student->courseEnrollments
+                ->whereNotNull('enrolled_at')
+                ->sortBy('enrolled_at')
+                ->first();
+
+            return [
+                'id' => $student->id,
+                'user_id' => $student->user_id,
+                'student_id_text' => $student->student_id_text,
+                'name' => $student->user->name ?? 'N/A',
+                'email' => $student->user->email ?? 'N/A',
+                'section' => $student->section,
+                'grade_level' => $student->gradeLevel ? [
+                    'id' => $student->gradeLevel->id,
+                    'name' => $student->gradeLevel->name,
+                    'display_name' => $student->gradeLevel->display_name,
+                ] : null,
+                'enrolled_at' => $firstEnrollment?->enrolled_at,
+                'courses_taken' => $student->course_enrollments_count,
+                'average_grade' => $avgGrade !== null ? round($avgGrade, 2) : null,
+            ];
+        })->values();
+
+        if ($search) {
+            $students = $students->filter(function ($student) use ($search) {
+                return stripos($student['name'], $search) !== false ||
+                       stripos($student['email'], $search) !== false ||
+                       stripos($student['student_id_text'], $search) !== false;
+            });
+        }
+
+        if ($gradeLevel) {
+            $students = $students->filter(function ($student) use ($gradeLevel) {
+                return $student['grade_level'] && $student['grade_level']['id'] == $gradeLevel;
+            });
+        }
+
+        if ($section) {
+            $students = $students->filter(function ($student) use ($section) {
+                return $student['section'] === $section;
+            });
+        }
+
+        $students = $students->sortBy([
+            function ($a, $b) use ($sortBy, $sortOrder) {
+                $valueA = $a[$sortBy] ?? '';
+                $valueB = $b[$sortBy] ?? '';
+
+                if ($sortOrder === 'asc') {
+                    return $valueA <=> $valueB;
+                }
+
+                return $valueB <=> $valueA;
+            }
+        ])->values();
+
+        return response()->json([
+            'students' => $students,
         ]);
     }
 
@@ -64,8 +159,7 @@ class StudentManagementController extends Controller
         $user = auth()->user();
         $instructor = $user->instructor;
 
-        // Verify instructor owns this course
-        if ($course->instructor_id !== $instructor->id) {
+        if (!$user->isAdmin() && (!$instructor || $course->instructor_id !== $instructor->id)) {
             abort(403, 'Unauthorized access to this course.');
         }
 
@@ -185,8 +279,7 @@ class StudentManagementController extends Controller
         $user = auth()->user();
         $instructor = $user->instructor;
 
-        // Verify instructor owns this course
-        if ($course->instructor_id !== $instructor->id) {
+        if (!$user->isAdmin() && (!$instructor || $course->instructor_id !== $instructor->id)) {
             abort(403, 'Unauthorized access to this course.');
         }
 
@@ -267,8 +360,7 @@ class StudentManagementController extends Controller
         $user = auth()->user();
         $instructor = $user->instructor;
 
-        // Verify instructor owns this course
-        if ($course->instructor_id !== $instructor->id) {
+        if (!$user->isAdmin() && (!$instructor || $course->instructor_id !== $instructor->id)) {
             abort(403, 'Unauthorized access to this course.');
         }
 
@@ -378,11 +470,15 @@ class StudentManagementController extends Controller
         $user = auth()->user();
         $instructor = $user->instructor;
 
-        if (!$instructor) {
-            abort(403, 'You must be an instructor to access this page.');
+        if (!$user->isAdmin() && !$instructor) {
+            abort(403, 'You must be an instructor or admin to access this page.');
         }
 
-        $courses = Course::where('instructor_id', $instructor->id)->get();
+        $coursesQuery = Course::query();
+        if (!$user->isAdmin()) {
+            $coursesQuery->where('instructor_id', $instructor->id);
+        }
+        $courses = $coursesQuery->get();
         
         $totalStudents = CourseEnrollment::whereIn('course_id', $courses->pluck('id'))->distinct('student_id')->count('student_id');
         

@@ -46,14 +46,20 @@ interface Student {
     name: string;
     display_name: string;
   } | null;
-  enrolled_at: string;
-  course_progress: number;
-  is_completed: boolean;
-  total_activities: number;
-  completed_activities: number;
-  submitted_activities: number;
-  pending_activities: number;
+  enrolled_at: string | null;
+  course_progress?: number;
+  is_completed?: boolean;
+  total_activities?: number;
+  completed_activities?: number;
+  submitted_activities?: number;
+  pending_activities?: number;
   average_grade: number | null;
+  courses_taken?: number;
+  course?: {
+    id: number;
+    name: string;
+    title: string;
+  };
 }
 
 interface Statistics {
@@ -67,6 +73,7 @@ interface Statistics {
 interface Props {
   courses: Course[];
   gradeLevels: GradeLevel[];
+  isAdmin: boolean;
 }
 
 const props = defineProps<Props>();
@@ -97,6 +104,7 @@ const showFilters = ref(false);
 const isExporting = ref(false);
 const courseSearchQuery = ref('');
 const showCourseDropdown = ref(false);
+const viewingAllStudents = ref(false);
 
 // Computed
 const filteredCourses = computed(() => {
@@ -179,6 +187,7 @@ const fetchStatistics = async () => {
 
 const selectCourse = async (course: Course) => {
   selectedCourse.value = course;
+  viewingAllStudents.value = false;
   showCourseDropdown.value = false;
   courseSearchQuery.value = '';
   loading.value = true;
@@ -202,6 +211,36 @@ const selectCourse = async (course: Course) => {
   }
 };
 
+const fetchAllStudents = async () => {
+  loading.value = true;
+
+  try {
+    const response = await axios.get('/student-management/students', {
+      params: {
+        search: searchQuery.value,
+        grade_level: selectedGradeLevel.value,
+        section: selectedSection.value,
+        sort_by: sortBy.value,
+        sort_order: sortOrder.value,
+      }
+    });
+
+    students.value = response.data.students;
+  } catch (error) {
+    console.error('Failed to fetch all students:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const viewAllStudents = async () => {
+  selectedCourse.value = null;
+  viewingAllStudents.value = true;
+  showCourseDropdown.value = false;
+  courseSearchQuery.value = '';
+  await fetchAllStudents();
+};
+
 const clearFilters = () => {
   searchQuery.value = '';
   selectedGradeLevel.value = null;
@@ -210,6 +249,11 @@ const clearFilters = () => {
 };
 
 const refreshStudents = () => {
+  if (viewingAllStudents.value) {
+    fetchAllStudents();
+    return;
+  }
+
   if (selectedCourse.value) {
     selectCourse(selectedCourse.value);
   }
@@ -224,11 +268,12 @@ const viewStudentProfile = (userId: number) => {
 };
 
 const viewStudentActivities = async (student: Student) => {
-  if (!selectedCourse.value) return;
+  const courseId = viewingAllStudents.value ? student.course?.id : selectedCourse.value?.id;
+  if (!courseId) return;
   
   try {
     const response = await axios.get(
-      `/student-management/course/${selectedCourse.value.id}/student/${student.id}/activities`
+      `/student-management/course/${courseId}/student/${student.id}/activities`
     );
     
     // Show modal with activity details
@@ -307,6 +352,11 @@ const handleCourseDropdownBlur = () => {
 onMounted(() => {
   fetchStatistics();
 
+  if (props.isAdmin) {
+    viewAllStudents();
+    return;
+  }
+
   if (props.courses.length > 0) {
     selectCourse(props.courses[0]);
   }
@@ -360,7 +410,7 @@ onMounted(() => {
         </div>
 
         <!-- Course Selection -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        <div v-if="!props.isAdmin" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
           <div class="flex items-center gap-3 mb-4">
             <BookOpen class="w-5 h-5 text-gray-600 dark:text-gray-400" />
             <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -377,7 +427,7 @@ onMounted(() => {
                 @focus="showCourseDropdown = true"
                 @blur="handleCourseDropdownBlur"
                 type="text"
-                :placeholder="selectedCourse ? selectedCourse.title : 'Search and select a course...'"
+                :placeholder="selectedCourse ? selectedCourse.title : (viewingAllStudents ? 'Viewing all students across all courses' : 'Search and select a course...')"
                 class="w-full pl-10 pr-10 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-100"
               />
               <ChevronDown 
@@ -433,6 +483,16 @@ onMounted(() => {
               No courses found
             </div>
           </div>
+
+          <div v-if="props.isAdmin" class="mt-4">
+            <button
+              @click="viewAllStudents"
+              class="inline-flex items-center gap-2 px-4 py-2 border border-indigo-300 dark:border-indigo-700 rounded-lg text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
+            >
+              <GraduationCap class="w-4 h-4" />
+              <span>View All Students (All Courses)</span>
+            </button>
+          </div>
           
           <!-- Selected Course Display -->
           <div v-if="selectedCourse" class="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-200 dark:border-indigo-800 rounded-lg">
@@ -461,10 +521,26 @@ onMounted(() => {
               </button>
             </div>
           </div>
+
+          <div v-else-if="viewingAllStudents" class="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-200 dark:border-indigo-800 rounded-lg">
+            <div class="flex items-center gap-2">
+              <GraduationCap class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+              <h3 class="font-semibold text-gray-900 dark:text-gray-100">
+                All Students Across All Courses
+              </h3>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 ml-7">
+              Showing every student enrollment and course progress record.
+            </p>
+          </div>
+        </div>
+
+        <div v-else class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+          Showing one row per student across all enrollments.
         </div>
 
         <!-- Student List -->
-        <div v-if="selectedCourse" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div v-if="selectedCourse || viewingAllStudents" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <!-- Toolbar -->
           <div class="p-6 border-b border-gray-200 dark:border-gray-700">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -502,7 +578,7 @@ onMounted(() => {
                 
                 <button
                   @click="exportReport('csv')"
-                  :disabled="isExporting || students.length === 0"
+                  :disabled="isExporting || students.length === 0 || viewingAllStudents"
                   class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
                 >
                   <Download class="w-4 h-4" />
@@ -603,10 +679,13 @@ onMounted(() => {
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Section
                   </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th v-if="viewingAllStudents" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Courses Taken
+                  </th>
+                  <th v-if="!viewingAllStudents" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Progress
                   </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th v-if="!viewingAllStudents" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Activities
                   </th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -656,26 +735,31 @@ onMounted(() => {
                     </span>
                     <span v-else class="text-sm text-gray-500 dark:text-gray-400">N/A</span>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+                  <td v-if="viewingAllStudents" class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {{ student.courses_taken ?? 0 }}
+                    </span>
+                  </td>
+                  <td v-if="!viewingAllStudents" class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center gap-2">
                       <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 w-24">
                         <div
-                          :class="[getProgressColor(student.course_progress), 'h-2 rounded-full transition-all']"
-                          :style="{ width: `${student.course_progress}%` }"
+                          :class="[getProgressColor(student.course_progress || 0), 'h-2 rounded-full transition-all']"
+                          :style="{ width: `${student.course_progress || 0}%` }"
                         ></div>
                       </div>
                       <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {{ Math.round(student.course_progress) }}%
+                        {{ Math.round(student.course_progress || 0) }}%
                       </span>
                     </div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+                  <td v-if="!viewingAllStudents" class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm">
                       <div class="text-gray-900 dark:text-gray-100">
-                        {{ student.completed_activities }}/{{ student.total_activities }} completed
+                        {{ student.completed_activities || 0 }}/{{ student.total_activities || 0 }} completed
                       </div>
                       <div class="text-gray-500 dark:text-gray-400">
-                        {{ student.submitted_activities }} submitted
+                        {{ student.submitted_activities || 0 }} submitted
                       </div>
                     </div>
                   </td>
@@ -686,7 +770,7 @@ onMounted(() => {
                     <span v-else class="text-sm text-gray-500 dark:text-gray-400">N/A</span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {{ new Date(student.enrolled_at).toLocaleDateString() }}
+                    {{ student.enrolled_at ? new Date(student.enrolled_at).toLocaleDateString() : 'N/A' }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div class="flex items-center gap-2">
@@ -698,6 +782,7 @@ onMounted(() => {
                         <Eye class="w-5 h-5" />
                       </button>
                       <button
+                        v-if="!viewingAllStudents"
                         @click="viewStudentActivities(student)"
                         class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                         title="View Activities"

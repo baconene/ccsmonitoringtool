@@ -565,6 +565,7 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('student-management')->name('student-management.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Instructor\StudentManagementController::class, 'index'])->name('index');
             Route::get('/statistics', [\App\Http\Controllers\Instructor\StudentManagementController::class, 'getStatistics'])->name('statistics');
+            Route::get('/students', [\App\Http\Controllers\Instructor\StudentManagementController::class, 'getAllStudents'])->name('students.index');
             Route::get('/course/{course}/students', [\App\Http\Controllers\Instructor\StudentManagementController::class, 'getStudentsByCourse'])->name('course.students');
             Route::get('/course/{course}/student/{student}/activities', [\App\Http\Controllers\Instructor\StudentManagementController::class, 'getStudentActivities'])->name('student.activities');
             Route::get('/course/{course}/export', [\App\Http\Controllers\Instructor\StudentManagementController::class, 'exportReport'])->name('export');
