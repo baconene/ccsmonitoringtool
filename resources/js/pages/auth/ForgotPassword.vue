@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import PasswordResetLinkController from '@/actions/App/Http/Controllers/Auth/PasswordResetLinkController';
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
@@ -84,7 +83,8 @@ defineProps<{
 
                 <!-- Forgot Password Form -->
                 <Form
-                    v-bind="PasswordResetLinkController.store.form()"
+                    action="/forgot-password"
+                    method="post"
                     :reset-on-success="false"
                     :preserve-state="true"
                     v-slot="{ errors, processing }"

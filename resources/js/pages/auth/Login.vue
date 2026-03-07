@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
 import InputError from '@/components/InputError.vue';
 import { Form, Head, Link } from '@inertiajs/vue3';
 import { LoaderCircle, ArrowLeft, Sparkles } from 'lucide-vue-next';
@@ -83,7 +82,8 @@ const handleLoginSuccess = () => {
 
                 <!-- Login Form -->
                 <Form
-                    v-bind="AuthenticatedSessionController.store.form()"
+                    action="/login"
+                    method="post"
                     :reset-on-success="['password']"
                     :preserve-state="false"
                     :preserve-scroll="false"

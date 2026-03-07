@@ -71,6 +71,7 @@ Route::middleware(['auth', 'verified'])->prefix('api')->group(function () {
     // Student Assessment & Competency Evaluation routes (session-authenticated)
     Route::prefix('student')->middleware('role:student')->group(function () {
         Route::get('/assessment', [App\Http\Controllers\Api\Student\AssessmentController::class, 'show']);
+        Route::get('/assessment-details', [App\Http\Controllers\StudentAssessmentDetailController::class, 'indexForCurrentStudent']);
         Route::get('/skills/assessments', [App\Http\Controllers\Api\Student\AssessmentController::class, 'getSkillAssessments']);
         Route::get('/strengths', [App\Http\Controllers\Api\Student\AssessmentController::class, 'getStrengths']);
         Route::get('/weaknesses', [App\Http\Controllers\Api\Student\AssessmentController::class, 'getWeaknesses']);
@@ -326,6 +327,14 @@ Route::middleware(['auth', 'role:instructor,admin'])->group(function () {
             'initialGradeReport' => $initialGradeReport,
         ]);
     })->name('student.details');
+
+    // Student assessment details (manual records by instructor/admin)
+    Route::prefix('api/student/{student}/assessment-details')->group(function () {
+        Route::get('/', [\App\Http\Controllers\StudentAssessmentDetailController::class, 'index']);
+        Route::post('/', [\App\Http\Controllers\StudentAssessmentDetailController::class, 'store']);
+        Route::put('/{assessment}', [\App\Http\Controllers\StudentAssessmentDetailController::class, 'update']);
+        Route::delete('/{assessment}', [\App\Http\Controllers\StudentAssessmentDetailController::class, 'destroy']);
+    });
 });
 
 // Role management page (admin only)

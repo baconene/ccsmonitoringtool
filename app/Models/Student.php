@@ -212,6 +212,14 @@ class Student extends Model
     }
 
     /**
+     * Get manually recorded assessment details for this student.
+     */
+    public function assessmentDetails(): HasMany
+    {
+        return $this->hasMany(StudentAssessmentDetail::class, 'student_id', 'id');
+    }
+
+    /**
      * Check if student has completed a specific lesson.
      */
     public function hasCompletedLesson(int $lessonId): bool
